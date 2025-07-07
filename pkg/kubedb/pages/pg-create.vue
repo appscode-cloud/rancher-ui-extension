@@ -61,6 +61,7 @@ const pgList = ref<
     spec: Record<string, any>;
   }>
 >([]);
+
 const step = ref(1);
 
 const isDbConfig = ref(false);
@@ -203,7 +204,7 @@ const getPgList = async () => {
 
   try {
     const response = await $axios.get(
-      `/k8s/clusters/${clusterId.value}/api/v1/namespaces/${namespace}/services/ace-platform-api/proxy`
+      `/k8s/clusters/c-pgb8v/apis/kubedb.com/v1alpha2/namespaces/default/postgreses`
     );
     const data = response.data;
     pgList.value = data.items;
@@ -552,7 +553,7 @@ onMounted(() => {
         />
       </Accordion>
     </div>
-    <h1></h1>
+
     <YamlEditor
       v-if="step === 2"
       ref="yamleditor"
