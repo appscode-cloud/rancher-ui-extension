@@ -62,8 +62,6 @@ const pgList = ref<
 >([]);
 
 const step = ref(1);
-
-// Only keep variables needed for Additional Options
 const isMonitoring = ref(false);
 const isBackup = ref(false);
 const isArchiver = ref(false);
@@ -89,7 +87,7 @@ const { value: mode } = useField<string>("mode", "", {
   initialValue: "standalone",
 });
 
-// Keep only arrays needed for Additional Options and BasicDbConfig
+
 const databaseModes = ref(["standalone", "HA", "replica"]);
 const storageClasses = ref(["local-path", "longhorn"]);
 const alertsList = ref(["Critical", "Info", "None", "Warning"]);
@@ -152,7 +150,6 @@ const updateMode = (e: string) => {
   mode.value = e;
 };
 
-// Event handlers for AdvancedDbConfig
 const updateLabels = (e: Record<string, string>) => {
   labels.value = e;
 };

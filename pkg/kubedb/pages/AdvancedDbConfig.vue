@@ -26,19 +26,15 @@ const emit = defineEmits<{
   'update:dbConfiguration': [value: string];
 }>();
 
-// Local state variables - moved from main component
 const isDbConfig = ref(false);
 const isAuthCred = ref(false);
 const isReferSecret = ref(false);
 const isPitr = ref(false);
-
-// Data arrays - moved from main component
 const deletionPolicies = ref(["Delete", "Halt", "WipeOut", "DoNotTerminate"]);
 const secretsList = ref(["test1", "test2", "test3", "test4"]);
 const standbyModes = ref(["Hot", "Warm"]);
 const streamingModes = ref(["Synchronous", "Asynchronous"]);
 
-// Form fields
 const { value: deletionPolicy } = useField<string>("deletionPolicy", props.required);
 const { value: labels } = useField<Record<string, string>>("labels");
 const { value: annotations } = useField<Record<string, string>>("annotations");
@@ -50,7 +46,6 @@ const { value: pitrNamespace } = useField<string>("pitrNamespace");
 const { value: pitrName } = useField<string>("pitrName");
 const { value: streamingMode } = useField<string>("streamingMode");
 
-// Event handlers
 const updateLabels = (e: Record<string, string>) => {
   labels.value = e;
   emit('update:labels', e);
