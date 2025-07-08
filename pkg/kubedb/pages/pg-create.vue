@@ -1,18 +1,17 @@
 <script setup lang="ts">
+import BasicDbConfig from "./BasicDbConfig.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import { useForm, useField } from "vee-validate";
 import { useStore } from "vuex";
 import $axios from "../composables/axios";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
-import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
-import UnitInput from "@rancher/shell/components/form/UnitInput.vue";
-import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
 import Accordion from "@rancher/shell/rancher-components/Accordion/Accordion.vue";
 import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/ToggleSwitch.vue";
 import TextAreaAutoGrow from "@rancher/shell/rancher-components/Form/TextArea/TextAreaAutoGrow.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import KeyValue from "@rancher/shell/components/form/KeyValue.vue";
 import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
+import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
 
 const required = (value: unknown) => {
   if (!!value || value === 0) {
@@ -81,10 +80,10 @@ const { value: clusterId } = useField<string>("clusterId", required);
 const { value: name } = useField<string>("name", required);
 const { value: namespace } = useField<string>("namespace", required);
 const { value: version } = useField<string>("version", required);
-const { value: replicas } = useField<string>("replicas");
-const { value: machine } = useField<string>("machine");
-const { value: cpu } = useField<string>("cpu");
-const { value: memory } = useField<string>("memory");
+// const { value: replicas } = useField<string>("replicas");
+// const { value: machine } = useField<string>("machine");
+// const { value: cpu } = useField<string>("cpu");
+// const { value: memory } = useField<string>("memory");
 const { value: storageClass } = useField<string>("storageClass", required);
 const { value: storageSize } = useField<string>("storageSize", required);
 const { value: deletionPolicy } = useField<string>("deletionPolicy", required);
@@ -129,13 +128,6 @@ const machines = ref([
 ]);
 const standbyModes = ref(["Hot", "Warm"]);
 const streamingModes = ref(["Synchronous", "Asynchronous"]);
-
-const isCustom = computed(() => {
-  return machine.value === "custom";
-});
-const showReplicas = computed(() => {
-  return values.mode !== "standalone";
-});
 
 const previewTitle = computed(() => {
   return `Create Postgres: ${namespace.value}/${name.value}`;
@@ -271,130 +263,18 @@ onMounted(() => {
           :rules="[required]"
         />
       </div>
-      <!-- Basic -->
-      <div>
-        <div class="row mb-20">
-          <div class="col span-6">
-            <LabeledSelect
-              v-model:value="namespace"
-              :clearable="true"
-              :options="namespaces"
-              :disabled="false"
-              :searchable="true"
-              :multiple="false"
-              label="Namespace"
-              placeholder="Select Namespace"
-              required
-              :rules="[required]"
-            />
-          </div>
-
-          <div class="col span-6">
-            <LabeledInput
-              v-model:value="name"
-              label="Name"
-              placeholder="Database Name"
-              :disabled="false"
-              :min-height="30"
-              :required="true"
-              :rules="[required]"
-            />
-          </div>
-        </div>
-
-        <div class="row mb-20">
-          <div class="col span-6">
-            <LabeledSelect
-              v-model:value="version"
-              :clearable="true"
-              :options="versions"
-              :disabled="false"
-              :searchable="true"
-              :multiple="false"
-              label="Version"
-              placeholder="Select version"
-              required
-              :rules="[required]"
-            />
-          </div>
-          <div class="col span-6">
-            <RadioGroup
-              :value="mode"
-              name="database-mode"
-              label="Database Mode"
-              :options="databaseModes"
-              :row="true"
-              @update:value="updateMode"
-            />
-          </div>
-        </div>
-        <div class="mb-20">
-          <LabeledInput
-            v-if="showReplicas"
-            v-model:value="replicas"
-            type="number"
-            label="Replicas"
-            placeholder=""
-            :min-height="30"
-          />
-        </div>
-        <div class="mb-20">
-          <LabeledSelect
-            v-model:value="machine"
-            :options="machines"
-            :searchable="true"
-            :multiple="false"
-            label="Machine Profile"
-            placeholder="Select machine"
-          />
-        </div>
-
-        <div class="row mb-20" v-if="isCustom">
-          <div class="col span-6">
-            <UnitInput
-              v-model:value="cpu"
-              placeholder="cpu limits"
-              label="CPU"
-              base-unit="core"
-              :required="isCustom ? true : false"
-              :min="0"
-            />
-          </div>
-          <div class="col span-6">
-            <UnitInput
-              v-model:value="memory"
-              placeholder="memory limits"
-              label="Memory"
-              base-unit="Gi"
-              :required="isCustom ? true : false"
-              :min="0"
-            />
-          </div>
-        </div>
-
-        <div class="row mb-20">
-          <div class="col span-6">
-            <LabeledSelect
-              v-model:value="storageClass"
-              :options="storageClasses"
-              :searchable="true"
-              :multiple="false"
-              label="Storage Class"
-              placeholder="Select Storage Class"
-              required
-            />
-          </div>
-          <div class="col span-6">
-            <LabeledInput
-              v-model:value="storageSize"
-              label="Storage Size"
-              :disabled="false"
-              :min-height="30"
-              :required="true"
-            />
-          </div>
-        </div>
-      </div>
+      
+      <!-- Basic Configuration Component -->
+      <BasicDbConfig
+        :namespaces="namespaces"
+        :versions="versions"
+        :database-modes="databaseModes"
+        :machines="machines"
+        :storage-classes="storageClasses"
+        :required="required"
+        name-placeholder="Database Name"
+        @update:mode="updateMode"
+      />
 
       <!-- Advanced Configuration -->
       <Accordion title="Advanced Configuration" class="mb-20">
