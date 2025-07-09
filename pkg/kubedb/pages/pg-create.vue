@@ -1,13 +1,12 @@
 <script setup lang="ts">
 import BasicDbConfig from "./BasicDbConfig.vue";
 import AdvancedDbConfig from "./AdvancedDbConfig.vue";
+import AdditionalOptions from "./AdditionalOptions.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import { useForm, useField } from "vee-validate";
 import { useStore } from "vuex";
 import $axios from "../composables/axios";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
-import Accordion from "@rancher/shell/rancher-components/Accordion/Accordion.vue";
-import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/ToggleSwitch.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
 
@@ -87,7 +86,6 @@ const { value: mode } = useField<string>("mode", "", {
   initialValue: "standalone",
 });
 
-
 const databaseModes = ref(["standalone", "HA", "replica"]);
 const storageClasses = ref(["local-path", "longhorn"]);
 const alertsList = ref(["Critical", "Info", "None", "Warning"]);
@@ -160,6 +158,26 @@ const updateAnnotations = (e: Record<string, string>) => {
 
 const updateDbConfiguration = (e: string) => {
   dbConfiguration.value = e;
+};
+
+const updateIsMonitoring = (value: boolean) => {
+  isMonitoring.value = value;
+};
+
+const updateIsBackup = (value: boolean) => {
+  isBackup.value = value;
+};
+
+const updateIsArchiver = (value: boolean) => {
+  isArchiver.value = value;
+};
+
+const updateIsTLS = (value: boolean) => {
+  isTLS.value = value;
+};
+
+const updateIsExpose = (value: boolean) => {
+  isExpose.value = value;
 };
 
 const updatePayload = (e: KubeResource) => {
@@ -261,7 +279,6 @@ onMounted(() => {
         @update:mode="updateMode"
       />
 
-      <!-- Advanced Configuration Component -->
       <AdvancedDbConfig
         :namespaces="namespaces"
         :required="required"
@@ -270,53 +287,20 @@ onMounted(() => {
         @update:dbConfiguration="updateDbConfiguration"
       />
 
-      <!-- Additional Options -->
-      <Accordion title="Additional Options" class="mb-20">
-        <ToggleSwitch
-          class="mb-20"
-          :value="isMonitoring"
-          off-label="Enable Monitoring?"
-          @update:value="isMonitoring = !isMonitoring"
-        />
-        <LabeledSelect
-          v-if="isMonitoring"
-          class="mb-20"
-          v-model:value="alert"
-          :options="alertsList"
-          label="Alert Options"
-        />
-        <ToggleSwitch
-          class="mb-20"
-          :value="isBackup"
-          off-label="Enable Backup?"
-          @update:value="isBackup = !isBackup"
-        />
-        <ToggleSwitch
-          class="mb-20"
-          :value="isArchiver"
-          off-label="Enable Archiver?"
-          @update:value="isArchiver = !isArchiver"
-        />
-        <ToggleSwitch
-          class="mb-20"
-          :value="isTLS"
-          off-label="Enable TLS?"
-          @update:value="isTLS = !isTLS"
-        />
-        <LabeledSelect
-          v-if="isTLS"
-          class="mb-20"
-          v-model:value="issuer"
-          :options="issuerList"
-          label="Cluster Issuers"
-        />
-        <ToggleSwitch
-          class="mb-20"
-          :value="isExpose"
-          off-label="Expose via Gateway ?"
-          @update:value="isExpose = !isExpose"
-        />
-      </Accordion>
+      <AdditionalOptions
+        :alerts-list="alertsList"
+        :issuer-list="issuerList"
+        :is-monitoring="isMonitoring"
+        :is-backup="isBackup"
+        :is-archiver="isArchiver"
+        :is-t-l-s="isTLS"
+        :is-expose="isExpose"
+        @update:isMonitoring="updateIsMonitoring"
+        @update:isBackup="updateIsBackup"
+        @update:isArchiver="updateIsArchiver"
+        @update:isTLS="updateIsTLS"
+        @update:isExpose="updateIsExpose"
+      />
     </div>
 
     <YamlEditor
@@ -330,6 +314,7 @@ onMounted(() => {
       :editor-mode="EDITOR_MODES.EDIT_CODE"
       @update:value="updatePayload"
     />
+
     <div class="button-container">
       <RcButton secondary>Cancel</RcButton>
       <div>
