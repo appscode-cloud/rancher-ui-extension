@@ -248,7 +248,18 @@ const AdditionalToggleSwitch = ref({
   TLS: true,
   Expose: true,
 });
-
+const genericNamecSpaces = ref({
+  show : true,
+  disabled : false,
+  options: namespaces.value,
+  searchable: true,
+  multiple: false,
+  label: "Namespace",
+  placeholder: "Select Namespace",
+  required: true,
+  rules: [required],
+  clearable: true,
+});
 onMounted(() => {
   validate();
   getClusters();
@@ -277,7 +288,7 @@ onMounted(() => {
 
       <!-- Basic Configuration Component -->
       <BasicDbConfig
-        :namespaces="namespaces"
+        :genericNamecSpaces="genericNamecSpaces"
         :versions="versions"
         :database-modes="databaseModes"
         :machines="machines"

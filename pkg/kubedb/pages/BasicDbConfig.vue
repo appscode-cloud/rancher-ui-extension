@@ -7,26 +7,47 @@ import UnitInput from "@rancher/shell/components/form/UnitInput.vue";
 import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
 
 type NamespaceOption = {
-    label : string 
-    value : string
+  show: boolean;
+  disabled: boolean;
+  options : Array<{
+    label: string;
+    value: string;
+  }>;
+  searchable: boolean;
+  multiple: boolean;
+  placeholder: string;
+  required: boolean;
+  rules: Array<(value: unknown) => string>;
+  clearable: boolean;
+  label: string;
 }
+
 interface Props {
+  genericNamecSpaces?: NamespaceOption;
   namePlaceholder?: string;
-  namespaces: NamespaceOption[];
-  versions: NamespaceOption[];
+  versions: Array<{ label: string; value: string }>;
   databaseModes: string[];
   machines: string[];
   storageClasses: string[];
   required: (value: unknown) => string;
+  
 }
 
 const props = withDefaults(defineProps<Props>(), {
   namePlaceholder: "Database Name",
+  genericNamecSpaces: () => ({
+    show: true,
+    disabled: false,
+    options: [],
+    searchable: true,
+    multiple: false,
+    label: "Namespace",
+    placeholder: "Select Namespace",
+    required: true,
+    rules: [(value) => (value ? "" : "Namespace is required")],
+    clearable: true,
+  }),
 });
-
-const emit = defineEmits<{
-  'update:mode': [value: string];
-}>();
 
 const { value: namespace } = useField<string>("namespace", props.required);
 const { value: name } = useField<string>("name", props.required);
@@ -59,15 +80,16 @@ const updateMode = (value: string) => {
     <div class="row mb-20">
       <div class="col span-6">
         <LabeledSelect
+          v-if="props.genericNamecSpaces.show"
           v-model:value="namespace"
-          :clearable="true"
-          :options="namespaces"
-          :disabled="false"
-          :searchable="true"
-          :multiple="false"
-          label="Namespace"
-          placeholder="Select Namespace"
-          required
+          :clearable="props.genericNamecSpaces.clearable"
+          :options="props.genericNamecSpaces.options"
+          :disabled="props.genericNamecSpaces.disabled"
+          :searchable="props.genericNamecSpaces.searchable"
+          :multiple="props.genericNamecSpaces.multiple"
+          :label="props.genericNamecSpaces.label"
+          :placeholder="props.genericNamecSpaces.placeholder"
+          :required = props.genericNamecSpaces.required
           :rules="[required]"
         />
       </div>

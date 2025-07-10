@@ -13,7 +13,7 @@ interface Props {
   isArchiver: boolean;
   isTLS: boolean;
   isExpose: boolean;
-  AdditionalToggleSwitch?: {
+  AdditionalToggleSwitch: {
     Monitoring: boolean;
     Backup: boolean;
     Archiver: boolean;
