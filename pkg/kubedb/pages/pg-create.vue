@@ -260,6 +260,27 @@ const genericNamecSpaces = ref({
   rules: [required],
   clearable: true,
 });
+const genericVersions = ref({
+  show: true,
+  disabled: false,
+  options: versions.value,
+  searchable: true,
+  multiple: false,
+  label: "Version",
+  placeholder: "Select Version",
+  required: true,
+  rules: [required],
+  clearable: true,
+});
+const genericName = ref({
+  show: true,
+  disabled: false,
+  label: "Name",
+  placeholder: "Databse Name",
+  required: true,
+  rules: [required],
+  minHeight: 30,
+});
 onMounted(() => {
   validate();
   getClusters();
@@ -289,14 +310,15 @@ onMounted(() => {
       <!-- Basic Configuration Component -->
       <BasicDbConfig
         :genericNamecSpaces="genericNamecSpaces"
-        :versions="versions"
+        :genericVersions="genericVersions"
+        :genericName="genericName"
         :database-modes="databaseModes"
         :machines="machines"
         :storage-classes="storageClasses"
         :required="required"
         name-placeholder="Database Name"
       />
-
+       
       <AdvancedDbConfig
         :namespaces="namespaces"
         :AdvancedToogleSwitch="AdvancedToogleSwitch"

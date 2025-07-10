@@ -6,35 +6,34 @@ import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/La
 import UnitInput from "@rancher/shell/components/form/UnitInput.vue";
 import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
 
-type NamespaceOption = {
-  show: boolean;
-  disabled: boolean;
-  options : Array<{
+type genericOption = {
+  show?: boolean;
+  disabled?: boolean;
+  options? : Array<{
     label: string;
     value: string;
   }>;
-  searchable: boolean;
-  multiple: boolean;
-  placeholder: string;
-  required: boolean;
-  rules: Array<(value: unknown) => string>;
-  clearable: boolean;
-  label: string;
+  searchable?: boolean;
+  multiple?: boolean;
+  placeholder?: string;
+  required?: boolean;
+  rules?: Array<(value: unknown) => string>;
+  clearable?: boolean;
+  label?: string;
+  minHeight?: number;
 }
 
 interface Props {
-  genericNamecSpaces?: NamespaceOption;
-  namePlaceholder?: string;
-  versions: Array<{ label: string; value: string }>;
+  genericNamecSpaces?: genericOption;
   databaseModes: string[];
   machines: string[];
   storageClasses: string[];
   required: (value: unknown) => string;
-  
+  genericVersions?: genericOption;
+  genericName?: genericOption;
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  namePlaceholder: "Database Name",
   genericNamecSpaces: () => ({
     show: true,
     disabled: false,
@@ -46,6 +45,27 @@ const props = withDefaults(defineProps<Props>(), {
     required: true,
     rules: [(value) => (value ? "" : "Namespace is required")],
     clearable: true,
+  }),
+  genericVersions: () => ({
+    show: true,
+    disabled: false,
+    options: [],
+    searchable: true,
+    multiple: false,
+    label: "Version",
+    placeholder: "Select Version",
+    required: true,
+    rules: [(value) => (value ? "" : "Version is required")],
+    clearable: true,
+  }),
+  genericName: () => ({
+    show: true,
+    disabled: false,
+    label: "Name",
+    placeholder: "Database Name",
+    required: true,
+    rules: [(value) => (value ? "" : "Name is required")],
+    minHeight: 30,
   }),
 });
 
@@ -90,19 +110,20 @@ const updateMode = (value: string) => {
           :label="props.genericNamecSpaces.label"
           :placeholder="props.genericNamecSpaces.placeholder"
           :required = props.genericNamecSpaces.required
-          :rules="[required]"
+          :rules="props.genericNamecSpaces.rules"
         />
       </div>
 
       <div class="col span-6">
         <LabeledInput
+          v-if="props.genericName.show"
           v-model:value="name"
-          label="Name"
-          :placeholder="namePlaceholder"
-          :disabled="false"
-          :min-height="30"
-          :required="true"
-          :rules="[required]"
+          :label="props.genericName.label"
+          :placeholder="props.genericName.placeholder"
+          :disabled="props.genericName.disabled"
+          :min-height="props.genericName.minHeight"
+          :required="props.genericName.required"
+          :rules="props.genericName.rules"
         />
       </div>
     </div>
@@ -110,16 +131,17 @@ const updateMode = (value: string) => {
     <div class="row mb-20">
       <div class="col span-6">
         <LabeledSelect
+          v-if="props.genericVersions.show"
           v-model:value="version"
-          :clearable="true"
-          :options="versions"
-          :disabled="false"
-          :searchable="true"
-          :multiple="false"
-          label="Version"
-          placeholder="Select version"
-          required
-          :rules="[required]"
+          :clearable="props.genericVersions.clearable"
+          :options="props.genericVersions.options"
+          :disabled="props.genericVersions.disabled"
+          :searchable="props.genericVersions.searchable"
+          :multiple="props.genericVersions.multiple"
+          :label="props.genericVersions.label"
+          :placeholder="props.genericVersions.placeholder"
+          :required="props.genericVersions.required"
+          :rules="props.genericVersions.rules"
         />
       </div>
       <div class="col span-6">
