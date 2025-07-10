@@ -261,11 +261,12 @@ onMounted(() => {
         :required="required"
         name-placeholder="Database Name"
       />
-      updateMode -> {{ mode }}
+  
       <AdvancedDbConfig
         :namespaces="namespaces"
         :required="required"
       />
+      
       <AdditionalOptions
         :alerts-list="alertsList"
         :issuer-list="issuerList"
