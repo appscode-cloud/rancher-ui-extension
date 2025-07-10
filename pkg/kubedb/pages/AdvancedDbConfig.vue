@@ -48,17 +48,14 @@ const { value: streamingMode } = useField<string>("streamingMode");
 
 const updateLabels = (e: Record<string, string>) => {
   labels.value = e;
-  emit('update:labels', e);
 };
 
 const updateAnnotations = (e: Record<string, string>) => {
   annotations.value = e;
-  emit('update:annotations', e);
 };
 
 const updateDbConfiguration = (e: string) => {
   dbConfiguration.value = e;
-  emit('update:dbConfiguration', e);
 };
 </script>
 

@@ -148,18 +148,6 @@ const updateMode = (e: string) => {
   mode.value = e;
 };
 
-const updateLabels = (e: Record<string, string>) => {
-  labels.value = e;
-};
-
-const updateAnnotations = (e: Record<string, string>) => {
-  annotations.value = e;
-};
-
-const updateDbConfiguration = (e: string) => {
-  dbConfiguration.value = e;
-};
-
 const updateIsMonitoring = (value: boolean) => {
   isMonitoring.value = value;
 };
@@ -278,15 +266,10 @@ onMounted(() => {
         name-placeholder="Database Name"
         @update:mode="updateMode"
       />
-
       <AdvancedDbConfig
         :namespaces="namespaces"
         :required="required"
-        @update:labels="updateLabels"
-        @update:annotations="updateAnnotations"
-        @update:dbConfiguration="updateDbConfiguration"
       />
-
       <AdditionalOptions
         :alerts-list="alertsList"
         :issuer-list="issuerList"
