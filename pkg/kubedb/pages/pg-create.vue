@@ -74,14 +74,24 @@ const { value: clusterId } = useField<string>("clusterId", required);
 const { value: name } = useField<string>("name", required);
 const { value: namespace } = useField<string>("namespace", required);
 const { value: version } = useField<string>("version", required);
+const { value: replicas } = useField<string>("replicas");
+const { value: machine } = useField<string>("machine");
+const { value: cpu } = useField<string>("cpu");
+const { value: memory } = useField<string>("memory");
 const { value: storageClass } = useField<string>("storageClass", required);
 const { value: storageSize } = useField<string>("storageSize", required);
 const { value: deletionPolicy } = useField<string>("deletionPolicy", required);
+const { value: dbConfiguration } = useField<string>("dbConfiguration");
+const { value: password } = useField<string>("password");
+const { value: secret } = useField<string>("secret");
+const { value: standbyMode } = useField<string>("standbyMode");
+const { value: pitrNamespace } = useField<string>("pitrNamespace");
+const { value: pitrName } = useField<string>("pitrName");
+const { value: alert } = useField<string>("alert");
+const { value: streamingMode } = useField<string>("streamingMode");
+const { value: issuer } = useField<string>("issuer");
 const { value: labels } = useField<Record<string, string>>("labels");
 const { value: annotations } = useField<Record<string, string>>("annotations");
-const { value: dbConfiguration } = useField<string>("dbConfiguration");
-const { value: alert } = useField<string>("alert");
-const { value: issuer } = useField<string>("issuer");
 const { value: mode } = useField<string>("mode", "", {
   initialValue: "standalone",
 });
@@ -261,12 +271,12 @@ onMounted(() => {
         :required="required"
         name-placeholder="Database Name"
       />
-  
+
       <AdvancedDbConfig
         :namespaces="namespaces"
         :required="required"
       />
-      
+    
       <AdditionalOptions
         :alerts-list="alertsList"
         :issuer-list="issuerList"
