@@ -281,6 +281,15 @@ const genericName = ref({
   rules: [required],
   minHeight: 30,
 });
+const genericStorageSize = ref({
+  show: true,
+  disabled: false,
+  label: "Storage Size",
+  placeholder: "Input Storage Size",
+  required: true,
+  rules: [required],
+  minHeight: 30,
+});
 onMounted(() => {
   validate();
   getClusters();
@@ -316,7 +325,7 @@ onMounted(() => {
         :machines="machines"
         :storage-classes="storageClasses"
         :required="required"
-        name-placeholder="Database Name"
+        :genericStorageSize="genericStorageSize"
       />
        
       <AdvancedDbConfig

@@ -5,6 +5,7 @@ import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
 import UnitInput from "@rancher/shell/components/form/UnitInput.vue";
 import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
+import { platform } from "@shell/utils/platform";
 
 type genericOption = {
   show?: boolean;
@@ -31,6 +32,7 @@ interface Props {
   required: (value: unknown) => string;
   genericVersions?: genericOption;
   genericName?: genericOption;
+  genericStorageSize?: genericOption;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -65,6 +67,15 @@ const props = withDefaults(defineProps<Props>(), {
     placeholder: "Database Name",
     required: true,
     rules: [(value) => (value ? "" : "Name is required")],
+    minHeight: 30,
+  }),
+  genericStorageSize: () => ({
+    show: true,
+    disabled: false,
+    label: "Storage Size",
+    placeholder: "Storage Size",
+    required: true,
+    rules: [(value) => (value ? "" : "Storage Size is required")],
     minHeight: 30,
   }),
 });
@@ -213,13 +224,15 @@ const updateMode = (value: string) => {
           required
         />
       </div>
-      <div class="col span-6">
+      <div v-if="props.genericStorageSize.show" class="col span-6">
         <LabeledInput
           v-model:value="storageSize"
-          label="Storage Size"
-          :disabled="false"
-          :min-height="30"
-          :required="true"
+          :label="props.genericStorageSize.label"
+          :disabled="props.genericStorageSize.disabled"
+          :min-height="props.genericStorageSize.minHeight"
+          :required="props.genericStorageSize.required"
+          :placeholder="props.genericStorageSize.placeholder"
+          :rules="props.genericStorageSize.rules"
         />
       </div>
     </div>
