@@ -234,6 +234,20 @@ const gotoNext = () => {
     createPgInstance();
   }
 };
+const AdvancedToogleSwitch = ref(
+  {
+    DbConfig: true,
+    AuthCred: true,
+    Pitr: true,
+  }
+);
+const AdditionalToggleSwitch = ref({
+  Monitoring: true,
+  Backup: true,
+  Archiver: true,
+  TLS: true,
+  Expose: true,
+});
 
 onMounted(() => {
   validate();
@@ -274,6 +288,7 @@ onMounted(() => {
 
       <AdvancedDbConfig
         :namespaces="namespaces"
+        :AdvancedToogleSwitch="AdvancedToogleSwitch"
         :required="required"
       />
     
@@ -285,6 +300,7 @@ onMounted(() => {
         :is-archiver="isArchiver"
         :is-t-l-s="isTLS"
         :is-expose="isExpose"
+        :AdditionalToggleSwitch="AdditionalToggleSwitch"
         @update:isMonitoring="updateIsMonitoring"
         @update:isBackup="updateIsBackup"
         @update:isArchiver="updateIsArchiver"

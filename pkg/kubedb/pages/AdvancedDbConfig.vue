@@ -15,16 +15,15 @@ type NamespaceOption = {
 
 interface Props {
   namespaces: NamespaceOption[];
+  AdvancedToogleSwitch: {
+    DbConfig: boolean;
+    AuthCred: boolean;
+    Pitr: boolean;
+  };
   required: (value: unknown) => string;
 }
 
 const props = defineProps<Props>();
-
-const emit = defineEmits<{
-  'update:labels': [value: Record<string, string>];
-  'update:annotations': [value: Record<string, string>];
-  'update:dbConfiguration': [value: string];
-}>();
 
 const isDbConfig = ref(false);
 const isAuthCred = ref(false);
@@ -98,12 +97,14 @@ const updateDbConfiguration = (e: string) => {
       required
     />
     
-    <ToggleSwitch
+   <div v-if="props.AdvancedToogleSwitch.AuthCred">
+     <ToggleSwitch
       class="mb-20"
       :value="isAuthCred"
       off-label="Provide Authentication Credentials?"
       @update:value="isAuthCred = !isAuthCred"
     />
+   </div>
     
     <div v-if="isAuthCred">
       <ToggleSwitch
@@ -128,12 +129,14 @@ const updateDbConfiguration = (e: string) => {
       />
     </div>
 
-    <ToggleSwitch
+    <div v-if="props.AdvancedToogleSwitch.DbConfig">
+      <ToggleSwitch
       class="mb-20"
       :value="isDbConfig"
       off-label="Configure Database?"
       @update:value="isDbConfig = !isDbConfig"
     />
+    </div>
     
     <div v-if="isDbConfig">
       Configuration
@@ -145,12 +148,14 @@ const updateDbConfiguration = (e: string) => {
       />
     </div>
 
-    <ToggleSwitch
+    <div v-if="props.AdvancedToogleSwitch.Pitr">
+      <ToggleSwitch
       class="mb-20"
       :value="isPitr"
       off-label="Point in-time recovery"
       @update:value="isPitr = !isPitr"
     />
+    </div>
 
     <div v-if="isPitr">
       <LabeledInput

@@ -13,6 +13,13 @@ interface Props {
   isArchiver: boolean;
   isTLS: boolean;
   isExpose: boolean;
+  AdditionalToggleSwitch?: {
+    Monitoring: boolean;
+    Backup: boolean;
+    Archiver: boolean;
+    TLS: boolean;
+    Expose: boolean;
+  };
 }
 
 const props = defineProps<Props>();
@@ -47,11 +54,13 @@ const updateTLS = () => {
 const updateExpose = () => {
   emit('update:isExpose', !props.isExpose);
 };
+
 </script>
 
 <template>
   <Accordion title="Additional Options" class="mb-20">
     <ToggleSwitch
+      v-if="props.AdditionalToggleSwitch?.Monitoring" 
       class="mb-20"
       :value="isMonitoring"
       off-label="Enable Monitoring?"
@@ -65,18 +74,21 @@ const updateExpose = () => {
       label="Alert Options"
     />
     <ToggleSwitch
+      v-if="props.AdditionalToggleSwitch?.Backup"
       class="mb-20"
       :value="isBackup"
       off-label="Enable Backup?"
       @update:value="updateBackup"
     />
     <ToggleSwitch
+      v-if="props.AdditionalToggleSwitch?.Archiver"
       class="mb-20"
       :value="isArchiver"
       off-label="Enable Archiver?"
       @update:value="updateArchiver"
     />
     <ToggleSwitch
+      v-if="props.AdditionalToggleSwitch?.TLS"
       class="mb-20"
       :value="isTLS"
       off-label="Enable TLS?"
@@ -90,6 +102,7 @@ const updateExpose = () => {
       label="Cluster Issuers"
     />
     <ToggleSwitch
+      v-if="props.AdditionalToggleSwitch?.Expose"
       class="mb-20"
       :value="isExpose"
       off-label="Expose via Gateway ?"
