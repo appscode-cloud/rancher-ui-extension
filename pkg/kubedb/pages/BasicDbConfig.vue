@@ -51,7 +51,6 @@ const showReplicas = computed(() => {
 
 const updateMode = (value: string) => {
   mode.value = value;
-  emit('update:mode', value);
 };
 </script>
 

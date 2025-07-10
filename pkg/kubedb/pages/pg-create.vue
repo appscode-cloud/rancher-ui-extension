@@ -144,10 +144,6 @@ watch(values, async () => {
   disableNextBtn.value = !validated;
 });
 
-const updateMode = (e: string) => {
-  mode.value = e;
-};
-
 const updateIsMonitoring = (value: boolean) => {
   isMonitoring.value = value;
 };
@@ -264,8 +260,8 @@ onMounted(() => {
         :storage-classes="storageClasses"
         :required="required"
         name-placeholder="Database Name"
-        @update:mode="updateMode"
       />
+      updateMode -> {{ mode }}
       <AdvancedDbConfig
         :namespaces="namespaces"
         :required="required"
