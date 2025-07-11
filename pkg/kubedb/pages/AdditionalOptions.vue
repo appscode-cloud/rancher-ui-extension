@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { defineEmits, defineProps } from "vue";
+import { defineEmits, defineProps, ref } from "vue";
 import { useField } from "vee-validate";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import Accordion from "@rancher/shell/rancher-components/Accordion/Accordion.vue";
@@ -8,11 +8,6 @@ import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/To
 interface Props {
   alertsList: string[];
   issuerList: string[];
-  isMonitoring: boolean;
-  isBackup: boolean;
-  isArchiver: boolean;
-  isTLS: boolean;
-  isExpose: boolean;
   AdditionalToggleSwitch: {
     Monitoring: boolean;
     Backup: boolean;
@@ -23,44 +18,40 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
-const emit = defineEmits<{
-  'update:isMonitoring': [value: boolean];
-  'update:isBackup': [value: boolean];
-  'update:isArchiver': [value: boolean];
-  'update:isTLS': [value: boolean];
-  'update:isExpose': [value: boolean];
-}>();
+const isMonitoring = ref(false);
+const isBackup = ref(false);
+const isArchiver = ref(false);
+const isTLS = ref(false);
+const isExpose = ref(false);
 
 const { value: alert } = useField<string>("alert");
 const { value: issuer } = useField<string>("issuer");
 
-const updateMonitoring = () => {
-  emit('update:isMonitoring', !props.isMonitoring);
+const updateMonitoring = (value: boolean) => {
+  isMonitoring.value = value;
 };
 
-const updateBackup = () => {
-  emit('update:isBackup', !props.isBackup);
+const updateBackup = (value: boolean) => {
+  isBackup.value = value;
 };
 
-const updateArchiver = () => {
-  emit('update:isArchiver', !props.isArchiver);
+const updateArchiver = (value: boolean) => {
+  isArchiver.value = value;
 };
 
-const updateTLS = () => {
-  emit('update:isTLS', !props.isTLS);
+const updateTLS = (value: boolean) => {
+  isTLS.value = value;
 };
 
-const updateExpose = () => {
-  emit('update:isExpose', !props.isExpose);
+const updateExpose = (value: boolean) => {
+  isExpose.value = value;
 };
-
 </script>
 
 <template>
   <Accordion title="Additional Options" class="mb-20">
     <ToggleSwitch
-      v-if="props.AdditionalToggleSwitch?.Monitoring" 
+      v-if="props.AdditionalToggleSwitch?.Monitoring"
       class="mb-20"
       :value="isMonitoring"
       off-label="Enable Monitoring?"

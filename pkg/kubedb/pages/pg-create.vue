@@ -52,11 +52,6 @@ const pgList = ref<
 >([]);
 
 const step = ref(1);
-const isMonitoring = ref(false);
-const isBackup = ref(false);
-const isArchiver = ref(false);
-const isTLS = ref(false);
-const isExpose = ref(false);
 const disableNextBtn = ref(true);
 const clusterIdList = ref([]);
 
@@ -145,26 +140,6 @@ watch(values, async () => {
   disableNextBtn.value = !validated;
 });
 
-const updateIsMonitoring = (value: boolean) => {
-  isMonitoring.value = value;
-};
-
-const updateIsBackup = (value: boolean) => {
-  isBackup.value = value;
-};
-
-const updateIsArchiver = (value: boolean) => {
-  isArchiver.value = value;
-};
-
-const updateIsTLS = (value: boolean) => {
-  isTLS.value = value;
-};
-
-const updateIsExpose = (value: boolean) => {
-  isExpose.value = value;
-};
-
 const updatePayload = (e: KubeResource) => {
   console.log(e);
 };
@@ -225,13 +200,11 @@ const gotoNext = () => {
     createPgInstance();
   }
 };
-const AdvancedToogleSwitch = ref(
-  {
-    DbConfig: true,
-    AuthCred: true,
-    Pitr: true,
-  }
-);
+const AdvancedToogleSwitch = ref({
+  DbConfig: true,
+  AuthCred: true,
+  Pitr: true,
+});
 const AdditionalToggleSwitch = ref({
   Monitoring: true,
   Backup: true,
@@ -240,8 +213,8 @@ const AdditionalToggleSwitch = ref({
   Expose: true,
 });
 const genericNamecSpaces = ref({
-  show : true,
-  disabled : false,
+  show: true,
+  disabled: false,
   options: namespaces.value,
   searchable: true,
   multiple: false,
@@ -318,30 +291,20 @@ onMounted(() => {
         :required="required"
         :genericStorageSize="genericStorageSize"
       />
-       
+
       <AdvancedDbConfig
         :namespaces="namespaces"
         :AdvancedToogleSwitch="AdvancedToogleSwitch"
         :required="required"
       />
-    
+
       <AdditionalOptions
         :alerts-list="alertsList"
         :issuer-list="issuerList"
-        :is-monitoring="isMonitoring"
-        :is-backup="isBackup"
-        :is-archiver="isArchiver"
-        :is-t-l-s="isTLS"
-        :is-expose="isExpose"
         :AdditionalToggleSwitch="AdditionalToggleSwitch"
-        @update:isMonitoring="updateIsMonitoring"
-        @update:isBackup="updateIsBackup"
-        @update:isArchiver="updateIsArchiver"
-        @update:isTLS="updateIsTLS"
-        @update:isExpose="updateIsExpose"
       />
     </div>
-  
+
     <YamlEditor
       v-if="step === 2"
       ref="yamleditor"
@@ -369,6 +332,7 @@ onMounted(() => {
         }}</RcButton>
       </div>
     </div>
+    <pre> {{ errors }}</pre>
   </div>
 </template>
 
