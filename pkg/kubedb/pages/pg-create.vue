@@ -83,7 +83,10 @@ const { value: mode } = useField<string>("mode", "", {
 });
 
 const databaseModes = ref(["standalone", "HA", "replica"]);
-const storageClasses = ref(["local-path", "longhorn"]);
+const storageClasses = ref([
+  {label: "local-path", value: "local-path"},
+  {label: "longhorn" , value: "longhorn"}
+]);
 const alertsList = ref(["Critical", "Info", "None", "Warning"]);
 const issuerList = ref(["ace-Incluster"]);
 const namespaces = ref([
@@ -236,6 +239,7 @@ const genericVersions = ref({
   required: true,
   rules: [required],
   clearable: true,
+  versionModel: version,
 });
 const genericName = ref({
   show: true,
@@ -255,7 +259,20 @@ const genericStorageSize = ref({
   required: true,
   rules: [required],
   minHeight: 30,
+  storageSizeModel: storageSize,
 });
+const genericStorageClass = ref({
+  show: true,
+  disable: false,
+  label: 'Storage Class',
+  placeholder: 'Select Storage Class',
+  required: true,
+  rules: [required],
+  searchable: true,
+  options: storageClasses.value,
+  multiple: false,
+  storageClassModel: storageClass,
+})
 onMounted(() => {
   validate();
   getClusters();
@@ -289,11 +306,11 @@ onMounted(() => {
         :genericName="genericName"
         :database-modes="databaseModes"
         :machines="machines"
-        :storage-classes="storageClasses"
         :required="required"
         :genericStorageSize="genericStorageSize"
+        :genericStorageClass="genericStorageClass"
       />
-    
+      
       <AdvancedDbConfig
         :namespaces="namespaces"
         :AdvancedToogleSwitch="AdvancedToogleSwitch"
@@ -334,6 +351,7 @@ onMounted(() => {
         }}</RcButton>
       </div>
     </div>
+    <pre>{{ errors }}</pre>
   </div>
 </template>
 

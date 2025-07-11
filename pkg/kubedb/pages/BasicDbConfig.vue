@@ -10,7 +10,7 @@ import { platform } from "@shell/utils/platform";
 type genericOption = {
   show?: boolean;
   disabled?: boolean;
-  options? : Array<{
+  options?: Array<{
     label: string;
     value: string;
   }>;
@@ -22,19 +22,22 @@ type genericOption = {
   clearable?: boolean;
   label?: string;
   minHeight?: number;
-  namespaceModel?: string,
-  nameModel?: string,
-}
+  namespaceModel?: string;
+  nameModel?: string;
+  versionModel?: string;
+  storageSizeModel?: string;
+  storageClassModel?: string;
+};
 
 interface Props {
   genericNameSpaces?: genericOption;
   databaseModes: string[];
   machines: string[];
-  storageClasses: string[];
   required: (value: unknown) => string;
   genericVersions?: genericOption;
   genericName?: genericOption;
   genericStorageSize?: genericOption;
+  genericStorageClass?: genericOption;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -49,7 +52,7 @@ const props = withDefaults(defineProps<Props>(), {
     required: true,
     rules: [(value) => (value ? "" : "Namespace is required")],
     clearable: true,
-    namespaceModel: 'Namespaces',
+    namespaceModel: "Namespaces",
   }),
   genericVersions: () => ({
     show: true,
@@ -62,6 +65,7 @@ const props = withDefaults(defineProps<Props>(), {
     required: true,
     rules: [(value) => (value ? "" : "Version is required")],
     clearable: true,
+    versionModel: "Version",
   }),
   genericName: () => ({
     show: true,
@@ -71,7 +75,7 @@ const props = withDefaults(defineProps<Props>(), {
     required: true,
     rules: [(value) => (value ? "" : "Name is required")],
     minHeight: 30,
-    nameModel: 'Name'
+    nameModel: "Name",
   }),
   genericStorageSize: () => ({
     show: true,
@@ -81,16 +85,25 @@ const props = withDefaults(defineProps<Props>(), {
     required: true,
     rules: [(value) => (value ? "" : "Storage Size is required")],
     minHeight: 30,
+    storageSizeModel: "20",
+  }),
+  genericStorageClass: () => ({
+    show: true,
+    disable: false,
+    label: "Storage Class",
+    placeholder: "Select Storage Class",
+    required: true,
+    rules: [(value) => (value ? "" : "Storage class is required")],
+    searchable: true,
+    options: [],
+    multiple: false,
   }),
 });
 
-const { value: version } = useField<string>("version", props.required);
 const { value: replicas } = useField<string>("replicas");
 const { value: machine } = useField<string>("machine");
 const { value: cpu } = useField<string>("cpu");
 const { value: memory } = useField<string>("memory");
-const { value: storageClass } = useField<string>("storageClass", props.required);
-const { value: storageSize } = useField<string>("storageSize", props.required);
 const { value: mode } = useField<string>("mode", "", {
   initialValue: "standalone",
 });
@@ -122,7 +135,7 @@ const updateMode = (value: string) => {
           :multiple="props.genericNameSpaces.multiple"
           :label="props.genericNameSpaces.label"
           :placeholder="props.genericNameSpaces.placeholder"
-          :required = props.genericNameSpaces.required
+          :required="props.genericNameSpaces.required"
           :rules="props.genericNameSpaces.rules"
         />
       </div>
@@ -145,7 +158,7 @@ const updateMode = (value: string) => {
       <div class="col span-6">
         <LabeledSelect
           v-if="props.genericVersions.show"
-          v-model:value="version"
+          v-model:value="props.genericVersions.versionModel"
           :clearable="props.genericVersions.clearable"
           :options="props.genericVersions.options"
           :disabled="props.genericVersions.disabled"
@@ -217,18 +230,19 @@ const updateMode = (value: string) => {
     <div class="row mb-20">
       <div class="col span-6">
         <LabeledSelect
-          v-model:value="storageClass"
-          :options="storageClasses"
-          :searchable="true"
-          :multiple="false"
-          label="Storage Class"
-          placeholder="Select Storage Class"
-          required
+          v-if = "props.genericStorageClass.show"
+          v-model:value="props.genericStorageClass.storageClassModel"
+          :options="props.genericStorageClass.options"
+          :searchable="props.genericStorageClass.searchable"
+          :multiple="props.genericStorageClass.multiple"
+          :label="props.genericStorageClass.label"
+          :placeholder="props.genericStorageClass.placeholder"
+          :required="props.genericStorageClass.required"
         />
       </div>
       <div v-if="props.genericStorageSize.show" class="col span-6">
         <LabeledInput
-          v-model:value="storageSize"
+          v-model:value="props.genericStorageSize.storageSizeModel"
           :label="props.genericStorageSize.label"
           :disabled="props.genericStorageSize.disabled"
           :min-height="props.genericStorageSize.minHeight"
@@ -240,4 +254,3 @@ const updateMode = (value: string) => {
     </div>
   </div>
 </template>
-
