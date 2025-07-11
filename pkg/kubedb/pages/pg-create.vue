@@ -84,8 +84,8 @@ const { value: mode } = useField<string>("mode", "", {
 
 const databaseModes = ref(["standalone", "HA", "replica"]);
 const storageClasses = ref([
-  {label: "local-path", value: "local-path"},
-  {label: "longhorn" , value: "longhorn"}
+  { label: "local-path", value: "local-path" },
+  { label: "longhorn", value: "longhorn" },
 ]);
 const alertsList = ref(["Critical", "Info", "None", "Warning"]);
 const issuerList = ref(["ace-Incluster"]);
@@ -107,7 +107,12 @@ const machines = ref([
   "db.t.medium",
   "db.t.large",
 ]);
-
+const deletionPolicies = ref([
+    { label: "Delete", value: "Delete" },
+    { label: "Halt", value: "Halt" },
+    { label: "WipeOut", value: "WipeOut" },
+    { label: "DoNotTerminate", value: "DoNotTerminate" }
+  ]);
 const previewTitle = computed(() => {
   return `Create Postgres: ${namespace.value}/${name.value}`;
 });
@@ -264,15 +269,28 @@ const genericStorageSize = ref({
 const genericStorageClass = ref({
   show: true,
   disable: false,
-  label: 'Storage Class',
-  placeholder: 'Select Storage Class',
+  label: "Storage Class",
+  placeholder: "Select Storage Class",
   required: true,
   rules: [required],
   searchable: true,
   options: storageClasses.value,
   multiple: false,
   storageClassModel: storageClass,
-})
+});
+const genericDeletionPolicy = ref({
+  show: true,
+  disabled: false,
+  options: deletionPolicies.value,
+  searchable: true,
+  multiple: false,
+  label: "Deletion Policy",
+  placeholder: "Select Deletion Policy",
+  required: true,
+  rules: [required],
+  clearable: true,
+  deletionPolicyModel: deletionPolicy,
+});
 onMounted(() => {
   validate();
   getClusters();
@@ -310,12 +328,13 @@ onMounted(() => {
         :genericStorageSize="genericStorageSize"
         :genericStorageClass="genericStorageClass"
       />
-      
+
       <AdvancedDbConfig
-        :namespaces="namespaces"
         :AdvancedToogleSwitch="AdvancedToogleSwitch"
+        :genericDeletionPolicy="genericDeletionPolicy"
         :required="required"
       />
+      {{ deletionPolicy }}
 
       <AdditionalOptions
         :alerts-list="alertsList"

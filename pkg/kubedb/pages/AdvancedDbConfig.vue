@@ -7,14 +7,30 @@ import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/To
 import TextAreaAutoGrow from "@rancher/shell/rancher-components/Form/TextArea/TextAreaAutoGrow.vue";
 import KeyValue from "@rancher/shell/components/form/KeyValue.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
-
-type NamespaceOption = {
-  label: string;
-  value: string;
+type genericOption = {
+  show?: boolean;
+  disabled?: boolean;
+  options?: Array<{
+    label: string;
+    value: string;
+  }>;
+  searchable?: boolean;
+  multiple?: boolean;
+  placeholder?: string;
+  required?: boolean;
+  rules?: Array<(value: unknown) => string>;
+  clearable?: boolean;
+  label?: string;
+  minHeight?: number;
+  namespaceModel?: string;
+  nameModel?: string;
+  versionModel?: string;
+  storageSizeModel?: string;
+  storageClassModel?: string;
+  deletionPolicyModel?:string;
 };
-
 interface Props {
-  namespaces: NamespaceOption[];
+  genericDeletionPolicy?: genericOption;
   AdvancedToogleSwitch: {
     DbConfig: boolean;
     AuthCred: boolean;
@@ -23,18 +39,30 @@ interface Props {
   required: (value: unknown) => string;
 }
 
-const props = defineProps<Props>();
+const props = withDefaults(defineProps<Props>(), {
+  genericDeletionPolicy: () => ({
+    show: true,
+    disabled: false,
+    options: [],
+    searchable: true,
+    multiple: false,
+    label: "",
+    placeholder: "Deletion Policy",
+    required: true,
+    rules: [(value) => (value ? "" : "Deletion Policy is required")],
+    clearable: true,
+    deletionPolicyModel: "",
+  }),
+});
 
 const isDbConfig = ref(false);
 const isAuthCred = ref(false);
 const isReferSecret = ref(false);
 const isPitr = ref(false);
-const deletionPolicies = ref(["Delete", "Halt", "WipeOut", "DoNotTerminate"]);
 const secretsList = ref(["test1", "test2", "test3", "test4"]);
 const standbyModes = ref(["Hot", "Warm"]);
 const streamingModes = ref(["Synchronous", "Asynchronous"]);
 
-const { value: deletionPolicy } = useField<string>("deletionPolicy", props.required);
 const { value: labels } = useField<Record<string, string>>("labels");
 const { value: annotations } = useField<Record<string, string>>("annotations");
 const { value: dbConfiguration } = useField<string>("dbConfiguration");
@@ -91,21 +119,27 @@ const updateDbConfiguration = (e: string) => {
 
     <LabeledSelect
       class="mb-20"
-      v-model:value="deletionPolicy"
-      :options="deletionPolicies"
-      label="Deletion Policy"
-      required
+      v-if="props.genericDeletionPolicy?.show"
+      v-model:value="props.genericDeletionPolicy.deletionPolicyModel"
+      :options="props.genericDeletionPolicy.options"
+      :label="props.genericDeletionPolicy.label"
+      :placeholder="props.genericDeletionPolicy.placeholder"
+      :required="props.genericDeletionPolicy.required"
+      :rules="props.genericDeletionPolicy.rules"
+      :clearable="props.genericDeletionPolicy.clearable"
+      :searchable="props.genericDeletionPolicy.searchable"
+      :multiple="props.genericDeletionPolicy.multiple"
     />
-    
-   <div v-if="props.AdvancedToogleSwitch.AuthCred">
-     <ToggleSwitch
-      class="mb-20"
-      :value="isAuthCred"
-      off-label="Provide Authentication Credentials?"
-      @update:value="isAuthCred = !isAuthCred"
-    />
-   </div>
-    
+
+    <div v-if="props.AdvancedToogleSwitch.AuthCred">
+      <ToggleSwitch
+        class="mb-20"
+        :value="isAuthCred"
+        off-label="Provide Authentication Credentials?"
+        @update:value="isAuthCred = !isAuthCred"
+      />
+    </div>
+
     <div v-if="isAuthCred">
       <ToggleSwitch
         class="mb-20"
@@ -131,13 +165,13 @@ const updateDbConfiguration = (e: string) => {
 
     <div v-if="props.AdvancedToogleSwitch.DbConfig">
       <ToggleSwitch
-      class="mb-20"
-      :value="isDbConfig"
-      off-label="Configure Database?"
-      @update:value="isDbConfig = !isDbConfig"
-    />
+        class="mb-20"
+        :value="isDbConfig"
+        off-label="Configure Database?"
+        @update:value="isDbConfig = !isDbConfig"
+      />
     </div>
-    
+
     <div v-if="isDbConfig">
       Configuration
       <TextAreaAutoGrow
@@ -150,11 +184,11 @@ const updateDbConfiguration = (e: string) => {
 
     <div v-if="props.AdvancedToogleSwitch.Pitr">
       <ToggleSwitch
-      class="mb-20"
-      :value="isPitr"
-      off-label="Point in-time recovery"
-      @update:value="isPitr = !isPitr"
-    />
+        class="mb-20"
+        :value="isPitr"
+        off-label="Point in-time recovery"
+        @update:value="isPitr = !isPitr"
+      />
     </div>
 
     <div v-if="isPitr">
@@ -180,7 +214,7 @@ const updateDbConfiguration = (e: string) => {
       :options="standbyModes"
       label="Standby Mode"
     />
-    
+
     <LabeledSelect
       class="mb-20"
       v-model:value="streamingMode"
