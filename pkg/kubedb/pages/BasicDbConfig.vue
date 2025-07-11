@@ -22,10 +22,12 @@ type genericOption = {
   clearable?: boolean;
   label?: string;
   minHeight?: number;
+  namespaceModel?: string,
+  nameModel?: string,
 }
 
 interface Props {
-  genericNamecSpaces?: genericOption;
+  genericNameSpaces?: genericOption;
   databaseModes: string[];
   machines: string[];
   storageClasses: string[];
@@ -36,7 +38,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  genericNamecSpaces: () => ({
+  genericNameSpaces: () => ({
     show: true,
     disabled: false,
     options: [],
@@ -47,6 +49,7 @@ const props = withDefaults(defineProps<Props>(), {
     required: true,
     rules: [(value) => (value ? "" : "Namespace is required")],
     clearable: true,
+    namespaceModel: 'Namespaces',
   }),
   genericVersions: () => ({
     show: true,
@@ -68,6 +71,7 @@ const props = withDefaults(defineProps<Props>(), {
     required: true,
     rules: [(value) => (value ? "" : "Name is required")],
     minHeight: 30,
+    nameModel: 'Name'
   }),
   genericStorageSize: () => ({
     show: true,
@@ -80,8 +84,6 @@ const props = withDefaults(defineProps<Props>(), {
   }),
 });
 
-const { value: namespace } = useField<string>("namespace", props.required);
-const { value: name } = useField<string>("name", props.required);
 const { value: version } = useField<string>("version", props.required);
 const { value: replicas } = useField<string>("replicas");
 const { value: machine } = useField<string>("machine");
@@ -111,24 +113,24 @@ const updateMode = (value: string) => {
     <div class="row mb-20">
       <div class="col span-6">
         <LabeledSelect
-          v-if="props.genericNamecSpaces.show"
-          v-model:value="namespace"
-          :clearable="props.genericNamecSpaces.clearable"
-          :options="props.genericNamecSpaces.options"
-          :disabled="props.genericNamecSpaces.disabled"
-          :searchable="props.genericNamecSpaces.searchable"
-          :multiple="props.genericNamecSpaces.multiple"
-          :label="props.genericNamecSpaces.label"
-          :placeholder="props.genericNamecSpaces.placeholder"
-          :required = props.genericNamecSpaces.required
-          :rules="props.genericNamecSpaces.rules"
+          v-if="props.genericNameSpaces.show"
+          v-model:value="props.genericNameSpaces.namespaceModel"
+          :clearable="props.genericNameSpaces.clearable"
+          :options="props.genericNameSpaces.options"
+          :disabled="props.genericNameSpaces.disabled"
+          :searchable="props.genericNameSpaces.searchable"
+          :multiple="props.genericNameSpaces.multiple"
+          :label="props.genericNameSpaces.label"
+          :placeholder="props.genericNameSpaces.placeholder"
+          :required = props.genericNameSpaces.required
+          :rules="props.genericNameSpaces.rules"
         />
       </div>
 
       <div class="col span-6">
         <LabeledInput
           v-if="props.genericName.show"
-          v-model:value="name"
+          v-model:value="props.genericName.nameModel"
           :label="props.genericName.label"
           :placeholder="props.genericName.placeholder"
           :disabled="props.genericName.disabled"

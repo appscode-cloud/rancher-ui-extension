@@ -212,7 +212,7 @@ const AdditionalToggleSwitch = ref({
   TLS: true,
   Expose: true,
 });
-const genericNamecSpaces = ref({
+const genericNameSpaces = ref({
   show: true,
   disabled: false,
   options: namespaces.value,
@@ -223,6 +223,7 @@ const genericNamecSpaces = ref({
   required: true,
   rules: [required],
   clearable: true,
+  namespaceModel: namespace,
 });
 const genericVersions = ref({
   show: true,
@@ -244,6 +245,7 @@ const genericName = ref({
   required: true,
   rules: [required],
   minHeight: 30,
+  nameModel: name,
 });
 const genericStorageSize = ref({
   show: true,
@@ -282,7 +284,7 @@ onMounted(() => {
 
       <!-- Basic Configuration Component -->
       <BasicDbConfig
-        :genericNamecSpaces="genericNamecSpaces"
+        :genericNameSpaces="genericNameSpaces"
         :genericVersions="genericVersions"
         :genericName="genericName"
         :database-modes="databaseModes"
@@ -291,7 +293,7 @@ onMounted(() => {
         :required="required"
         :genericStorageSize="genericStorageSize"
       />
-
+    
       <AdvancedDbConfig
         :namespaces="namespaces"
         :AdvancedToogleSwitch="AdvancedToogleSwitch"
@@ -332,7 +334,6 @@ onMounted(() => {
         }}</RcButton>
       </div>
     </div>
-    <pre> {{ errors }}</pre>
   </div>
 </template>
 
