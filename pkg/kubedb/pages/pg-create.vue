@@ -9,17 +9,8 @@ import $axios from "../composables/axios";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
-
-const required = (value: unknown) => {
-  if (!!value || value === 0) {
-    if (Array.isArray(value) && value.length > 0) return "";
-    else if (typeof value === "object" && Object.keys(value).length > 0)
-      return "";
-    if (typeof value === "string" && value.length > 0) return "";
-    if (typeof value === "boolean" || typeof value === "number") return "";
-  }
-  return "This field is required";
-};
+import { useRequiredRule } from "../composables/useRequiredRule";
+const { required } = useRequiredRule();
 
 const EDITOR_MODES = {
   EDIT_CODE: "EDIT_CODE",
@@ -350,7 +341,7 @@ onMounted(() => {
         @update:isExpose="updateIsExpose"
       />
     </div>
-
+  
     <YamlEditor
       v-if="step === 2"
       ref="yamleditor"
