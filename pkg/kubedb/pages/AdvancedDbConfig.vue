@@ -33,24 +33,6 @@ const isDbConfig = ref(false);
 const isAuthCred = ref(false);
 const isReferSecret = ref(false);
 const isPitr = ref(false);
-
-const dbConfigValue = computed<string>({
-  get: () => props.genericDbConfiguration.dbConfigurationModel ?? "",
-  set: (val: string) => {
-    props.genericDbConfiguration.dbConfigurationModel = val;
-  },
-});
-// const updateLabels = (e: Record<string, string>) => {
-//   props.genericLabels.labelsModel.value = e;
-// };
-
-// const updateAnnotations = (e: Record<string, string>) => {
-//   props.genericAnnotations.annotationsModel.value = e;
-// };
-
-// const updateDbConfiguration = (e: string) => {
-//   props.genericDbConfiguration.dbConfigurationModel.value = e;
-// };
 </script>
 
 <template>
@@ -143,7 +125,7 @@ const dbConfigValue = computed<string>({
       Configuration
       <TextAreaAutoGrow
         class="mb-20"
-        v-model:value="dbConfigValue"
+        v-model:value="props.genericDbConfiguration.dbConfigurationModel"
         :min-height="props.genericDbConfiguration.minHeight"
       />
     </div>
