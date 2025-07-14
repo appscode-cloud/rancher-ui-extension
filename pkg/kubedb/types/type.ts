@@ -4,7 +4,8 @@ export type genericOption = {
   options?: Array<{
     label: string;
     value: string;
-  }>;
+  }> 
+  ;
   searchable?: boolean;
   multiple?: boolean;
   placeholder?: string;

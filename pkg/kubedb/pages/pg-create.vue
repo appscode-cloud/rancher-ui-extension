@@ -61,7 +61,7 @@ const { value: name } = useField<string>("name", required);
 const { value: namespace } = useField<string>("namespace", required);
 const { value: version } = useField<string>("version", required);
 const { value: replicas } = useField<string>("replicas");
-const { value: machine } = useField<string>("machine");
+const { value: machine } = useField<string>("machine", required);
 const { value: cpu } = useField<string>("cpu");
 const { value: memory } = useField<string>("memory");
 const { value: storageClass } = useField<string>("storageClass", required);
@@ -100,17 +100,12 @@ const versions = ref([
   { label: "14.17", value: "14.17" },
   { label: "15.12", value: "15.12" },
 ]);
-// const machines = ref([
-//   {label: "custom" , value: "custom"},
-//   {label: "db.t.micro" , value: "db.t.micro"},
-//   {label: "db.t.small" , value: "db.t.small"},
-//   {label: "db.t.medium", value: "db.t.medium"} ,
-//   {label: "db.t.large", value: "db.t.large"},
-// ]);
 const machines = ref([
- "custom",
-  "db.t.micro",
-  "db.t.small" 
+  {label: "custom" , value: "custom"},
+  {label: "db.t.micro" , value: "db.t.micro"},
+  {label: "db.t.small" , value: "db.t.small"},
+  {label: "db.t.medium", value: "db.t.medium"} ,
+  {label: "db.t.large", value: "db.t.large"},
 ]);
 const deletionPolicies = ref([
     { label: "Delete", value: "Delete" },
@@ -311,10 +306,11 @@ const genericMachine = ref({
   show: true,
   options: machines.value,
   searchable: true,
-  multiple: true,
+  multiple: false,
   label: "Machine Profile",
   placeholder: "Select machine",
   machineModel: machine,
+  rules: [required],
 })
 onMounted(() => {
   validate();
@@ -353,9 +349,8 @@ onMounted(() => {
         :genericStorageClass="genericStorageClass"
         :genericReplica="genericReplica"
         :genericMachine="genericMachine"
-        :machines="machines"
       />
-
+      {{ machine }}
       <AdvancedDbConfig
         :AdvancedToogleSwitch="AdvancedToogleSwitch"
         :genericDeletionPolicy="genericDeletionPolicy"

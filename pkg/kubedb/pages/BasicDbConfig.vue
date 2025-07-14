@@ -11,18 +11,16 @@ import type {genericOption} from "../types/type"
 interface Props {
   genericNameSpaces: genericOption;
   databaseModes: string[];
-  machines: string[];
   required: (value: unknown) => string;
   genericVersions: genericOption;
   genericName: genericOption;
   genericStorageSize: genericOption;
   genericStorageClass: genericOption;
   genericReplica: genericOption;
+  genericMachine: genericOption;
 }
 
 const props = defineProps<Props>()
-
-const { value: machine } = useField<string>("machine");
 const { value: cpu } = useField<string>("cpu");
 const { value: memory } = useField<string>("memory");
 const { value: mode } = useField<string>("mode", "", {
@@ -30,7 +28,7 @@ const { value: mode } = useField<string>("mode", "", {
 });
 
 const isCustom = computed(() => {
-  return machine.value === "custom";
+  return props.genericMachine.machineModel === "custom";
 });
 
 const showReplicas = computed(() => {
@@ -115,13 +113,14 @@ const updateMode = (value: string) => {
     </div>
 
     <div class="mb-20">
-      <LabeledSelect
-        v-model:value="machine"
-        :options="machines"
-        :searchable="true"
-        :multiple="false"
-        label="Machine Profile"
-        placeholder="Select machine"
+      <LabeledSelect 
+        v-if="props.genericMachine.show"
+        v-model:value="props.genericMachine.machineModel"
+        :options="props.genericMachine.options"
+        :searchable="props.genericMachine.searchable"
+        :multiple="props.genericMachine.multiple"
+        :label="props.genericMachine.label"
+        :placeholder="genericMachine.placeholder"
       />
     </div>
 
