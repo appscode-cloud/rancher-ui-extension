@@ -1,36 +1,24 @@
 <script setup lang="ts">
-import { ref, defineEmits, defineProps } from "vue";
-import { useField } from "vee-validate";
+import { ref, defineEmits, defineProps, computed } from "vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import Accordion from "@rancher/shell/rancher-components/Accordion/Accordion.vue";
 import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/ToggleSwitch.vue";
 import TextAreaAutoGrow from "@rancher/shell/rancher-components/Form/TextArea/TextAreaAutoGrow.vue";
 import KeyValue from "@rancher/shell/components/form/KeyValue.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
-type genericOption = {
-  show?: boolean;
-  disabled?: boolean;
-  options?: Array<{
-    label: string;
-    value: string;
-  }>;
-  searchable?: boolean;
-  multiple?: boolean;
-  placeholder?: string;
-  required?: boolean;
-  rules?: Array<(value: unknown) => string>;
-  clearable?: boolean;
-  label?: string;
-  minHeight?: number;
-  namespaceModel?: string;
-  nameModel?: string;
-  versionModel?: string;
-  storageSizeModel?: string;
-  storageClassModel?: string;
-  deletionPolicyModel?:string;
-};
+import type { genericOption } from "../types/type";
+
 interface Props {
-  genericDeletionPolicy?: genericOption;
+  genericDeletionPolicy: genericOption;
+  genericLabels: genericOption;
+  genericAnnotations: genericOption;
+  genericDbConfiguration: genericOption;
+  genericPassword: genericOption;
+  genericSecret: genericOption;
+  genericStandbyMode: genericOption;
+  genericPitrNamespace: genericOption;
+  genericPitrName: genericOption;
+  genericStreamingMode: genericOption;
   AdvancedToogleSwitch: {
     DbConfig: boolean;
     AuthCred: boolean;
@@ -39,51 +27,30 @@ interface Props {
   required: (value: unknown) => string;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  genericDeletionPolicy: () => ({
-    show: true,
-    disabled: false,
-    options: [],
-    searchable: true,
-    multiple: false,
-    label: "",
-    placeholder: "Deletion Policy",
-    required: true,
-    rules: [(value) => (value ? "" : "Deletion Policy is required")],
-    clearable: true,
-    deletionPolicyModel: "",
-  }),
-});
+const props = defineProps<Props>();
 
 const isDbConfig = ref(false);
 const isAuthCred = ref(false);
 const isReferSecret = ref(false);
 const isPitr = ref(false);
-const secretsList = ref(["test1", "test2", "test3", "test4"]);
-const standbyModes = ref(["Hot", "Warm"]);
-const streamingModes = ref(["Synchronous", "Asynchronous"]);
 
-const { value: labels } = useField<Record<string, string>>("labels");
-const { value: annotations } = useField<Record<string, string>>("annotations");
-const { value: dbConfiguration } = useField<string>("dbConfiguration");
-const { value: password } = useField<string>("password");
-const { value: secret } = useField<string>("secret");
-const { value: standbyMode } = useField<string>("standbyMode");
-const { value: pitrNamespace } = useField<string>("pitrNamespace");
-const { value: pitrName } = useField<string>("pitrName");
-const { value: streamingMode } = useField<string>("streamingMode");
+const dbConfigValue = computed<string>({
+  get: () => props.genericDbConfiguration.dbConfigurationModel ?? "",
+  set: (val: string) => {
+    props.genericDbConfiguration.dbConfigurationModel = val;
+  },
+});
+// const updateLabels = (e: Record<string, string>) => {
+//   props.genericLabels.labelsModel.value = e;
+// };
 
-const updateLabels = (e: Record<string, string>) => {
-  labels.value = e;
-};
+// const updateAnnotations = (e: Record<string, string>) => {
+//   props.genericAnnotations.annotationsModel.value = e;
+// };
 
-const updateAnnotations = (e: Record<string, string>) => {
-  annotations.value = e;
-};
-
-const updateDbConfiguration = (e: string) => {
-  dbConfiguration.value = e;
-};
+// const updateDbConfiguration = (e: string) => {
+//   props.genericDbConfiguration.dbConfigurationModel.value = e;
+// };
 </script>
 
 <template>
@@ -94,32 +61,30 @@ const updateDbConfiguration = (e: string) => {
         <KeyValue
           class="mb-20"
           key="labels"
-          :value="labels"
-          :protected-keys="[]"
-          :toggle-filter="true"
-          add-label="Add Labels"
-          :add-icon="''"
-          :read-allowed="false"
-          :value-can-be-empty="true"
-          @update:value="updateLabels"
+          v-model:value="props.genericLabels.labelsModel"
+          :protected-keys="props.genericLabels.protectedKeys"
+          :toggle-filter="props.genericLabels.toggleFilter"
+          :add-label="props.genericLabels.addLabel"
+          :add-icon="props.genericLabels.addIcon"
+          :read-allowed="props.genericLabels.readAllowed"
+          :value-can-be-empty="props.genericLabels.valueCanBeEmpty"
         />
         <h3>Annotations</h3>
         <KeyValue
           class="mb-20"
-          key="Annotations"
-          :value="annotations"
-          add-label="Add Annotations"
-          :add-icon="''"
-          :read-allowed="false"
-          :value-can-be-empty="true"
-          @update:value="updateAnnotations"
+          key="annotations"
+          v-model:value="props.genericAnnotations.annotationsModel"
+          :add-label="props.genericAnnotations.addLabel"
+          :add-icon="props.genericAnnotations.addIcon"
+          :read-allowed="props.genericAnnotations.readAllowed"
+          :value-can-be-empty="props.genericAnnotations.valueCanBeEmpty"
         />
       </Accordion>
     </div>
 
     <LabeledSelect
       class="mb-20"
-      v-if="props.genericDeletionPolicy?.show"
+      v-if="props.genericDeletionPolicy.show"
       v-model:value="props.genericDeletionPolicy.deletionPolicyModel"
       :options="props.genericDeletionPolicy.options"
       :label="props.genericDeletionPolicy.label"
@@ -148,37 +113,38 @@ const updateDbConfiguration = (e: string) => {
         @update:value="isReferSecret = !isReferSecret"
       />
       <LabeledSelect
-        v-if="isReferSecret"
+        v-if="isReferSecret && props.genericSecret.show"
         class="mb-20"
-        v-model:value="secret"
-        :options="secretsList"
-        label="Secret"
+        v-model:value="props.genericSecret.secretModel"
+        :options="props.genericSecret.options"
+        :label="props.genericSecret.label"
+        :placeholder="props.genericSecret.placeholder"
       />
       <LabeledInput
         class="mb-20"
-        v-model:value="password"
-        label="Password (Leave it blank to auto generate password)"
-        :disabled="false"
-        :min-height="30"
+        v-if="props.genericPassword.show"
+        v-model:value="props.genericPassword.passwordModel"
+        :label="props.genericPassword.label"
+        :disabled="props.genericPassword.disabled"
+        :min-height="props.genericPassword.minHeight"
+        :placeholder="props.genericPassword.placeholder"
       />
     </div>
 
     <div v-if="props.AdvancedToogleSwitch.DbConfig">
       <ToggleSwitch
         class="mb-20"
-        :value="isDbConfig"
+        v-model:value="isDbConfig"
         off-label="Configure Database?"
-        @update:value="isDbConfig = !isDbConfig"
       />
     </div>
 
-    <div v-if="isDbConfig">
+    <div v-if="isDbConfig && props.genericDbConfiguration.show">
       Configuration
       <TextAreaAutoGrow
         class="mb-20"
-        :value="dbConfiguration"
-        :min-height="120"
-        @update:value="updateDbConfiguration"
+        v-model:value="dbConfigValue"
+        :min-height="props.genericDbConfiguration.minHeight"
       />
     </div>
 
@@ -194,32 +160,40 @@ const updateDbConfiguration = (e: string) => {
     <div v-if="isPitr">
       <LabeledInput
         class="mb-20"
-        v-model:value="pitrNamespace"
-        label="Namespace"
-        :min-height="30"
+        v-if="props.genericPitrNamespace.show"
+        v-model:value="props.genericPitrNamespace.pitrNamespaceModel"
+        :label="props.genericPitrNamespace.label"
+        :min-height="props.genericPitrNamespace.minHeight"
+        :placeholder="props.genericPitrNamespace.placeholder"
         :required="isPitr ? true : false"
       />
       <LabeledInput
         class="mb-20"
-        v-model:value="pitrName"
-        label="Name"
-        :min-height="30"
+        v-if="props.genericPitrName.show"
+        v-model:value="props.genericPitrName.pitrNameModel"
+        :label="props.genericPitrName.label"
+        :min-height="props.genericPitrName.minHeight"
+        :placeholder="props.genericPitrName.placeholder"
         :required="isPitr ? true : false"
       />
     </div>
 
     <LabeledSelect
       class="mb-20"
-      v-model:value="standbyMode"
-      :options="standbyModes"
-      label="Standby Mode"
+      v-if="props.genericStandbyMode.show"
+      v-model:value="props.genericStandbyMode.standbyModeModel"
+      :options="props.genericStandbyMode.options"
+      :label="props.genericStandbyMode.label"
+      :placeholder="props.genericStandbyMode.placeholder"
     />
 
     <LabeledSelect
       class="mb-20"
-      v-model:value="streamingMode"
-      :options="streamingModes"
-      label="Streaming Mode"
+      v-if="props.genericStreamingMode.show"
+      v-model:value="props.genericStreamingMode.streamingModeModel"
+      :options="props.genericStreamingMode.options"
+      :label="props.genericStreamingMode.label"
+      :placeholder="props.genericStreamingMode.placeholder"
     />
   </Accordion>
 </template>

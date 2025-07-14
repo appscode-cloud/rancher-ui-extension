@@ -3,7 +3,7 @@ import BasicDbConfig from "./BasicDbConfig.vue";
 import AdvancedDbConfig from "./AdvancedDbConfig.vue";
 import AdditionalOptions from "./AdditionalOptions.vue";
 import { computed, onMounted, ref, watch } from "vue";
-import { useForm, useField } from "vee-validate";
+import { useForm, useField, configure } from "vee-validate";
 import { useStore } from "vuex";
 import $axios from "../composables/axios";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
@@ -116,6 +116,24 @@ const deletionPolicies = ref([
   { label: "WipeOut", value: "WipeOut" },
   { label: "DoNotTerminate", value: "DoNotTerminate" },
 ]);
+const secretsList = ref([
+  { label: "test1", value: "test1" },
+  { label: "test2", value: "test2" },
+  { label: "test3", value: "test3" },
+  { label: "test4", value: "test4" },
+]);
+
+const standbyModes = ref([
+  { label: "Hot", value: "Hot" },
+  { label: "Warm", value: "Warm" },
+]);
+
+const streamingModes = ref([
+  { label: "Synchronous", value: "Synchronous" },
+  { label: "Asynchronous", value: "Asynchronous" },
+]);
+
+
 const previewTitle = computed(() => {
   return `Create Postgres: ${namespace.value}/${name.value}`;
 });
@@ -211,11 +229,13 @@ const gotoNext = () => {
     createPgInstance();
   }
 };
+
 const AdvancedToogleSwitch = ref({
   DbConfig: true,
   AuthCred: true,
   Pitr: true,
 });
+
 const AdditionalToggleSwitch = ref({
   Monitoring: true,
   Backup: true,
@@ -223,6 +243,8 @@ const AdditionalToggleSwitch = ref({
   TLS: true,
   Expose: true,
 });
+
+// Basic Config generics
 const genericNameSpaces = ref({
   show: true,
   disabled: false,
@@ -236,6 +258,7 @@ const genericNameSpaces = ref({
   clearable: true,
   namespaceModel: namespace,
 });
+
 const genericVersions = ref({
   show: true,
   disabled: false,
@@ -249,6 +272,7 @@ const genericVersions = ref({
   clearable: true,
   versionModel: version,
 });
+
 const genericName = ref({
   show: true,
   disabled: false,
@@ -259,6 +283,7 @@ const genericName = ref({
   minHeight: 30,
   nameModel: name,
 });
+
 const genericStorageSize = ref({
   show: true,
   disabled: false,
@@ -269,6 +294,7 @@ const genericStorageSize = ref({
   minHeight: 30,
   storageSizeModel: storageSize,
 });
+
 const genericStorageClass = ref({
   show: true,
   disable: false,
@@ -281,6 +307,7 @@ const genericStorageClass = ref({
   multiple: false,
   storageClassModel: storageClass,
 });
+
 const genericDeletionPolicy = ref({
   show: true,
   disabled: false,
@@ -294,6 +321,7 @@ const genericDeletionPolicy = ref({
   clearable: true,
   deletionPolicyModel: deletionPolicy,
 });
+
 const genericReplica = ref({
   show: true,
   disabled: false,
@@ -305,6 +333,7 @@ const genericReplica = ref({
   minHeight: 30,
   replicaModel: replicas,
 });
+
 const genericMachine = ref({
   show: true,
   options: machines.value,
@@ -315,6 +344,7 @@ const genericMachine = ref({
   machineModel: machine,
   rules: [required],
 });
+
 const genericCPU = ref({
   show: true,
   label: "cpu",
@@ -323,6 +353,7 @@ const genericCPU = ref({
   cpuModel: cpu,
   min: 0,
 });
+
 const genericMemory = ref({
   show: true,
   label: "Memory",
@@ -330,14 +361,92 @@ const genericMemory = ref({
   baseUnit: "Gi",
   memoryModel: memory,
   min: 0,
-})
+});
+
 const genericMode = ref({
   show: true,
   label: "Database Mode",
   options: databaseModes.value,
   row: true,
   modeModel: mode,
-})
+});
+
+// Advanced Config generics
+const genericLabels = ref({
+  show: true,
+  labelsModel: labels,
+  protectedKeys: [],
+  toggleFilter: true,
+  addLabel: "Add Labels",
+  addIcon: "",
+  readAllowed: false,
+  valueCanBeEmpty: true,
+});
+
+const genericAnnotations = ref({
+  show: true,
+  annotationsModel: annotations,
+  addLabel: "Add Annotations",
+  addIcon: "",
+  readAllowed: false,
+  valueCanBeEmpty: true,
+});
+
+const genericDbConfiguration = ref({
+  show: true,
+  dbConfigurationModel: dbConfiguration.value ?? "",
+  minHeight: 120,
+});
+
+const genericPassword = ref({
+  show: true,
+  disabled: false,
+  label: "Password (Leave it blank to auto generate password)",
+  placeholder: "",
+  minHeight: 30,
+  passwordModel: password,
+});
+
+const genericSecret = ref({
+  show: true,
+  options: secretsList.value, 
+  placeholder: "Select Secret",
+  secretModel: secret,
+});
+
+const genericStandbyMode = ref({
+  show: true,
+  options: standbyModes.value, 
+  label: "Standby Mode",
+  placeholder: "Select Standby Mode",
+  standbyModeModel: standbyMode,
+});
+
+
+const genericPitrNamespace = ref({
+  show: true,
+  label: "Namespace",
+  placeholder: "PITR Namespace",
+  minHeight: 30,
+  pitrNamespaceModel: pitrNamespace,
+});
+
+const genericPitrName = ref({
+  show: true,
+  label: "Name",
+  placeholder: "PITR Name",
+  minHeight: 30,
+  pitrNameModel: pitrName,
+});
+
+const genericStreamingMode = ref({
+  show: true,
+  options: streamingModes.value,
+  label: "Streaming Mode",
+  placeholder: "Select Streaming Mode",
+  streamingModeModel: streamingMode,
+});
+
 onMounted(() => {
   validate();
   getClusters();
@@ -382,9 +491,18 @@ onMounted(() => {
       <AdvancedDbConfig
         :AdvancedToogleSwitch="AdvancedToogleSwitch"
         :genericDeletionPolicy="genericDeletionPolicy"
+        :genericLabels="genericLabels"
+        :genericAnnotations="genericAnnotations"
+        :genericDbConfiguration="genericDbConfiguration"
+        :genericPassword="genericPassword"
+        :genericSecret="genericSecret"
+        :genericStandbyMode="genericStandbyMode"
+        :genericPitrNamespace="genericPitrNamespace"
+        :genericPitrName="genericPitrName"
+        :genericStreamingMode="genericStreamingMode"
         :required="required"
       />
-
+      
       <AdditionalOptions
         :alerts-list="alertsList"
         :issuer-list="issuerList"

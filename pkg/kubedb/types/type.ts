@@ -1,3 +1,4 @@
+import {Ref} from "vue"
 export type genericOption = {
   show?: boolean;
   disabled?: boolean;
@@ -27,4 +28,20 @@ export type genericOption = {
   memoryModel?: string;
   row?: boolean;
   modeModel?:string;
+  deletionPolicyModel?: string;
+  labelsModel?: Record<string, string>;
+  annotationsModel?: Record<string, string>;
+  dbConfigurationModel?: string;
+  passwordModel?: string;
+  secretModel?: string;
+  standbyModeModel?: string;
+  pitrNamespaceModel?: string;
+  pitrNameModel?: string;
+  streamingModeModel?: string;
+  protectedKeys?: string[];
+  toggleFilter?: boolean;
+  addLabel?: string;
+  addIcon?: string;
+  readAllowed?: boolean;
+  valueCanBeEmpty?: boolean;
 };
