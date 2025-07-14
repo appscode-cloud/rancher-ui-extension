@@ -6,101 +6,22 @@ import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/La
 import UnitInput from "@rancher/shell/components/form/UnitInput.vue";
 import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
 import { platform } from "@shell/utils/platform";
-
-type genericOption = {
-  show?: boolean;
-  disabled?: boolean;
-  options?: Array<{
-    label: string;
-    value: string;
-  }>;
-  searchable?: boolean;
-  multiple?: boolean;
-  placeholder?: string;
-  required?: boolean;
-  rules?: Array<(value: unknown) => string>;
-  clearable?: boolean;
-  label?: string;
-  minHeight?: number;
-  namespaceModel?: string;
-  nameModel?: string;
-  versionModel?: string;
-  storageSizeModel?: string;
-  storageClassModel?: string;
-};
+import type {genericOption} from "../types/type"
 
 interface Props {
-  genericNameSpaces?: genericOption;
+  genericNameSpaces: genericOption;
   databaseModes: string[];
   machines: string[];
   required: (value: unknown) => string;
-  genericVersions?: genericOption;
-  genericName?: genericOption;
-  genericStorageSize?: genericOption;
-  genericStorageClass?: genericOption;
+  genericVersions: genericOption;
+  genericName: genericOption;
+  genericStorageSize: genericOption;
+  genericStorageClass: genericOption;
+  genericReplica: genericOption;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  genericNameSpaces: () => ({
-    show: true,
-    disabled: false,
-    options: [],
-    searchable: true,
-    multiple: false,
-    label: "Namespace",
-    placeholder: "Select Namespace",
-    required: true,
-    rules: [(value) => (value ? "" : "Namespace is required")],
-    clearable: true,
-    namespaceModel: "Namespaces",
-  }),
-  genericVersions: () => ({
-    show: true,
-    disabled: false,
-    options: [],
-    searchable: true,
-    multiple: false,
-    label: "Version",
-    placeholder: "Select Version",
-    required: true,
-    rules: [(value) => (value ? "" : "Version is required")],
-    clearable: true,
-    versionModel: "Version",
-  }),
-  genericName: () => ({
-    show: true,
-    disabled: false,
-    label: "Name",
-    placeholder: "Database Name",
-    required: true,
-    rules: [(value) => (value ? "" : "Name is required")],
-    minHeight: 30,
-    nameModel: "Name",
-  }),
-  genericStorageSize: () => ({
-    show: true,
-    disabled: false,
-    label: "Storage Size",
-    placeholder: "Storage Size",
-    required: true,
-    rules: [(value) => (value ? "" : "Storage Size is required")],
-    minHeight: 30,
-    storageSizeModel: "20",
-  }),
-  genericStorageClass: () => ({
-    show: true,
-    disable: false,
-    label: "Storage Class",
-    placeholder: "Select Storage Class",
-    required: true,
-    rules: [(value) => (value ? "" : "Storage class is required")],
-    searchable: true,
-    options: [],
-    multiple: false,
-  }),
-});
+const props = defineProps<Props>()
 
-const { value: replicas } = useField<string>("replicas");
 const { value: machine } = useField<string>("machine");
 const { value: cpu } = useField<string>("cpu");
 const { value: memory } = useField<string>("memory");
@@ -184,12 +105,12 @@ const updateMode = (value: string) => {
 
     <div class="mb-20">
       <LabeledInput
-        v-if="showReplicas"
-        v-model:value="replicas"
+        v-if="showReplicas && props.genericReplica.show"
+        v-model:value="props.genericReplica.replicaModel"
         type="number"
-        label="Replicas"
-        placeholder=""
-        :min-height="30"
+        :label="props.genericReplica.label"
+        :placeholder="props.genericReplica.placeholder"
+        :min-height="props.genericReplica.minHeight"
       />
     </div>
 

@@ -100,12 +100,17 @@ const versions = ref([
   { label: "14.17", value: "14.17" },
   { label: "15.12", value: "15.12" },
 ]);
+// const machines = ref([
+//   {label: "custom" , value: "custom"},
+//   {label: "db.t.micro" , value: "db.t.micro"},
+//   {label: "db.t.small" , value: "db.t.small"},
+//   {label: "db.t.medium", value: "db.t.medium"} ,
+//   {label: "db.t.large", value: "db.t.large"},
+// ]);
 const machines = ref([
-  "custom",
+ "custom",
   "db.t.micro",
-  "db.t.small",
-  "db.t.medium",
-  "db.t.large",
+  "db.t.small" 
 ]);
 const deletionPolicies = ref([
     { label: "Delete", value: "Delete" },
@@ -291,6 +296,26 @@ const genericDeletionPolicy = ref({
   clearable: true,
   deletionPolicyModel: deletionPolicy,
 });
+const genericReplica = ref({
+  show: true,
+  disabled: false,
+  label: "Replicas",
+  placeholder: "",
+  required: true,
+  rules: [required],
+  clearable: true,
+  minHeight: 30,
+  replicaModel: replicas,
+});
+const genericMachine = ref({
+  show: true,
+  options: machines.value,
+  searchable: true,
+  multiple: true,
+  label: "Machine Profile",
+  placeholder: "Select machine",
+  machineModel: machine,
+})
 onMounted(() => {
   validate();
   getClusters();
@@ -323,10 +348,12 @@ onMounted(() => {
         :genericVersions="genericVersions"
         :genericName="genericName"
         :database-modes="databaseModes"
-        :machines="machines"
         :required="required"
         :genericStorageSize="genericStorageSize"
         :genericStorageClass="genericStorageClass"
+        :genericReplica="genericReplica"
+        :genericMachine="genericMachine"
+        :machines="machines"
       />
 
       <AdvancedDbConfig
@@ -334,7 +361,6 @@ onMounted(() => {
         :genericDeletionPolicy="genericDeletionPolicy"
         :required="required"
       />
-      {{ deletionPolicy }}
 
       <AdditionalOptions
         :alerts-list="alertsList"
