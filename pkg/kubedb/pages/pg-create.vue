@@ -200,13 +200,25 @@ const createPgInstance = async () => {
 
 const getPgList = async () => {
   // /k8s/clusters/c-pgb8v/api/v1/namespaces/ace/services/ace-platform-api/proxy
-  //  "https://10.2.0.144.sslip.io/k8s/clusters/c-ln4df/api/v1/namespaces/ace/services/ace-platform-api/proxy"
+  //  "/k8s/clusters/c-ln4df/api/v1/namespaces/ace/services/ace-platform-api/proxy"
 
   try {
-    const response = await $axios.get(
-      `/k8s/clusters/c-pgb8v/apis/kubedb.com/v1alpha2/namespaces/default/postgreses`
+    const response = await $axios.post(
+      `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+      {
+        apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+        kind: "Proxy",
+        request: {
+          path: "/api/v1/clusters/rancher/rancher-imported-cluster/helm/packageview/values",
+          verb: "GET",
+          query:
+            "name=kubedbcom-postgres-editor-options&sourceApiGroup=source.toolkit.fluxcd.io&sourceKind=HelmRepository&sourceNamespace=kubeops&sourceName=appscode-charts-oci&version=v0.19.0&group=kubedb.com&kind=Postgres&variant=default&namespace=default&format=json",
+          body: "",
+        },
+      }
     );
-    const data = response.data;
+    const data = response.data.response.body;
+    console.log(data);
     pgList.value = data.items;
   } catch (error) {
     console.error("Error loading data:", error);
