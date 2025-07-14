@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import BasicDbConfig from "./BasicDbConfig.vue";
-import AdvancedDbConfig from "./AdvancedDbConfig.vue";
-import AdditionalOptions from "./AdditionalOptions.vue";
+import BasicDbConfig from "../components/BasicDbConfig.vue";
+import AdvancedDbConfig from "../components/AdvancedDbConfig.vue";
+import AdditionalOptions from "../components/AdditionalOptions.vue";
 import { computed, onMounted, ref, watch } from "vue";
 import { useForm, useField, configure } from "vee-validate";
 import { useStore } from "vuex";
@@ -230,7 +230,7 @@ const gotoNext = () => {
   }
 };
 
-const AdvancedToogleSwitch = ref({
+const AdvancedToggleSwitch = ref({
   DbConfig: true,
   AuthCred: true,
   Pitr: true,
@@ -446,7 +446,6 @@ const genericStreamingMode = ref({
   placeholder: "Select Streaming Mode",
   streamingModeModel: streamingMode,
 });
-
 onMounted(() => {
   validate();
   getClusters();
@@ -487,9 +486,9 @@ onMounted(() => {
         :genericCPU="genericCPU"
         :genericMemory="genericMemory"
       />
-      
+  
       <AdvancedDbConfig
-        :AdvancedToogleSwitch="AdvancedToogleSwitch"
+        :AdvancedToggleSwitch="AdvancedToggleSwitch"
         :genericDeletionPolicy="genericDeletionPolicy"
         :genericLabels="genericLabels"
         :genericAnnotations="genericAnnotations"

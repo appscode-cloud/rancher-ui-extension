@@ -4,7 +4,7 @@ import { useField } from "vee-validate";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import Accordion from "@rancher/shell/rancher-components/Accordion/Accordion.vue";
 import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/ToggleSwitch.vue";
-
+import type {genericOption} from "../types/type"
 interface Props {
   alertsList: string[];
   issuerList: string[];

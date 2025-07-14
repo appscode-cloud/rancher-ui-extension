@@ -6,20 +6,23 @@ import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/La
 import UnitInput from "@rancher/shell/components/form/UnitInput.vue";
 import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
 import { platform } from "@shell/utils/platform";
-import type {genericOption} from "../types/type"
+import {genericNameSpacesType,genericNameType,genericVersionType,genericModeType,genericReplicaType,
+  genericMachineType, genericCPUType, genericMemoryType, genericStorageSizeType, genericStorageClassType
+
+} from "../types/type";
 
 interface Props {
-  genericNameSpaces: genericOption;
+  genericNameSpaces: genericNameSpacesType;
   required: (value: unknown) => string;
-  genericVersions: genericOption;
-  genericName: genericOption;
-  genericStorageSize: genericOption;
-  genericStorageClass: genericOption;
-  genericReplica: genericOption;
-  genericMachine: genericOption;
-  genericCPU: genericOption;
-  genericMemory: genericOption;
-  genericMode: genericOption;
+  genericVersions: genericVersionType;
+  genericName: genericNameType;
+  genericStorageSize: genericStorageSizeType;
+  genericStorageClass: genericStorageClassType;
+  genericReplica: genericReplicaType;
+  genericMachine: genericMachineType;
+  genericCPU: genericCPUType;
+  genericMemory: genericMemoryType;
+  genericMode: genericModeType;
 }
 
 const props = defineProps<Props>()
@@ -64,7 +67,6 @@ const showReplicas = computed(() => {
         />
       </div>
     </div>
-
     <div class="row mb-20">
       <div class="col span-6">
         <LabeledSelect

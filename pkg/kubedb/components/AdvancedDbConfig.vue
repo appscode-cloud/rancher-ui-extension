@@ -6,20 +6,22 @@ import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/To
 import TextAreaAutoGrow from "@rancher/shell/rancher-components/Form/TextArea/TextAreaAutoGrow.vue";
 import KeyValue from "@rancher/shell/components/form/KeyValue.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
-import type { genericOption } from "../types/type";
-
+import { genericDeletionPolicyType, genericLabelsType, genericAnnotationsType,genericSecretType ,
+  genericPasswordType,genericDbConfigurationType,genericPitrNamespaceType,genericPitrNameType,
+  genericStreamingModeType,genericStandbyModeType
+} from "../types/type";
 interface Props {
-  genericDeletionPolicy: genericOption;
-  genericLabels: genericOption;
-  genericAnnotations: genericOption;
-  genericDbConfiguration: genericOption;
-  genericPassword: genericOption;
-  genericSecret: genericOption;
-  genericStandbyMode: genericOption;
-  genericPitrNamespace: genericOption;
-  genericPitrName: genericOption;
-  genericStreamingMode: genericOption;
-  AdvancedToogleSwitch: {
+  genericDeletionPolicy: genericDeletionPolicyType;
+  genericLabels: genericLabelsType;
+  genericAnnotations: genericAnnotationsType;
+  genericDbConfiguration: genericDbConfigurationType;
+  genericPassword: genericPasswordType;
+  genericSecret: genericSecretType;
+  genericStandbyMode: genericStandbyModeType;
+  genericPitrNamespace: genericPitrNamespaceType;
+  genericPitrName: genericPitrNameType;
+  genericStreamingMode: genericStreamingModeType;
+  AdvancedToggleSwitch: {
     DbConfig: boolean;
     AuthCred: boolean;
     Pitr: boolean;
@@ -78,7 +80,7 @@ const isPitr = ref(false);
       :multiple="props.genericDeletionPolicy.multiple"
     />
 
-    <div v-if="props.AdvancedToogleSwitch.AuthCred">
+    <div v-if="props.AdvancedToggleSwitch.AuthCred">
       <ToggleSwitch
         class="mb-20"
         :value="isAuthCred"
@@ -113,7 +115,7 @@ const isPitr = ref(false);
       />
     </div>
 
-    <div v-if="props.AdvancedToogleSwitch.DbConfig">
+    <div v-if="props.AdvancedToggleSwitch.DbConfig">
       <ToggleSwitch
         class="mb-20"
         v-model:value="isDbConfig"
@@ -130,7 +132,7 @@ const isPitr = ref(false);
       />
     </div>
 
-    <div v-if="props.AdvancedToogleSwitch.Pitr">
+    <div v-if="props.AdvancedToggleSwitch.Pitr">
       <ToggleSwitch
         class="mb-20"
         :value="isPitr"
