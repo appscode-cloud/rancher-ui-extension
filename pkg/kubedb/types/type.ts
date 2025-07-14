@@ -21,4 +21,8 @@ export type genericOption = {
   storageClassModel?: string;
   replicaModel?: string;
   machineModel?: string;
+  baseUnit?: string;
+  cpuModel?: string;
+  min?: number;
+  memoryModel?: string;
 };

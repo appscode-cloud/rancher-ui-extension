@@ -18,11 +18,11 @@ interface Props {
   genericStorageClass: genericOption;
   genericReplica: genericOption;
   genericMachine: genericOption;
+  genericCPU: genericOption;
+  genericMemory: genericOption;
 }
 
 const props = defineProps<Props>()
-const { value: cpu } = useField<string>("cpu");
-const { value: memory } = useField<string>("memory");
 const { value: mode } = useField<string>("mode", "", {
   initialValue: "standalone",
 });
@@ -124,25 +124,25 @@ const updateMode = (value: string) => {
       />
     </div>
 
-    <div class="row mb-20" v-if="isCustom">
+    <div class="row mb-20" v-if="isCustom && props.genericCPU.show">
       <div class="col span-6">
         <UnitInput
-          v-model:value="cpu"
-          placeholder="cpu limits"
-          label="CPU"
-          base-unit="core"
+          v-model:value="props.genericCPU.cpuModel"
+          :placeholder="props.genericCPU.placeholder"
+          :label="props.genericCPU.label"
+          :base-unit="props.genericCPU.baseUnit"
           :required="isCustom ? true : false"
-          :min="0"
+          :min="props.genericCPU.min"
         />
       </div>
       <div class="col span-6">
         <UnitInput
-          v-model:value="memory"
-          placeholder="memory limits"
-          label="Memory"
-          base-unit="Gi"
+          v-model:value="props.genericMemory.memoryModel"
+          :placeholder="props.genericMemory.placeholder"
+          :label="props.genericMemory.label"
+          :base-unit="props.genericMemory.baseUnit"
           :required="isCustom ? true : false"
-          :min="0"
+          :min="props.genericMemory.min"
         />
       </div>
     </div>

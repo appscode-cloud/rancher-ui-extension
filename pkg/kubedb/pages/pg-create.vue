@@ -101,18 +101,18 @@ const versions = ref([
   { label: "15.12", value: "15.12" },
 ]);
 const machines = ref([
-  {label: "custom" , value: "custom"},
-  {label: "db.t.micro" , value: "db.t.micro"},
-  {label: "db.t.small" , value: "db.t.small"},
-  {label: "db.t.medium", value: "db.t.medium"} ,
-  {label: "db.t.large", value: "db.t.large"},
+  { label: "custom", value: "custom" },
+  { label: "db.t.micro", value: "db.t.micro" },
+  { label: "db.t.small", value: "db.t.small" },
+  { label: "db.t.medium", value: "db.t.medium" },
+  { label: "db.t.large", value: "db.t.large" },
 ]);
 const deletionPolicies = ref([
-    { label: "Delete", value: "Delete" },
-    { label: "Halt", value: "Halt" },
-    { label: "WipeOut", value: "WipeOut" },
-    { label: "DoNotTerminate", value: "DoNotTerminate" }
-  ]);
+  { label: "Delete", value: "Delete" },
+  { label: "Halt", value: "Halt" },
+  { label: "WipeOut", value: "WipeOut" },
+  { label: "DoNotTerminate", value: "DoNotTerminate" },
+]);
 const previewTitle = computed(() => {
   return `Create Postgres: ${namespace.value}/${name.value}`;
 });
@@ -311,6 +311,22 @@ const genericMachine = ref({
   placeholder: "Select machine",
   machineModel: machine,
   rules: [required],
+});
+const genericCPU = ref({
+  show: true,
+  label: "cpu",
+  placeholder: "cpu limits",
+  baseUnit: "core",
+  cpuModel: cpu,
+  min: 0,
+});
+const genericMemory = ref({
+  show: true,
+  label: "Memory",
+  placeholder: "memory limits",
+  baseUnit: "Gi",
+  memoryModel: memory,
+  min: 0,
 })
 onMounted(() => {
   validate();
@@ -349,8 +365,10 @@ onMounted(() => {
         :genericStorageClass="genericStorageClass"
         :genericReplica="genericReplica"
         :genericMachine="genericMachine"
+        :genericCPU="genericCPU"
+        :genericMemory="genericMemory"
       />
-      {{ machine }}
+      
       <AdvancedDbConfig
         :AdvancedToogleSwitch="AdvancedToogleSwitch"
         :genericDeletionPolicy="genericDeletionPolicy"
