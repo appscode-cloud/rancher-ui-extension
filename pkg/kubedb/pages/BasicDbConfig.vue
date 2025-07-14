@@ -10,7 +10,6 @@ import type {genericOption} from "../types/type"
 
 interface Props {
   genericNameSpaces: genericOption;
-  databaseModes: string[];
   required: (value: unknown) => string;
   genericVersions: genericOption;
   genericName: genericOption;
@@ -20,24 +19,17 @@ interface Props {
   genericMachine: genericOption;
   genericCPU: genericOption;
   genericMemory: genericOption;
+  genericMode: genericOption;
 }
 
 const props = defineProps<Props>()
-const { value: mode } = useField<string>("mode", "", {
-  initialValue: "standalone",
-});
-
 const isCustom = computed(() => {
   return props.genericMachine.machineModel === "custom";
 });
 
 const showReplicas = computed(() => {
-  return mode.value !== "standalone";
+  return props.genericMode.modeModel !== "standalone";
 });
-
-const updateMode = (value: string) => {
-  mode.value = value;
-};
 </script>
 
 <template>
@@ -91,12 +83,11 @@ const updateMode = (value: string) => {
       </div>
       <div class="col span-6">
         <RadioGroup
-          :value="mode"
-          name="database-mode"
-          label="Database Mode"
-          :options="databaseModes"
-          :row="true"
-          @update:value="updateMode"
+          v-if="props.genericMode.show"
+          v-model:value="props.genericMode.modeModel"
+          :label="props.genericMode.label"
+          :options="props.genericMode.options"
+          :row="props.genericMode.row"
         />
       </div>
     </div>

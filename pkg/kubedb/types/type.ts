@@ -25,4 +25,6 @@ export type genericOption = {
   cpuModel?: string;
   min?: number;
   memoryModel?: string;
+  row?: boolean;
+  modeModel?:string;
 };

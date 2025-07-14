@@ -82,7 +82,10 @@ const { value: mode } = useField<string>("mode", "", {
   initialValue: "standalone",
 });
 
-const databaseModes = ref(["standalone", "HA", "replica"]);
+const databaseModes = ref([{label:"standalone", value:"standalone"}, 
+{label:"HA" , value:"HA"}, 
+{label:"replica" , value: "replica"
+}]);
 const storageClasses = ref([
   { label: "local-path", value: "local-path" },
   { label: "longhorn", value: "longhorn" },
@@ -328,6 +331,13 @@ const genericMemory = ref({
   memoryModel: memory,
   min: 0,
 })
+const genericMode = ref({
+  show: true,
+  label: "Database Mode",
+  options: databaseModes.value,
+  row: true,
+  modeModel: mode,
+})
 onMounted(() => {
   validate();
   getClusters();
@@ -359,7 +369,7 @@ onMounted(() => {
         :genericNameSpaces="genericNameSpaces"
         :genericVersions="genericVersions"
         :genericName="genericName"
-        :database-modes="databaseModes"
+        :genericMode="genericMode"
         :required="required"
         :genericStorageSize="genericStorageSize"
         :genericStorageClass="genericStorageClass"
