@@ -1,4 +1,3 @@
-
 interface BaseCommon {
   show?: boolean;
   disabled?: boolean;
@@ -12,7 +11,7 @@ interface BaseCommon {
   options?: Array<{
     label: string;
     value: string;
-  }> ;
+  }>;
   minHeight?: number;
 }
 
@@ -66,7 +65,7 @@ export interface AdvancedBaseCommon extends BaseCommon {
   addLabel?: string;
   addIcon?: string;
   readAllowed?: boolean;
-  valueCanBeEmpty?: boolean;  
+  valueCanBeEmpty?: boolean;
 }
 export interface genericLabelsType extends AdvancedBaseCommon {
   labelsModel: Record<string, string>;
@@ -78,7 +77,7 @@ export interface genericDeletionPolicyType extends AdvancedBaseCommon {
   deletionPolicyModel: string;
 }
 
-export interface genericSecretType extends AdvancedBaseCommon  {
+export interface genericSecretType extends AdvancedBaseCommon {
   secretModel: string;
 }
 
@@ -99,7 +98,7 @@ export interface genericStreamingModeType extends AdvancedBaseCommon {
 }
 export interface genericStandbyModeType extends AdvancedBaseCommon {
   standbyModeModel: string;
-} 
+}
 export interface genericAlertType extends BaseCommon {
   alertModel: string;
 }

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
+import { useRoute } from "vue-router";
 import { useForm, useField } from "vee-validate";
 import $axios from "../composables/axios";
 import BasicDbConfig from "../components/BasicDbConfig.vue";
@@ -10,8 +11,15 @@ import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
 import { useRequiredRule } from "../composables/useRequiredRule";
-const { required } = useRequiredRule();
+import { genericStorageClassType } from "types/type";
 
+const { required } = useRequiredRule();
+const store = useStore();
+const { params } = useRoute();
+const DATABASE = "postgres";
+const isValuesLoading = ref(true);
+const isNamespaceLoading = ref(true);
+const isBundleLoading = ref(true);
 const EDITOR_MODES = {
   EDIT_CODE: "EDIT_CODE",
   VIEW_CODE: "VIEW_CODE",
@@ -43,7 +51,6 @@ type KubeResource = {
   };
 };
 
-const store = useStore();
 const pgList = ref<
   Array<{
     metadata: { name: string; namespace: string };
@@ -82,61 +89,35 @@ const { value: mode } = useField<string>("mode", "", {
   initialValue: "standalone",
 });
 
-const databaseModes = ref([
+const secretsList = ref<Array<{ value: string; label: string }>>([]);
+const standbyModes = ref<Array<{ value: string; label: string }>>([]);
+const streamingModes = ref<Array<{ value: string; label: string }>>([]);
+const issuerList = ref<Array<{ value: string; label: string }>>([]);
+const namespaces = ref<Array<{ value: string; label: string }>>([]);
+const versions = ref<Array<{ value: string; label: string }>>([]);
+const databaseModes = ref<Array<{ value: string; label: string }>>([
   { label: "standalone", value: "standalone" },
   { label: "HA", value: "HA" },
   { label: "replica", value: "replica" },
 ]);
-const storageClasses = ref([
-  { label: "local-path", value: "local-path" },
-  { label: "longhorn", value: "longhorn" },
-]);
-const alertsList = ref([
+const alertsList = ref<Array<{ value: string; label: string }>>([
   { label: "Critical", value: "Critical" },
   { label: "Info", value: "Info" },
   { label: "None", value: "None" },
   { label: "Warning", value: "Warning" },
 ]);
-const issuerList = ref([{ label: "ace-Incluster", value: "ace-Incluster" }]);
-const namespaces = ref([
-  { label: "demo", value: "demo" },
-  { label: "ace", value: "demo" },
-  { label: "default", value: "default" },
-]);
-const versions = ref([
-  { label: "13.40", value: "13.40" },
-  { label: "17.4", value: "17.4" },
-  { label: "14.17", value: "14.17" },
-  { label: "15.12", value: "15.12" },
-]);
-const machines = ref([
+const machines = ref<Array<{ value: string; label: string }>>([
   { label: "custom", value: "custom" },
   { label: "db.t.micro", value: "db.t.micro" },
   { label: "db.t.small", value: "db.t.small" },
   { label: "db.t.medium", value: "db.t.medium" },
   { label: "db.t.large", value: "db.t.large" },
 ]);
-const deletionPolicies = ref([
+const deletionPolicies = ref<Array<{ value: string; label: string }>>([
   { label: "Delete", value: "Delete" },
   { label: "Halt", value: "Halt" },
   { label: "WipeOut", value: "WipeOut" },
   { label: "DoNotTerminate", value: "DoNotTerminate" },
-]);
-const secretsList = ref([
-  { label: "test1", value: "test1" },
-  { label: "test2", value: "test2" },
-  { label: "test3", value: "test3" },
-  { label: "test4", value: "test4" },
-]);
-
-const standbyModes = ref([
-  { label: "Hot", value: "Hot" },
-  { label: "Warm", value: "Warm" },
-]);
-
-const streamingModes = ref([
-  { label: "Synchronous", value: "Synchronous" },
-  { label: "Asynchronous", value: "Asynchronous" },
 ]);
 
 const previewTitle = computed(() => {
@@ -187,10 +168,35 @@ const createPgInstance = async () => {
   }
 };
 
-const getPgList = async () => {
-  // /k8s/clusters/c-pgb8v/api/v1/namespaces/ace/services/ace-platform-api/proxy
-  //  "/k8s/clusters/c-ln4df/api/v1/namespaces/ace/services/ace-platform-api/proxy"
+// const getPgList = async () => {
+//   // /k8s/clusters/c-pgb8v/api/v1/namespaces/ace/services/ace-platform-api/proxy
+//   //  "/k8s/clusters/c-ln4df/api/v1/namespaces/ace/services/ace-platform-api/proxy"
 
+//   try {
+//     const response = await $axios.post(
+//       `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+//       {
+//         apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+//         kind: "Proxy",
+//         request: {
+//           path: "/api/v1/clusters/rancher/rancher-imported-cluster/helm/packageview/values",
+//           verb: "GET",
+//           query:
+//             "name=kubedbcom-postgres-editor-options&sourceApiGroup=source.toolkit.fluxcd.io&sourceKind=HelmRepository&sourceNamespace=kubeops&sourceName=appscode-charts-oci&version=v0.19.0&group=kubedb.com&kind=Postgres&variant=default&namespace=default&format=json",
+//           body: "",
+//         },
+//       }
+//     );
+//     const data = response.data.response.body;
+//     // console.log(data);
+//     pgList.value = data.items;
+//   } catch (error) {
+//     console.error("Error loading data:", error);
+//   }
+// };
+
+const getBundle = async () => {
+  isBundleLoading.value = true;
   try {
     const response = await $axios.post(
       `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
@@ -198,7 +204,92 @@ const getPgList = async () => {
         apiVersion: "rproxy.ace.appscode.com/v1alpha1",
         kind: "Proxy",
         request: {
-          path: "/api/v1/clusters/rancher/rancher-imported-cluster/helm/packageview/values",
+          path: `/api/v1/clusters/rancher/rancher-imported-cluster/db-bundle`,
+          verb: "GET",
+          query: "type=features,common,versions&db-singular=postgres",
+          body: "",
+        },
+      }
+    );
+    const data = await JSON.parse(response.data.response.body);
+    console.log({ bundle: data });
+
+    const availableClusterIssuer = data.clusterissuers;
+    const features = data.features;
+    const availableStorageClass = data.storageclasses;
+
+    if (availableStorageClass) {
+      genericStorageClass.value.options = [];
+      const tempOptions: Array<{ label: string; value: string }> = [];
+      availableStorageClass.forEach((ele: string) => {
+        genericStorageClass.value.options?.push({ label: ele, value: ele });
+      });
+    }
+
+    if (availableClusterIssuer) {
+      issuerList.value = [];
+      availableClusterIssuer.forEach((ele: string) => {
+        issuerList.value.push({ label: ele, value: ele });
+      });
+    }
+  } catch (e) {
+    console.log(e);
+  }
+  isBundleLoading.value = false;
+};
+
+const getNamespaces = async () => {
+  isNamespaceLoading.value = true;
+  try {
+    const response = await $axios.post(
+      `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+      {
+        apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+        kind: "Proxy",
+        request: {
+          path: `/api/v1/clusters/rancher/rancher-imported-cluster/proxy/identity.k8s.appscode.com/v1alpha1/selfsubjectnamespaceaccessreviews`,
+          verb: "POST",
+          query: "",
+          body: JSON.stringify({
+            apiVersion: "identity.k8s.appscode.com/v1alpha1",
+            kind: "SelfSubjectNamespaceAccessReview",
+            spec: {
+              resourceAttributes: [
+                {
+                  verb: "create",
+                  group: "kubedb.com",
+                  version: "v1",
+                  resource: "postgreses",
+                },
+              ],
+            },
+          }),
+        },
+      }
+    );
+    const data = await JSON.parse(response.data.response.body);
+    const projects = data?.status?.projects;
+    Object.keys(projects).forEach((key) => {
+      projects[key].forEach((item: string) => {
+        namespaces.value.push({ label: item, value: item });
+      });
+    });
+  } catch (e) {
+    console.log(e);
+  }
+  isNamespaceLoading.value = false;
+};
+
+const getValues = async () => {
+  isValuesLoading.value = true;
+  try {
+    const response = await $axios.post(
+      `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+      {
+        apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+        kind: "Proxy",
+        request: {
+          path: `/api/v1/clusters/rancher/rancher-imported-cluster/helm/packageview/values`,
           verb: "GET",
           query:
             "name=kubedbcom-postgres-editor-options&sourceApiGroup=source.toolkit.fluxcd.io&sourceKind=HelmRepository&sourceNamespace=kubeops&sourceName=appscode-charts-oci&version=v0.19.0&group=kubedb.com&kind=Postgres&variant=default&namespace=default&format=json",
@@ -206,12 +297,47 @@ const getPgList = async () => {
         },
       }
     );
-    const data = response.data.response.body;
-    console.log(data);
-    pgList.value = data.items;
+
+    const data = await JSON.parse(response.data.response?.body);
+
+    const availableVersions =
+      data.spec?.admin?.databases?.Postgres?.versions?.available || [];
+    if (availableVersions) {
+      availableVersions.forEach((ele: string) => {
+        versions.value.push({
+          label: ele,
+          value: ele,
+        });
+      });
+    }
+
+    const availableMachineProfiles =
+      data.spec?.admin?.machineProfiles?.available || [];
+    if (availableMachineProfiles) {
+      availableMachineProfiles.forEach((ele: string) => {
+        machines.value.push({ label: ele, value: ele });
+      });
+    }
+
+    const availableStorageClass =
+      data.spec?.admin?.storageClasses?.available || [];
+    if (availableStorageClass) {
+      availableStorageClass.forEach((ele: string) => {
+        genericStorageClass.value.options?.push({ label: ele, value: ele });
+      });
+    }
+
+    const availableClusterIssuer =
+      data.spec?.admin?.clusterIssuers?.available || [];
+    if (availableClusterIssuer) {
+      availableClusterIssuer.forEach((ele: string) => {
+        issuerList.value.push({ label: ele, value: ele });
+      });
+    }
   } catch (error) {
     console.error("Error loading data:", error);
   }
+  isValuesLoading.value = false;
 };
 
 const getClusters = async () => {
@@ -300,15 +426,15 @@ const genericStorageSize = ref({
   storageSizeModel: storageSize,
 });
 
-const genericStorageClass = ref({
+const genericStorageClass = ref<genericStorageClassType>({
   show: true,
-  disable: false,
+  disabled: false,
   label: "Storage Class",
   placeholder: "Select Storage Class",
   required: true,
   rules: [required],
   searchable: true,
-  options: storageClasses.value,
+  options: [],
   multiple: false,
   storageClassModel: storageClass,
 });
@@ -470,77 +596,84 @@ const genericIssuer = ref({
 onMounted(() => {
   validate();
   getClusters();
-  getPgList();
+  getNamespaces();
+  getValues();
+  getBundle();
 });
 </script>
 
 <template>
   <div class="m-20">
     <h1>{{ step === 1 ? "Create Postgres" : previewTitle }}</h1>
-    <div v-if="step === 1">
-      <div class="mb-20">
-        <LabeledSelect
-          v-model:value="clusterId"
-          :clearable="false"
-          :options="clusterIdList"
-          :disabled="false"
-          :searchable="true"
-          :multiple="false"
-          label="Cluster"
-          placeholder="Select Cluster"
-          required
-          :rules="[required]"
+    <p v-if="isValuesLoading || isBundleLoading || isNamespaceLoading">
+      loading...
+    </p>
+    <div v-else>
+      <div v-if="step === 1">
+        <div class="mb-20">
+          <LabeledSelect
+            v-model:value="clusterId"
+            :clearable="false"
+            :options="clusterIdList"
+            :disabled="false"
+            :searchable="true"
+            :multiple="false"
+            label="Cluster"
+            placeholder="Select Cluster"
+            required
+            :rules="[required]"
+          />
+        </div>
+
+        <!-- Basic Configuration Component -->
+        <BasicDbConfig
+          :genericNameSpaces="genericNameSpaces"
+          :genericVersions="genericVersions"
+          :genericName="genericName"
+          :genericMode="genericMode"
+          :required="required"
+          :genericStorageSize="genericStorageSize"
+          :genericStorageClass="genericStorageClass"
+          :genericReplica="genericReplica"
+          :genericMachine="genericMachine"
+          :genericCPU="genericCPU"
+          :genericMemory="genericMemory"
+        />
+
+        <AdvancedDbConfig
+          :AdvancedToggleSwitch="AdvancedToggleSwitch"
+          :genericDeletionPolicy="genericDeletionPolicy"
+          :genericLabels="genericLabels"
+          :genericAnnotations="genericAnnotations"
+          :genericDbConfiguration="genericDbConfiguration"
+          :genericPassword="genericPassword"
+          :genericSecret="genericSecret"
+          :genericStandbyMode="genericStandbyMode"
+          :genericPitrNamespace="genericPitrNamespace"
+          :genericPitrName="genericPitrName"
+          :genericStreamingMode="genericStreamingMode"
+          :required="required"
+        />
+
+        <AdditionalOptions
+          :AdditionalToggleSwitch="AdditionalToggleSwitch"
+          :genericAlert="genericAlert"
+          :genericIssuer="genericIssuer"
         />
       </div>
 
-      <!-- Basic Configuration Component -->
-      <BasicDbConfig
-        :genericNameSpaces="genericNameSpaces"
-        :genericVersions="genericVersions"
-        :genericName="genericName"
-        :genericMode="genericMode"
-        :required="required"
-        :genericStorageSize="genericStorageSize"
-        :genericStorageClass="genericStorageClass"
-        :genericReplica="genericReplica"
-        :genericMachine="genericMachine"
-        :genericCPU="genericCPU"
-        :genericMemory="genericMemory"
-      />
-
-      <AdvancedDbConfig
-        :AdvancedToggleSwitch="AdvancedToggleSwitch"
-        :genericDeletionPolicy="genericDeletionPolicy"
-        :genericLabels="genericLabels"
-        :genericAnnotations="genericAnnotations"
-        :genericDbConfiguration="genericDbConfiguration"
-        :genericPassword="genericPassword"
-        :genericSecret="genericSecret"
-        :genericStandbyMode="genericStandbyMode"
-        :genericPitrNamespace="genericPitrNamespace"
-        :genericPitrName="genericPitrName"
-        :genericStreamingMode="genericStreamingMode"
-        :required="required"
-      />
-
-      <AdditionalOptions
-        :AdditionalToggleSwitch="AdditionalToggleSwitch"
-        :genericAlert="genericAlert"
-        :genericIssuer="genericIssuer"
+      <YamlEditor
+        v-if="step === 2"
+        ref="yamleditor"
+        v-model:value="payload"
+        :mode="mode"
+        :asObject="true"
+        :initial-yaml-values="payload"
+        class="yaml-editor flex-content"
+        :editor-mode="EDITOR_MODES.EDIT_CODE"
+        @update:value="updatePayload"
       />
     </div>
-
-    <YamlEditor
-      v-if="step === 2"
-      ref="yamleditor"
-      v-model:value="payload"
-      :mode="mode"
-      :asObject="true"
-      :initial-yaml-values="payload"
-      class="yaml-editor flex-content"
-      :editor-mode="EDITOR_MODES.EDIT_CODE"
-      @update:value="updatePayload"
-    />
 
     <div class="button-container">
       <RcButton secondary>Cancel</RcButton>
@@ -558,6 +691,7 @@ onMounted(() => {
       </div>
     </div>
   </div>
+  <pre>{{ values }}</pre>
 </template>
 
 <style scoped>
