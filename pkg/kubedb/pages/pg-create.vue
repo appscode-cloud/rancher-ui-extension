@@ -530,6 +530,7 @@ onMounted(() => {
         :genericAlert="genericAlert"
         :genericIssuer="genericIssuer"
       />
+      {{ alert }} {{ issuer }}
     </div>
 
     <YamlEditor
