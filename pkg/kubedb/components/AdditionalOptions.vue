@@ -1,13 +1,11 @@
 <script setup lang="ts">
 import { defineEmits, defineProps, ref } from "vue";
-import { useField } from "vee-validate";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import Accordion from "@rancher/shell/rancher-components/Accordion/Accordion.vue";
 import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/ToggleSwitch.vue";
-import type {genericOption} from "../types/type"
+import { genericAlertType, genericIssuerType } from "../types/type";
+
 interface Props {
-  alertsList: string[];
-  issuerList: string[];
   AdditionalToggleSwitch: {
     Monitoring: boolean;
     Backup: boolean;
@@ -15,37 +13,17 @@ interface Props {
     TLS: boolean;
     Expose: boolean;
   };
+  genericAlert: genericAlertType;
+  genericIssuer: genericIssuerType;
 }
 
 const props = defineProps<Props>();
+
 const isMonitoring = ref(false);
 const isBackup = ref(false);
 const isArchiver = ref(false);
 const isTLS = ref(false);
 const isExpose = ref(false);
-
-const { value: alert } = useField<string>("alert");
-const { value: issuer } = useField<string>("issuer");
-
-const updateMonitoring = (value: boolean) => {
-  isMonitoring.value = value;
-};
-
-const updateBackup = (value: boolean) => {
-  isBackup.value = value;
-};
-
-const updateArchiver = (value: boolean) => {
-  isArchiver.value = value;
-};
-
-const updateTLS = (value: boolean) => {
-  isTLS.value = value;
-};
-
-const updateExpose = (value: boolean) => {
-  isExpose.value = value;
-};
 </script>
 
 <template>
@@ -53,51 +31,46 @@ const updateExpose = (value: boolean) => {
     <ToggleSwitch
       v-if="props.AdditionalToggleSwitch?.Monitoring"
       class="mb-20"
-      :value="isMonitoring"
+      v-model:value="isMonitoring"
       off-label="Enable Monitoring?"
-      @update:value="updateMonitoring"
     />
     <LabeledSelect
-      v-if="isMonitoring"
+      v-if="isMonitoring && props.genericAlert.show"
       class="mb-20"
-      v-model:value="alert"
-      :options="alertsList"
-      label="Alert Options"
+      v-model:value="props.genericAlert.alertModel"
+      :options="props.genericAlert.options"
+      :label="props.genericAlert.label"
     />
     <ToggleSwitch
       v-if="props.AdditionalToggleSwitch?.Backup"
       class="mb-20"
-      :value="isBackup"
+      v-model:value="isBackup"
       off-label="Enable Backup?"
-      @update:value="updateBackup"
     />
     <ToggleSwitch
       v-if="props.AdditionalToggleSwitch?.Archiver"
       class="mb-20"
-      :value="isArchiver"
+      v-model:value="isArchiver"
       off-label="Enable Archiver?"
-      @update:value="updateArchiver"
     />
     <ToggleSwitch
       v-if="props.AdditionalToggleSwitch?.TLS"
       class="mb-20"
-      :value="isTLS"
+      v-model:value="isTLS"
       off-label="Enable TLS?"
-      @update:value="updateTLS"
     />
     <LabeledSelect
-      v-if="isTLS"
+      v-if="isTLS && props.genericIssuer.show"
       class="mb-20"
-      v-model:value="issuer"
-      :options="issuerList"
-      label="Cluster Issuers"
+      v-model:value="props.genericIssuer.issuerModel"
+      :options="props.genericIssuer.options"
+      :label="props.genericIssuer.label"
     />
     <ToggleSwitch
       v-if="props.AdditionalToggleSwitch?.Expose"
       class="mb-20"
-      :value="isExpose"
+      v-model:value="isExpose"
       off-label="Expose via Gateway ?"
-      @update:value="updateExpose"
     />
   </Accordion>
 </template>

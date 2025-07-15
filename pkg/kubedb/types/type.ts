@@ -100,3 +100,10 @@ export interface genericStreamingModeType extends AdvancedBaseCommon {
 export interface genericStandbyModeType extends AdvancedBaseCommon {
   standbyModeModel: string;
 } 
+export interface genericAlertType extends BaseCommon {
+  alertModel: string;
+}
+
+export interface genericIssuerType extends BaseCommon {
+  issuerModel: string;
+}

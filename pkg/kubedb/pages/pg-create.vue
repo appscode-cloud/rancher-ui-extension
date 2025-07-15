@@ -90,8 +90,15 @@ const storageClasses = ref([
   { label: "local-path", value: "local-path" },
   { label: "longhorn", value: "longhorn" },
 ]);
-const alertsList = ref(["Critical", "Info", "None", "Warning"]);
-const issuerList = ref(["ace-Incluster"]);
+const alertsList = ref([
+  { label: "Critical", value: "Critical" },
+  { label: "Info", value: "Info" },
+  { label: "None", value: "None" },
+  { label: "Warning", value: "Warning" },
+]);
+const issuerList = ref([
+  { label: "ace-Incluster", value: "ace-Incluster" },
+]);
 const namespaces = ref([
   { label: "demo", value: "demo" },
   { label: "ace", value: "demo" },
@@ -446,6 +453,22 @@ const genericStreamingMode = ref({
   placeholder: "Select Streaming Mode",
   streamingModeModel: streamingMode,
 });
+
+// Additional Options generics
+const genericAlert = ref({
+  show: true,
+  options: alertsList.value,
+  label: "Alert Options",
+  alertModel: alert,
+});
+
+const genericIssuer = ref({
+  show: true,
+  options: issuerList.value,
+  label: "Cluster Issuers",
+  issuerModel: issuer,
+});
+
 onMounted(() => {
   validate();
   getClusters();
@@ -503,9 +526,9 @@ onMounted(() => {
       />
       
       <AdditionalOptions
-        :alerts-list="alertsList"
-        :issuer-list="issuerList"
         :AdditionalToggleSwitch="AdditionalToggleSwitch"
+        :genericAlert="genericAlert"
+        :genericIssuer="genericIssuer"
       />
     </div>
 
