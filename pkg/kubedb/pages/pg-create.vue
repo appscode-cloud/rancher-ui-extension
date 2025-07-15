@@ -1,29 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
-import { useForm, useField } from "vee-validate";
 import { useStore } from "vuex";
+import { useForm, useField } from "vee-validate";
 import $axios from "../composables/axios";
+import BasicDbConfig from "../components/BasicDbConfig.vue";
+import AdvancedDbConfig from "../components/AdvancedDbConfig.vue";
+import AdditionalOptions from "../components/AdditionalOptions.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
-import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
-import UnitInput from "@rancher/shell/components/form/UnitInput.vue";
-import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
-import Accordion from "@rancher/shell/rancher-components/Accordion/Accordion.vue";
-import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/ToggleSwitch.vue";
-import TextAreaAutoGrow from "@rancher/shell/rancher-components/Form/TextArea/TextAreaAutoGrow.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
-import KeyValue from "@rancher/shell/components/form/KeyValue.vue";
 import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
-
-const required = (value: unknown) => {
-  if (!!value || value === 0) {
-    if (Array.isArray(value) && value.length > 0) return "";
-    else if (typeof value === "object" && Object.keys(value).length > 0)
-      return "";
-    if (typeof value === "string" && value.length > 0) return "";
-    if (typeof value === "boolean" || typeof value === "number") return "";
-  }
-  return "This field is required";
-};
+import { useRequiredRule } from "../composables/useRequiredRule";
+const { required } = useRequiredRule();
 
 const EDITOR_MODES = {
   EDIT_CODE: "EDIT_CODE",
@@ -37,6 +24,8 @@ type KubeResource = {
   metadata: {
     name: string;
     namespace: string;
+    annotations?: Record<string, string>;
+    labels?: Record<string, string>;
   };
   spec: {
     deletionPolicy: string;
@@ -63,26 +52,16 @@ const pgList = ref<
 >([]);
 
 const step = ref(1);
-
-const isDbConfig = ref(false);
-const isAuthCred = ref(false);
-const isReferSecret = ref(false);
-const isPitr = ref(false);
-const isMonitoring = ref(false);
-const isBackup = ref(false);
-const isArchiver = ref(false);
-const isTLS = ref(false);
-const isExpose = ref(false);
 const disableNextBtn = ref(true);
 const clusterIdList = ref([]);
 
-const { values, errors, validate, isValidating } = useForm({});
+const { values, errors, validate } = useForm({});
 const { value: clusterId } = useField<string>("clusterId", required);
 const { value: name } = useField<string>("name", required);
 const { value: namespace } = useField<string>("namespace", required);
 const { value: version } = useField<string>("version", required);
 const { value: replicas } = useField<string>("replicas");
-const { value: machine } = useField<string>("machine");
+const { value: machine } = useField<string>("machine", required);
 const { value: cpu } = useField<string>("cpu");
 const { value: memory } = useField<string>("memory");
 const { value: storageClass } = useField<string>("storageClass", required);
@@ -103,12 +82,22 @@ const { value: mode } = useField<string>("mode", "", {
   initialValue: "standalone",
 });
 
-const databaseModes = ref(["standalone", "HA", "replica"]);
-const storageClasses = ref(["local-path", "longhorn"]);
-const deletionPolicies = ref(["Delete", "Halt", "WipeOut", "DoNotTerminate"]);
-const secretsList = ref(["test1", "test2", "test3", "test4"]);
-const alertsList = ref(["Critical", "Info", "None", "Warning"]);
-const issuerList = ref(["ace-Incluster"]);
+const databaseModes = ref([
+  { label: "standalone", value: "standalone" },
+  { label: "HA", value: "HA" },
+  { label: "replica", value: "replica" },
+]);
+const storageClasses = ref([
+  { label: "local-path", value: "local-path" },
+  { label: "longhorn", value: "longhorn" },
+]);
+const alertsList = ref([
+  { label: "Critical", value: "Critical" },
+  { label: "Info", value: "Info" },
+  { label: "None", value: "None" },
+  { label: "Warning", value: "Warning" },
+]);
+const issuerList = ref([{ label: "ace-Incluster", value: "ace-Incluster" }]);
 const namespaces = ref([
   { label: "demo", value: "demo" },
   { label: "ace", value: "demo" },
@@ -121,21 +110,34 @@ const versions = ref([
   { label: "15.12", value: "15.12" },
 ]);
 const machines = ref([
-  "custom",
-  "db.t.micro",
-  "db.t.small",
-  "db.t.medium",
-  "db.t.large",
+  { label: "custom", value: "custom" },
+  { label: "db.t.micro", value: "db.t.micro" },
+  { label: "db.t.small", value: "db.t.small" },
+  { label: "db.t.medium", value: "db.t.medium" },
+  { label: "db.t.large", value: "db.t.large" },
 ]);
-const standbyModes = ref(["Hot", "Warm"]);
-const streamingModes = ref(["Synchronous", "Asynchronous"]);
+const deletionPolicies = ref([
+  { label: "Delete", value: "Delete" },
+  { label: "Halt", value: "Halt" },
+  { label: "WipeOut", value: "WipeOut" },
+  { label: "DoNotTerminate", value: "DoNotTerminate" },
+]);
+const secretsList = ref([
+  { label: "test1", value: "test1" },
+  { label: "test2", value: "test2" },
+  { label: "test3", value: "test3" },
+  { label: "test4", value: "test4" },
+]);
 
-const isCustom = computed(() => {
-  return machine.value === "custom";
-});
-const showReplicas = computed(() => {
-  return values.mode !== "standalone";
-});
+const standbyModes = ref([
+  { label: "Hot", value: "Hot" },
+  { label: "Warm", value: "Warm" },
+]);
+
+const streamingModes = ref([
+  { label: "Synchronous", value: "Synchronous" },
+  { label: "Asynchronous", value: "Asynchronous" },
+]);
 
 const previewTitle = computed(() => {
   return `Create Postgres: ${namespace.value}/${name.value}`;
@@ -172,20 +174,7 @@ watch(values, async () => {
   disableNextBtn.value = !validated;
 });
 
-const updateMode = (e: string) => {
-  mode.value = e;
-};
-const updateLabels = (e: Record<string, string>) => {
-  labels.value = e;
-};
-const updateAnnotations = (e: Record<string, string>) => {
-  annotations.value = e;
-};
-const updateDbConfiguration = (e: string) => {
-  dbConfiguration.value = e;
-};
 const updatePayload = (e: KubeResource) => {
-  // payload.value = e;
   console.log(e);
 };
 
@@ -246,6 +235,238 @@ const gotoNext = () => {
   }
 };
 
+const AdvancedToggleSwitch = ref({
+  DbConfig: true,
+  AuthCred: true,
+  Pitr: true,
+});
+
+const AdditionalToggleSwitch = ref({
+  Monitoring: true,
+  Backup: true,
+  Archiver: true,
+  TLS: true,
+  Expose: true,
+});
+
+// Basic Config generics
+const genericNameSpaces = ref({
+  show: true,
+  disabled: false,
+  options: namespaces.value,
+  searchable: true,
+  multiple: false,
+  label: "Namespace",
+  placeholder: "Select Namespace",
+  required: true,
+  rules: [required],
+  clearable: true,
+  namespaceModel: namespace,
+});
+
+const genericVersions = ref({
+  show: true,
+  disabled: false,
+  options: versions.value,
+  searchable: true,
+  multiple: false,
+  label: "Version",
+  placeholder: "Select Version",
+  required: true,
+  rules: [required],
+  clearable: true,
+  versionModel: version,
+});
+
+const genericName = ref({
+  show: true,
+  disabled: false,
+  label: "Name",
+  placeholder: "Databse Name",
+  required: true,
+  rules: [required],
+  minHeight: 30,
+  nameModel: name,
+});
+
+const genericStorageSize = ref({
+  show: true,
+  disabled: false,
+  label: "Storage Size",
+  placeholder: "Input Storage Size",
+  required: true,
+  rules: [required],
+  minHeight: 30,
+  storageSizeModel: storageSize,
+});
+
+const genericStorageClass = ref({
+  show: true,
+  disable: false,
+  label: "Storage Class",
+  placeholder: "Select Storage Class",
+  required: true,
+  rules: [required],
+  searchable: true,
+  options: storageClasses.value,
+  multiple: false,
+  storageClassModel: storageClass,
+});
+
+const genericDeletionPolicy = ref({
+  show: true,
+  disabled: false,
+  options: deletionPolicies.value,
+  searchable: true,
+  multiple: false,
+  label: "Deletion Policy",
+  placeholder: "Select Deletion Policy",
+  required: true,
+  rules: [required],
+  clearable: true,
+  deletionPolicyModel: deletionPolicy,
+});
+
+const genericReplica = ref({
+  show: true,
+  disabled: false,
+  label: "Replicas",
+  placeholder: "",
+  required: true,
+  rules: [required],
+  clearable: true,
+  minHeight: 30,
+  replicaModel: replicas,
+});
+
+const genericMachine = ref({
+  show: true,
+  options: machines.value,
+  searchable: true,
+  multiple: false,
+  label: "Machine Profile",
+  placeholder: "Select machine",
+  machineModel: machine,
+  required: true,
+  rules: [required],
+});
+
+const genericCPU = ref({
+  show: true,
+  label: "cpu",
+  placeholder: "cpu limits",
+  baseUnit: "core",
+  cpuModel: cpu,
+  min: 0,
+});
+
+const genericMemory = ref({
+  show: true,
+  label: "Memory",
+  placeholder: "memory limits",
+  baseUnit: "Gi",
+  memoryModel: memory,
+  min: 0,
+});
+
+const genericMode = ref({
+  show: true,
+  label: "Database Mode",
+  options: databaseModes.value,
+  row: true,
+  modeModel: mode,
+});
+
+// Advanced Config generics
+const genericLabels = ref({
+  show: true,
+  labelsModel: labels,
+  protectedKeys: [],
+  toggleFilter: true,
+  addLabel: "Add Labels",
+  addIcon: "",
+  readAllowed: false,
+  valueCanBeEmpty: true,
+});
+
+const genericAnnotations = ref({
+  show: true,
+  annotationsModel: annotations,
+  addLabel: "Add Annotations",
+  addIcon: "",
+  readAllowed: false,
+  valueCanBeEmpty: true,
+});
+
+const genericDbConfiguration = ref({
+  show: true,
+  dbConfigurationModel: dbConfiguration.value ?? "",
+  minHeight: 120,
+});
+
+const genericPassword = ref({
+  show: true,
+  disabled: false,
+  label: "Password (Leave it blank to auto generate password)",
+  placeholder: "",
+  minHeight: 30,
+  passwordModel: password,
+});
+
+const genericSecret = ref({
+  show: true,
+  options: secretsList.value,
+  placeholder: "Select Secret",
+  secretModel: secret,
+});
+
+const genericStandbyMode = ref({
+  show: true,
+  options: standbyModes.value,
+  label: "Standby Mode",
+  placeholder: "Select Standby Mode",
+  standbyModeModel: standbyMode,
+});
+
+const genericPitrNamespace = ref({
+  show: true,
+  label: "Namespace",
+  placeholder: "PITR Namespace",
+  minHeight: 30,
+  pitrNamespaceModel: pitrNamespace,
+});
+
+const genericPitrName = ref({
+  show: true,
+  label: "Name",
+  placeholder: "PITR Name",
+  minHeight: 30,
+  pitrNameModel: pitrName,
+});
+
+const genericStreamingMode = ref({
+  show: true,
+  options: streamingModes.value,
+  label: "Streaming Mode",
+  placeholder: "Select Streaming Mode",
+  streamingModeModel: streamingMode,
+});
+
+// Additional Options generics
+const genericAlert = ref({
+  show: true,
+  options: alertsList.value,
+  label: "Alert Options",
+  alertModel: alert,
+});
+
+const genericIssuer = ref({
+  show: true,
+  options: issuerList.value,
+  label: "Cluster Issuers",
+  issuerModel: issuer,
+});
+
 onMounted(() => {
   validate();
   getClusters();
@@ -271,299 +492,42 @@ onMounted(() => {
           :rules="[required]"
         />
       </div>
-      <!-- Basic -->
-      <div>
-        <div class="row mb-20">
-          <div class="col span-6">
-            <LabeledSelect
-              v-model:value="namespace"
-              :clearable="true"
-              :options="namespaces"
-              :disabled="false"
-              :searchable="true"
-              :multiple="false"
-              label="Namespace"
-              placeholder="Select Namespace"
-              required
-              :rules="[required]"
-            />
-          </div>
 
-          <div class="col span-6">
-            <LabeledInput
-              v-model:value="name"
-              label="Name"
-              placeholder="Database Name"
-              :disabled="false"
-              :min-height="30"
-              :required="true"
-              :rules="[required]"
-            />
-          </div>
-        </div>
+      <!-- Basic Configuration Component -->
+      <BasicDbConfig
+        :genericNameSpaces="genericNameSpaces"
+        :genericVersions="genericVersions"
+        :genericName="genericName"
+        :genericMode="genericMode"
+        :required="required"
+        :genericStorageSize="genericStorageSize"
+        :genericStorageClass="genericStorageClass"
+        :genericReplica="genericReplica"
+        :genericMachine="genericMachine"
+        :genericCPU="genericCPU"
+        :genericMemory="genericMemory"
+      />
 
-        <div class="row mb-20">
-          <div class="col span-6">
-            <LabeledSelect
-              v-model:value="version"
-              :clearable="true"
-              :options="versions"
-              :disabled="false"
-              :searchable="true"
-              :multiple="false"
-              label="Version"
-              placeholder="Select version"
-              required
-              :rules="[required]"
-            />
-          </div>
-          <div class="col span-6">
-            <RadioGroup
-              :value="mode"
-              name="database-mode"
-              label="Database Mode"
-              :options="databaseModes"
-              :row="true"
-              @update:value="updateMode"
-            />
-          </div>
-        </div>
-        <div class="mb-20">
-          <LabeledInput
-            v-if="showReplicas"
-            v-model:value="replicas"
-            type="number"
-            label="Replicas"
-            placeholder=""
-            :min-height="30"
-          />
-        </div>
-        <div class="mb-20">
-          <LabeledSelect
-            v-model:value="machine"
-            :options="machines"
-            :searchable="true"
-            :multiple="false"
-            label="Machine Profile"
-            placeholder="Select machine"
-          />
-        </div>
+      <AdvancedDbConfig
+        :AdvancedToggleSwitch="AdvancedToggleSwitch"
+        :genericDeletionPolicy="genericDeletionPolicy"
+        :genericLabels="genericLabels"
+        :genericAnnotations="genericAnnotations"
+        :genericDbConfiguration="genericDbConfiguration"
+        :genericPassword="genericPassword"
+        :genericSecret="genericSecret"
+        :genericStandbyMode="genericStandbyMode"
+        :genericPitrNamespace="genericPitrNamespace"
+        :genericPitrName="genericPitrName"
+        :genericStreamingMode="genericStreamingMode"
+        :required="required"
+      />
 
-        <div class="row mb-20" v-if="isCustom">
-          <div class="col span-6">
-            <UnitInput
-              v-model:value="cpu"
-              placeholder="cpu limits"
-              label="CPU"
-              base-unit="core"
-              :required="isCustom ? true : false"
-              :min="0"
-            />
-          </div>
-          <div class="col span-6">
-            <UnitInput
-              v-model:value="memory"
-              placeholder="memory limits"
-              label="Memory"
-              base-unit="Gi"
-              :required="isCustom ? true : false"
-              :min="0"
-            />
-          </div>
-        </div>
-
-        <div class="row mb-20">
-          <div class="col span-6">
-            <LabeledSelect
-              v-model:value="storageClass"
-              :options="storageClasses"
-              :searchable="true"
-              :multiple="false"
-              label="Storage Class"
-              placeholder="Select Storage Class"
-              required
-            />
-          </div>
-          <div class="col span-6">
-            <LabeledInput
-              v-model:value="storageSize"
-              label="Storage Size"
-              :disabled="false"
-              :min-height="30"
-              :required="true"
-            />
-          </div>
-        </div>
-      </div>
-
-      <!-- Advanced Configuration -->
-      <Accordion title="Advanced Configuration" class="mb-20">
-        <div>
-          <Accordion title="Labels & Annotations" class="mb-20">
-            <h3>Labels</h3>
-            <KeyValue
-              class="mb-20"
-              key="labels"
-              :value="labels"
-              :protected-keys="[]"
-              :toggle-filter="true"
-              add-label="Add Labels"
-              :add-icon="''"
-              :read-allowed="false"
-              :value-can-be-empty="true"
-              @update:value="updateLabels"
-            />
-            <h3>Annotations</h3>
-            <KeyValue
-              class="mb-20"
-              key="Annotations"
-              :value="annotations"
-              add-label="Add Annotations"
-              :add-icon="''"
-              :read-allowed="false"
-              :value-can-be-empty="true"
-              @update:value="updateAnnotations"
-            />
-          </Accordion>
-        </div>
-
-        <LabeledSelect
-          class="mb-20"
-          v-model:value="deletionPolicy"
-          :options="deletionPolicies"
-          label="Deletion Policy"
-          required
-        />
-        <ToggleSwitch
-          class="mb-20"
-          :value="isAuthCred"
-          off-label="Provide Authentication Credentials?"
-          @update:value="isAuthCred = !isAuthCred"
-        />
-        <div v-if="isAuthCred">
-          <ToggleSwitch
-            class="mb-20"
-            :value="isReferSecret"
-            off-label="Refer Existing Secret?"
-            @update:value="isReferSecret = !isReferSecret"
-          />
-          <LabeledSelect
-            v-if="isReferSecret"
-            class="mb-20"
-            v-model:value="secret"
-            :options="secretsList"
-            label="Secret"
-          />
-          <LabeledInput
-            class="mb-20"
-            v-model:value="password"
-            label="Password (Leave it blank to auto generate password)"
-            :disabled="false"
-            :min-height="30"
-          />
-        </div>
-
-        <ToggleSwitch
-          class="mb-20"
-          :value="isDbConfig"
-          off-label="Configure Database?"
-          @update:value="isDbConfig = !isDbConfig"
-        />
-        <div v-if="isDbConfig">
-          Configuration
-          <TextAreaAutoGrow
-            class="mb-20"
-            :value="dbConfiguration"
-            :min-height="120"
-            @update:value="updateDbConfiguration"
-          />
-        </div>
-
-        <ToggleSwitch
-          class="mb-20"
-          :value="isPitr"
-          off-label="Point in-time recovery"
-          @update:value="isPitr = !isPitr"
-        />
-
-        <div v-if="isPitr">
-          <LabeledInput
-            class="mb-20"
-            v-model:value="pitrNamespace"
-            label="Namespace"
-            :min-height="30"
-            :required="isPitr ? true : false"
-          />
-          <LabeledInput
-            class="mb-20"
-            v-model:value="pitrName"
-            label="Name"
-            :min-height="30"
-            :required="isPitr ? true : false"
-          />
-        </div>
-
-        <LabeledSelect
-          class="mb-20"
-          v-model:value="standbyMode"
-          :options="standbyModes"
-          label="Standby Mode"
-        />
-        <LabeledSelect
-          class="mb-20"
-          v-model:value="streamingMode"
-          :options="streamingModes"
-          label="Streaming Mode"
-        />
-      </Accordion>
-
-      <!-- Additional Options -->
-      <Accordion title="Additional Options" class="mb-20">
-        <ToggleSwitch
-          class="mb-20"
-          :value="isMonitoring"
-          off-label="Enable Monitoring?"
-          @update:value="isMonitoring = !isMonitoring"
-        />
-        <LabeledSelect
-          v-if="isMonitoring"
-          class="mb-20"
-          v-model:value="alert"
-          :options="alertsList"
-          label="Alert Options"
-        />
-        <ToggleSwitch
-          class="mb-20"
-          :value="isBackup"
-          off-label="Enable Backup?"
-          @update:value="isBackup = !isBackup"
-        />
-        <ToggleSwitch
-          class="mb-20"
-          :value="isArchiver"
-          off-label="Enable Archiver?"
-          @update:value="isArchiver = !isArchiver"
-        />
-        <ToggleSwitch
-          class="mb-20"
-          :value="isTLS"
-          off-label="Enable TLS?"
-          @update:value="isTLS = !isTLS"
-        />
-        <LabeledSelect
-          v-if="isTLS"
-          class="mb-20"
-          v-model:value="issuer"
-          :options="issuerList"
-          label="Cluster Issuers"
-        />
-        <ToggleSwitch
-          class="mb-20"
-          :value="isExpose"
-          off-label="Expose via Gateway ?"
-          @update:value="isExpose = !isExpose"
-        />
-      </Accordion>
+      <AdditionalOptions
+        :AdditionalToggleSwitch="AdditionalToggleSwitch"
+        :genericAlert="genericAlert"
+        :genericIssuer="genericIssuer"
+      />
     </div>
 
     <YamlEditor
@@ -577,6 +541,7 @@ onMounted(() => {
       :editor-mode="EDITOR_MODES.EDIT_CODE"
       @update:value="updatePayload"
     />
+
     <div class="button-container">
       <RcButton secondary>Cancel</RcButton>
       <div>
