@@ -1,14 +1,20 @@
 <script setup lang="ts">
-import { computed, defineEmits, defineProps, toRefs } from "vue";
-import { useField } from "vee-validate";
+import { computed, defineProps } from "vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
 import UnitInput from "@rancher/shell/components/form/UnitInput.vue";
 import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
-import { platform } from "@shell/utils/platform";
-import {genericNameSpacesType,genericNameType,genericVersionType,genericModeType,genericReplicaType,
-  genericMachineType, genericCPUType, genericMemoryType, genericStorageSizeType, genericStorageClassType
-
+import {
+  genericNameSpacesType,
+  genericNameType,
+  genericVersionType,
+  genericModeType,
+  genericReplicaType,
+  genericMachineType,
+  genericCPUType,
+  genericMemoryType,
+  genericStorageSizeType,
+  genericStorageClassType,
 } from "../types/type";
 
 interface Props {
@@ -25,7 +31,7 @@ interface Props {
   genericMode: genericModeType;
 }
 
-const props = defineProps<Props>()
+const props = defineProps<Props>();
 const isCustom = computed(() => {
   return props.genericMachine.machineModel === "custom";
 });
@@ -106,7 +112,7 @@ const showReplicas = computed(() => {
     </div>
 
     <div class="mb-20">
-      <LabeledSelect 
+      <LabeledSelect
         v-if="props.genericMachine.show"
         v-model:value="props.genericMachine.machineModel"
         :options="props.genericMachine.options"
@@ -114,6 +120,7 @@ const showReplicas = computed(() => {
         :multiple="props.genericMachine.multiple"
         :label="props.genericMachine.label"
         :placeholder="genericMachine.placeholder"
+        :required="props.genericMachine.required"
       />
     </div>
 
@@ -143,7 +150,7 @@ const showReplicas = computed(() => {
     <div class="row mb-20">
       <div class="col span-6">
         <LabeledSelect
-          v-if = "props.genericStorageClass.show"
+          v-if="props.genericStorageClass.show"
           v-model:value="props.genericStorageClass.storageClassModel"
           :options="props.genericStorageClass.options"
           :searchable="props.genericStorageClass.searchable"

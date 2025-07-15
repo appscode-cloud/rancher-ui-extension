@@ -1,11 +1,11 @@
 <script setup lang="ts">
+import { computed, onMounted, ref, watch } from "vue";
+import { useStore } from "vuex";
+import { useForm, useField } from "vee-validate";
+import $axios from "../composables/axios";
 import BasicDbConfig from "../components/BasicDbConfig.vue";
 import AdvancedDbConfig from "../components/AdvancedDbConfig.vue";
 import AdditionalOptions from "../components/AdditionalOptions.vue";
-import { computed, onMounted, ref, watch } from "vue";
-import { useForm, useField, configure } from "vee-validate";
-import { useStore } from "vuex";
-import $axios from "../composables/axios";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
@@ -55,7 +55,7 @@ const step = ref(1);
 const disableNextBtn = ref(true);
 const clusterIdList = ref([]);
 
-const { values, errors, validate, isValidating } = useForm({});
+const { values, errors, validate } = useForm({});
 const { value: clusterId } = useField<string>("clusterId", required);
 const { value: name } = useField<string>("name", required);
 const { value: namespace } = useField<string>("namespace", required);
@@ -82,10 +82,11 @@ const { value: mode } = useField<string>("mode", "", {
   initialValue: "standalone",
 });
 
-const databaseModes = ref([{label:"standalone", value:"standalone"}, 
-{label:"HA" , value:"HA"}, 
-{label:"replica" , value: "replica"
-}]);
+const databaseModes = ref([
+  { label: "standalone", value: "standalone" },
+  { label: "HA", value: "HA" },
+  { label: "replica", value: "replica" },
+]);
 const storageClasses = ref([
   { label: "local-path", value: "local-path" },
   { label: "longhorn", value: "longhorn" },
@@ -96,9 +97,7 @@ const alertsList = ref([
   { label: "None", value: "None" },
   { label: "Warning", value: "Warning" },
 ]);
-const issuerList = ref([
-  { label: "ace-Incluster", value: "ace-Incluster" },
-]);
+const issuerList = ref([{ label: "ace-Incluster", value: "ace-Incluster" }]);
 const namespaces = ref([
   { label: "demo", value: "demo" },
   { label: "ace", value: "demo" },
@@ -139,7 +138,6 @@ const streamingModes = ref([
   { label: "Synchronous", value: "Synchronous" },
   { label: "Asynchronous", value: "Asynchronous" },
 ]);
-
 
 const previewTitle = computed(() => {
   return `Create Postgres: ${namespace.value}/${name.value}`;
@@ -349,6 +347,7 @@ const genericMachine = ref({
   label: "Machine Profile",
   placeholder: "Select machine",
   machineModel: machine,
+  required: true,
   rules: [required],
 });
 
@@ -416,19 +415,18 @@ const genericPassword = ref({
 
 const genericSecret = ref({
   show: true,
-  options: secretsList.value, 
+  options: secretsList.value,
   placeholder: "Select Secret",
   secretModel: secret,
 });
 
 const genericStandbyMode = ref({
   show: true,
-  options: standbyModes.value, 
+  options: standbyModes.value,
   label: "Standby Mode",
   placeholder: "Select Standby Mode",
   standbyModeModel: standbyMode,
 });
-
 
 const genericPitrNamespace = ref({
   show: true,
@@ -509,7 +507,7 @@ onMounted(() => {
         :genericCPU="genericCPU"
         :genericMemory="genericMemory"
       />
-  
+
       <AdvancedDbConfig
         :AdvancedToggleSwitch="AdvancedToggleSwitch"
         :genericDeletionPolicy="genericDeletionPolicy"
@@ -524,13 +522,12 @@ onMounted(() => {
         :genericStreamingMode="genericStreamingMode"
         :required="required"
       />
-      
+
       <AdditionalOptions
         :AdditionalToggleSwitch="AdditionalToggleSwitch"
         :genericAlert="genericAlert"
         :genericIssuer="genericIssuer"
       />
-      {{ alert }} {{ issuer }}
     </div>
 
     <YamlEditor
@@ -560,7 +557,6 @@ onMounted(() => {
         }}</RcButton>
       </div>
     </div>
-    <pre>{{ errors }}</pre>
   </div>
 </template>
 
