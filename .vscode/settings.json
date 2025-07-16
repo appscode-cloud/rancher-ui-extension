@@ -17,5 +17,23 @@
     "yarn-error.log": true,
     "pkg/**/.shell": true,
     "pkg/**/node_modules": true,
-  }
+  },
+  "cSpell.words": [
+    "appscode",
+    "Archiver",
+    "axios",
+    "clusterissuers",
+    "fluxcd",
+    "kubedb",
+    "kubedbcom",
+    "kubeops",
+    "packageview",
+    "Pitr",
+    "postgreses",
+    "rproxy",
+    "selfsubjectnamespaceaccessreviews",
+    "storageclasses",
+    "vuex",
+    "yamleditor"
+  ]
 }

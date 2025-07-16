@@ -7,11 +7,11 @@ import { genericAlertType, genericIssuerType } from "../types/type";
 
 interface Props {
   AdditionalToggleSwitch: {
-    Monitoring: boolean;
-    Backup: boolean;
-    Archiver: boolean;
-    TLS: boolean;
-    Expose: boolean;
+    monitoring: boolean;
+    backup: boolean;
+    archiver: boolean;
+    tls: boolean;
+    expose: boolean;
   };
   genericAlert: genericAlertType;
   genericIssuer: genericIssuerType;
@@ -29,7 +29,7 @@ const isExpose = ref(false);
 <template>
   <Accordion title="Additional Options" class="mb-20">
     <ToggleSwitch
-      v-if="props.AdditionalToggleSwitch?.Monitoring"
+      v-if="props.AdditionalToggleSwitch?.monitoring"
       class="mb-20"
       v-model:value="isMonitoring"
       off-label="Enable Monitoring?"
@@ -42,19 +42,19 @@ const isExpose = ref(false);
       :label="props.genericAlert.label"
     />
     <ToggleSwitch
-      v-if="props.AdditionalToggleSwitch?.Backup"
+      v-if="props.AdditionalToggleSwitch?.backup"
       class="mb-20"
       v-model:value="isBackup"
       off-label="Enable Backup?"
     />
     <ToggleSwitch
-      v-if="props.AdditionalToggleSwitch?.Archiver"
+      v-if="props.AdditionalToggleSwitch?.archiver"
       class="mb-20"
       v-model:value="isArchiver"
       off-label="Enable Archiver?"
     />
     <ToggleSwitch
-      v-if="props.AdditionalToggleSwitch?.TLS"
+      v-if="props.AdditionalToggleSwitch?.tls"
       class="mb-20"
       v-model:value="isTLS"
       off-label="Enable TLS?"
@@ -67,7 +67,7 @@ const isExpose = ref(false);
       :label="props.genericIssuer.label"
     />
     <ToggleSwitch
-      v-if="props.AdditionalToggleSwitch?.Expose"
+      v-if="props.AdditionalToggleSwitch?.expose"
       class="mb-20"
       v-model:value="isExpose"
       off-label="Expose via Gateway ?"
