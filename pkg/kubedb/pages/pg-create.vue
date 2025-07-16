@@ -11,7 +11,12 @@ import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
 import { useRequiredRule } from "../composables/useRequiredRule";
-import { genericStorageClassType } from "types/type";
+import { genericStorageClassType,genericVersionType,genericNameSpacesType,genericIssuerType,
+  genericStreamingModeType,genericStandbyModeType,genericSecretType,genericNameType,
+  genericModeType, genericReplicaType, genericMachineType, genericCPUType, genericMemoryType, genericStorageSizeType,
+  genericDeletionPolicyType,genericLabelsType,genericAnnotationsType,genericDbConfigurationType,genericPitrNamespaceType,
+  genericPitrNameType, genericAlertType, genericPasswordType, 
+ } from "types/type";
 
 const { required } = useRequiredRule();
 const store = useStore();
@@ -60,7 +65,7 @@ const pgList = ref<
 
 const step = ref(1);
 const disableNextBtn = ref(true);
-const clusterIdList = ref([]);
+const clusterIdList = ref<string[]>([]);
 
 const { values, errors, validate } = useForm({});
 const { value: clusterId } = useField<string>("clusterId", required);
@@ -89,12 +94,6 @@ const { value: mode } = useField<string>("mode", "", {
   initialValue: "standalone",
 });
 
-const secretsList = ref<Array<{ value: string; label: string }>>([]);
-const standbyModes = ref<Array<{ value: string; label: string }>>([]);
-const streamingModes = ref<Array<{ value: string; label: string }>>([]);
-const issuerList = ref<Array<{ value: string; label: string }>>([]);
-const namespaces = ref<Array<{ value: string; label: string }>>([]);
-const versions = ref<Array<{ value: string; label: string }>>([]);
 const databaseModes = ref<Array<{ value: string; label: string }>>([
   { label: "standalone", value: "standalone" },
   { label: "HA", value: "HA" },
@@ -227,9 +226,8 @@ const getBundle = async () => {
     }
 
     if (availableClusterIssuer) {
-      issuerList.value = [];
       availableClusterIssuer.forEach((ele: string) => {
-        issuerList.value.push({ label: ele, value: ele });
+        genericIssuer.value.options?.push({ label: ele, value: ele });
       });
     }
   } catch (e) {
@@ -271,7 +269,7 @@ const getNamespaces = async () => {
     const projects = data?.status?.projects;
     Object.keys(projects).forEach((key) => {
       projects[key].forEach((item: string) => {
-        namespaces.value.push({ label: item, value: item });
+        genericNameSpaces.value.options?.push({ label: item, value: item });
       });
     });
   } catch (e) {
@@ -304,9 +302,9 @@ const getValues = async () => {
       data.spec?.admin?.databases?.Postgres?.versions?.available || [];
     if (availableVersions) {
       availableVersions.forEach((ele: string) => {
-        versions.value.push({
+        genericVersions.value.options?.push({
           label: ele,
-          value: ele,
+          value: ele
         });
       });
     }
@@ -331,7 +329,7 @@ const getValues = async () => {
       data.spec?.admin?.clusterIssuers?.available || [];
     if (availableClusterIssuer) {
       availableClusterIssuer.forEach((ele: string) => {
-        issuerList.value.push({ label: ele, value: ele });
+        genericIssuer.value.options?.push({ label: ele, value: ele });
       });
     }
   } catch (error) {
@@ -376,10 +374,10 @@ const AdditionalToggleSwitch = ref({
 });
 
 // Basic Config generics
-const genericNameSpaces = ref({
+const genericNameSpaces = ref<genericNameSpacesType>({
   show: true,
   disabled: false,
-  options: namespaces.value,
+  options: [],
   searchable: true,
   multiple: false,
   label: "Namespace",
@@ -390,10 +388,10 @@ const genericNameSpaces = ref({
   namespaceModel: namespace,
 });
 
-const genericVersions = ref({
+const genericVersions = ref<genericVersionType>({
   show: true,
   disabled: false,
-  options: versions.value,
+  options: [],
   searchable: true,
   multiple: false,
   label: "Version",
@@ -404,7 +402,7 @@ const genericVersions = ref({
   versionModel: version,
 });
 
-const genericName = ref({
+const genericName = ref<genericNameType>({
   show: true,
   disabled: false,
   label: "Name",
@@ -415,7 +413,7 @@ const genericName = ref({
   nameModel: name,
 });
 
-const genericStorageSize = ref({
+const genericStorageSize = ref<genericStorageSizeType>({
   show: true,
   disabled: false,
   label: "Storage Size",
@@ -439,7 +437,7 @@ const genericStorageClass = ref<genericStorageClassType>({
   storageClassModel: storageClass,
 });
 
-const genericDeletionPolicy = ref({
+const genericDeletionPolicy = ref<genericDeletionPolicyType>({
   show: true,
   disabled: false,
   options: deletionPolicies.value,
@@ -453,7 +451,7 @@ const genericDeletionPolicy = ref({
   deletionPolicyModel: deletionPolicy,
 });
 
-const genericReplica = ref({
+const genericReplica = ref<genericReplicaType>({
   show: true,
   disabled: false,
   label: "Replicas",
@@ -465,7 +463,7 @@ const genericReplica = ref({
   replicaModel: replicas,
 });
 
-const genericMachine = ref({
+const genericMachine = ref<genericMachineType>({
   show: true,
   options: machines.value,
   searchable: true,
@@ -477,7 +475,7 @@ const genericMachine = ref({
   rules: [required],
 });
 
-const genericCPU = ref({
+const genericCPU = ref<genericCPUType>({
   show: true,
   label: "cpu",
   placeholder: "cpu limits",
@@ -486,7 +484,7 @@ const genericCPU = ref({
   min: 0,
 });
 
-const genericMemory = ref({
+const genericMemory = ref<genericMemoryType>({
   show: true,
   label: "Memory",
   placeholder: "memory limits",
@@ -495,7 +493,7 @@ const genericMemory = ref({
   min: 0,
 });
 
-const genericMode = ref({
+const genericMode = ref<genericModeType>({
   show: true,
   label: "Database Mode",
   options: databaseModes.value,
@@ -504,7 +502,7 @@ const genericMode = ref({
 });
 
 // Advanced Config generics
-const genericLabels = ref({
+const genericLabels = ref<genericLabelsType>({
   show: true,
   labelsModel: labels,
   protectedKeys: [],
@@ -515,7 +513,7 @@ const genericLabels = ref({
   valueCanBeEmpty: true,
 });
 
-const genericAnnotations = ref({
+const genericAnnotations = ref<genericAnnotationsType>({
   show: true,
   annotationsModel: annotations,
   addLabel: "Add Annotations",
@@ -524,13 +522,13 @@ const genericAnnotations = ref({
   valueCanBeEmpty: true,
 });
 
-const genericDbConfiguration = ref({
+const genericDbConfiguration = ref<genericDbConfigurationType>({
   show: true,
-  dbConfigurationModel: dbConfiguration.value ?? "",
+  dbConfigurationModel: dbConfiguration,
   minHeight: 120,
 });
 
-const genericPassword = ref({
+const genericPassword = ref<genericPasswordType>({
   show: true,
   disabled: false,
   label: "Password (Leave it blank to auto generate password)",
@@ -539,22 +537,22 @@ const genericPassword = ref({
   passwordModel: password,
 });
 
-const genericSecret = ref({
+const genericSecret = ref<genericSecretType>({
   show: true,
-  options: secretsList.value,
+  options: [],
   placeholder: "Select Secret",
   secretModel: secret,
 });
 
-const genericStandbyMode = ref({
+const genericStandbyMode = ref<genericStandbyModeType>({
   show: true,
-  options: standbyModes.value,
+  options: [],
   label: "Standby Mode",
   placeholder: "Select Standby Mode",
   standbyModeModel: standbyMode,
 });
 
-const genericPitrNamespace = ref({
+const genericPitrNamespace = ref<genericPitrNamespaceType>({
   show: true,
   label: "Namespace",
   placeholder: "PITR Namespace",
@@ -562,7 +560,7 @@ const genericPitrNamespace = ref({
   pitrNamespaceModel: pitrNamespace,
 });
 
-const genericPitrName = ref({
+const genericPitrName = ref<genericPitrNameType>({
   show: true,
   label: "Name",
   placeholder: "PITR Name",
@@ -570,25 +568,25 @@ const genericPitrName = ref({
   pitrNameModel: pitrName,
 });
 
-const genericStreamingMode = ref({
+const genericStreamingMode = ref<genericStreamingModeType>({
   show: true,
-  options: streamingModes.value,
+  options: [],
   label: "Streaming Mode",
   placeholder: "Select Streaming Mode",
   streamingModeModel: streamingMode,
 });
 
 // Additional Options generics
-const genericAlert = ref({
+const genericAlert = ref<genericAlertType>({
   show: true,
   options: alertsList.value,
   label: "Alert Options",
   alertModel: alert,
 });
 
-const genericIssuer = ref({
+const genericIssuer = ref<genericIssuerType>({
   show: true,
-  options: issuerList.value,
+  options: [],
   label: "Cluster Issuers",
   issuerModel: issuer,
 });
@@ -691,7 +689,7 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <pre>{{ values }}</pre>
+  <pre>{{ errors }}</pre>
 </template>
 
 <style scoped>
