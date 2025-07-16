@@ -1,0 +1,297 @@
+<script setup lang="ts">
+import { computed, onMounted, ref, watch } from "vue";
+import { useStore } from "vuex";
+import { useRoute } from "vue-router";
+
+import BasicDbConfig from "../../components/BasicDbConfig.vue";
+import AdvancedDbConfig from "../../components/AdvancedDbConfig.vue";
+import AdditionalOptions from "../../components/AdditionalOptions.vue";
+import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
+import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
+
+import { useRequiredRule } from "../../composables/useRequiredRule";
+import { useProps } from "./props";
+import { useFunctions } from "./functions";
+
+const EDITOR_MODES = {
+  EDIT_CODE: "EDIT_CODE",
+  VIEW_CODE: "VIEW_CODE",
+  DIFF_CODE: "DIFF_CODE",
+};
+
+const { required } = useRequiredRule();
+const store = useStore();
+const { params } = useRoute();
+
+const {
+  validate,
+  values,
+  errors,
+  name,
+  namespace,
+  AdvancedToggleSwitch,
+  genericNameSpaces,
+  genericVersions,
+  genericName,
+  genericStorageSize,
+  genericStorageClass,
+  genericDeletionPolicy,
+  genericReplica,
+  genericMachine,
+  genericCPU,
+  genericMemory,
+  genericMode,
+  genericLabels,
+  genericAnnotations,
+  genericDbConfiguration,
+  genericPassword,
+  genericSecret,
+  genericStandbyMode,
+  genericPitrNamespace,
+  genericPitrName,
+  genericStreamingMode,
+  genericAlert,
+  genericIssuer,
+  genericMonitoring,
+  genericBackup,
+  genericArchiver,
+  genericTlS,
+  genericExpose,
+} = useProps();
+
+const {
+  getBundle,
+  getSecrets,
+  getValues,
+  getNamespaces,
+  generateModelPayload,
+  isBundleLoading,
+  isNamespaceLoading,
+  isValuesLoading,
+} = useFunctions();
+
+const clusterName = ref("");
+const modelApiPayload = ref({});
+const step = ref(1);
+const disableNextBtn = ref(true);
+
+const previewTitle = computed(() => {
+  return step.value === 1
+    ? "Create Postgres"
+    : `Create Postgres: ${namespace.value}/${name.value}`;
+});
+
+const getClusters = async () => {
+  try {
+    const result = await store.dispatch("management/findAll", {
+      type: "management.cattle.io.cluster",
+    });
+    result.forEach((ele: { id: string; spec: { displayName: string } }) => {
+      if (ele.id === params.cluster) {
+        clusterName.value = ele.spec.displayName;
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
+const setNamespaces = async () => {
+  const data = await getNamespaces(clusterName.value);
+  genericNameSpaces.value.options = data;
+};
+
+const setValues = async () => {
+  const data = await getValues(clusterName.value, namespace.value);
+
+  modelApiPayload.value = data?.values;
+
+  //version
+  const availableVersions =
+    data?.values.spec.admin.databases.Postgres.versions.available || [];
+  genericVersions.value.versionModel =
+    data?.values.spec.admin.databases.Postgres.versions.default;
+  if (availableVersions) {
+    availableVersions.forEach((ele: string) => {
+      genericVersions.value.options?.push({
+        label: ele,
+        value: ele,
+      });
+    });
+  }
+
+  //Storageclasses
+  const availableStorageClass =
+    data?.values.spec.admin.storageClasses.available || [];
+  if (availableStorageClass) {
+    availableStorageClass.forEach((ele: string) => {
+      genericStorageClass.value.options?.push({ label: ele, value: ele });
+    });
+    if (availableStorageClass.length === 1) {
+      genericStorageClass.value.storageClassModel = availableStorageClass[0];
+    }
+  }
+
+  //ClusterIssuer
+  const availableClusterIssuer =
+    data?.values.spec.admin.clusterIssuers.available || [];
+  if (availableClusterIssuer) {
+    availableClusterIssuer.forEach((ele: string) => {
+      genericIssuer.value.options?.push({ label: ele, value: ele });
+    });
+  }
+};
+
+const setBundle = async () => {
+  const data = await getBundle(clusterName.value);
+
+  const availableClusterIssuer = data?.bundle.clusterissuers;
+  const features = data?.bundle.features || [];
+  if (features.includes("backup")) {
+    genericBackup.value.show = true;
+  }
+  if (features.includes("tls")) {
+    genericTlS.value.show = true;
+  }
+  if (features.includes("monitoring")) {
+    genericMonitoring.value.show = true;
+  }
+  if (features.includes("binding")) {
+    genericExpose.value.show = true;
+  }
+
+  const availableStorageClass = data?.bundle.storageclasses;
+  if (availableStorageClass) {
+    genericStorageClass.value.options = [];
+    availableStorageClass.forEach((ele: string) => {
+      genericStorageClass.value.options?.push({ label: ele, value: ele });
+    });
+    if (availableStorageClass.length === 1) {
+      genericStorageClass.value.storageClassModel = availableStorageClass[0];
+    }
+  }
+
+  if (availableClusterIssuer) {
+    availableClusterIssuer.forEach((ele: string) => {
+      genericIssuer.value.options?.push({ label: ele, value: ele });
+    });
+  }
+};
+
+const gotoNext = () => {
+  validate();
+  if (step.value === 1) step.value = 2;
+  else {
+    // createPgInstance();
+  }
+};
+
+watch(values, async () => {
+  if (namespace.value && modelApiPayload.value)
+    modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
+  await validate();
+  const validated = Object.values(errors.value).every((value) => value === "");
+  disableNextBtn.value = !validated;
+});
+
+watch(namespace, (n) => {
+  getSecrets(n, clusterName.value);
+  setValues();
+});
+
+onMounted(async () => {
+  await getClusters();
+  validate();
+  setNamespaces();
+  setValues();
+  setBundle();
+});
+</script>
+
+<template>
+  <div class="m-20">
+    <h1>{{ previewTitle }}</h1>
+    <p v-if="isValuesLoading || isBundleLoading || isNamespaceLoading">
+      loading...
+    </p>
+    <div v-else>
+      <div v-if="step === 1">
+        <!-- Basic Configuration Component -->
+        <BasicDbConfig
+          :genericNameSpaces="genericNameSpaces"
+          :genericVersions="genericVersions"
+          :genericName="genericName"
+          :genericMode="genericMode"
+          :required="required"
+          :genericStorageSize="genericStorageSize"
+          :genericStorageClass="genericStorageClass"
+          :genericReplica="genericReplica"
+          :genericMachine="genericMachine"
+          :genericCPU="genericCPU"
+          :genericMemory="genericMemory"
+        />
+
+        <AdvancedDbConfig
+          :AdvancedToggleSwitch="AdvancedToggleSwitch"
+          :genericDeletionPolicy="genericDeletionPolicy"
+          :genericLabels="genericLabels"
+          :genericAnnotations="genericAnnotations"
+          :genericDbConfiguration="genericDbConfiguration"
+          :genericPassword="genericPassword"
+          :genericSecret="genericSecret"
+          :genericStandbyMode="genericStandbyMode"
+          :genericPitrNamespace="genericPitrNamespace"
+          :genericPitrName="genericPitrName"
+          :genericStreamingMode="genericStreamingMode"
+          :required="required"
+        />
+
+        <AdditionalOptions
+          :generic-monitoring="genericMonitoring"
+          :generic-backup="genericBackup"
+          :generic-archiver="genericArchiver"
+          :generic-t-l-s="genericTlS"
+          :generic-expose="genericExpose"
+          :genericAlert="genericAlert"
+          :genericIssuer="genericIssuer"
+        />
+      </div>
+
+      <YamlEditor
+        v-if="step === 2"
+        ref="yamleditor"
+        v-model:value="values"
+        mode="create"
+        :asObject="true"
+        :initial-yaml-values="values"
+        class="yaml-editor flex-content"
+        :editor-mode="EDITOR_MODES.EDIT_CODE"
+        @update:value="console.log('write function to update ')"
+      />
+    </div>
+
+    <div class="button-container">
+      <RcButton secondary>Cancel</RcButton>
+      <div>
+        <RcButton
+          v-if="step === 2"
+          primary
+          @click="step = 1"
+          :disabled="disableNextBtn"
+          >Previous</RcButton
+        >
+        <RcButton primary @click="gotoNext" :disabled="disableNextBtn">{{
+          step === 1 ? "Preview" : "Deploy"
+        }}</RcButton>
+      </div>
+    </div>
+    <pre>{{ values }}</pre>
+  </div>
+</template>
+
+<style scoped>
+.button-container {
+  display: flex;
+  justify-content: space-between;
+}
+</style>
