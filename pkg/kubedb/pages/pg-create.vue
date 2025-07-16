@@ -65,7 +65,7 @@ const pgList = ref<
 
 const step = ref(1);
 const disableNextBtn = ref(true);
-const clusterIdList = ref([]);
+const clusterIdList = ref<string[]>([]);
 
 const { values, errors, validate } = useForm({});
 const { value: clusterId } = useField<string>("clusterId", required);
@@ -94,12 +94,6 @@ const { value: mode } = useField<string>("mode", "", {
   initialValue: "standalone",
 });
 
-// const secretsList = ref<Array<{ value: string; label: string }>>([]);
-// const standbyModes = ref<Array<{ value: string; label: string }>>([]);
-// const streamingModes = ref<Array<{ value: string; label: string }>>([]);
-// const issuerList = ref<Array<{ value: string; label: string }>>([]);
-// const namespaces = ref<Array<{ value: string; label: string }>>([]);
-// const versions = ref<Array<{ value: string; label: string }>>([]);
 const databaseModes = ref<Array<{ value: string; label: string }>>([
   { label: "standalone", value: "standalone" },
   { label: "HA", value: "HA" },
@@ -510,7 +504,7 @@ const genericMode = ref<genericModeType>({
 // Advanced Config generics
 const genericLabels = ref<genericLabelsType>({
   show: true,
-  labelsModel: labels.value,
+  labelsModel: labels,
   protectedKeys: [],
   toggleFilter: true,
   addLabel: "Add Labels",
@@ -521,7 +515,7 @@ const genericLabels = ref<genericLabelsType>({
 
 const genericAnnotations = ref<genericAnnotationsType>({
   show: true,
-  annotationsModel: annotations.value,
+  annotationsModel: annotations,
   addLabel: "Add Annotations",
   addIcon: "",
   readAllowed: false,
@@ -530,7 +524,7 @@ const genericAnnotations = ref<genericAnnotationsType>({
 
 const genericDbConfiguration = ref<genericDbConfigurationType>({
   show: true,
-  dbConfigurationModel: dbConfiguration.value ?? "",
+  dbConfigurationModel: dbConfiguration,
   minHeight: 120,
 });
 
@@ -594,7 +588,7 @@ const genericIssuer = ref<genericIssuerType>({
   show: true,
   options: [],
   label: "Cluster Issuers",
-  issuerModel: issuer.value,
+  issuerModel: issuer,
 });
 
 onMounted(() => {
@@ -695,7 +689,6 @@ onMounted(() => {
       </div>
     </div>
   </div>
-  <!-- <pre>{{ values }}</pre> -->
   <pre>{{ errors }}</pre>
 </template>
 
