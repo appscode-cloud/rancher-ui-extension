@@ -45,6 +45,11 @@ export const useCreateForm = () => {
   const { value: mode } = useField<string>("mode", "", {
     initialValue: "standalone",
   });
+  const { value: monitoring } = useField<boolean>("monitoring");
+  const { value: backup } = useField<boolean>("backup");
+  const { value: archiver } = useField<boolean>("archiver");
+  const { value: tls } = useField<boolean>("tls");
+  const { value: expose } = useField<boolean>("expose");
 
   return {
     values,
@@ -71,6 +76,11 @@ export const useCreateForm = () => {
     labels,
     annotations,
     mode,
+    monitoring,
+    backup,
+    tls,
+    archiver,
+    expose,
     validate,
   };
 };

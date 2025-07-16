@@ -6,9 +6,17 @@ import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/To
 import TextAreaAutoGrow from "@rancher/shell/rancher-components/Form/TextArea/TextAreaAutoGrow.vue";
 import KeyValue from "@rancher/shell/components/form/KeyValue.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
-import { genericDeletionPolicyType, genericLabelsType, genericAnnotationsType,genericSecretType ,
-  genericPasswordType,genericDbConfigurationType,genericPitrNamespaceType,genericPitrNameType,
-  genericStreamingModeType,genericStandbyModeType
+import {
+  genericDeletionPolicyType,
+  genericLabelsType,
+  genericAnnotationsType,
+  genericSecretType,
+  genericPasswordType,
+  genericDbConfigurationType,
+  genericPitrNamespaceType,
+  genericPitrNameType,
+  genericStreamingModeType,
+  genericStandbyModeType,
 } from "../types/type";
 interface Props {
   genericDeletionPolicy: genericDeletionPolicyType;

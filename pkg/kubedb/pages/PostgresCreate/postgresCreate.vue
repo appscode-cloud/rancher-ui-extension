@@ -20,7 +20,6 @@ const {
   name,
   namespace,
   AdvancedToggleSwitch,
-  AdditionalToggleSwitch,
   genericNameSpaces,
   genericVersions,
   genericName,
@@ -43,6 +42,11 @@ const {
   genericStreamingMode,
   genericAlert,
   genericIssuer,
+  genericMonitoring,
+  genericBackup,
+  genericArchiver,
+  genericTlS,
+  genericExpose,
 } = useProps();
 
 const {
@@ -140,16 +144,16 @@ const setBundle = async () => {
   const availableClusterIssuer = data?.bundle.clusterissuers;
   const features = data?.bundle.features || [];
   if (features.includes("backup")) {
-    AdditionalToggleSwitch.value.backup = true;
+    genericBackup.value.show = true;
   }
   if (features.includes("tls")) {
-    AdditionalToggleSwitch.value.tls = true;
+    genericTlS.value.show = true;
   }
   if (features.includes("monitoring")) {
-    AdditionalToggleSwitch.value.monitoring = true;
+    genericMonitoring.value.show = true;
   }
   if (features.includes("binding")) {
-    AdditionalToggleSwitch.value.expose = true;
+    genericExpose.value.show = true;
   }
 
   const availableStorageClass = data?.bundle.storageclasses;
@@ -217,7 +221,11 @@ onMounted(async () => {
         />
 
         <AdditionalOptions
-          :AdditionalToggleSwitch="AdditionalToggleSwitch"
+          :generic-monitoring="genericMonitoring"
+          :generic-backup="genericBackup"
+          :generic-archiver="genericArchiver"
+          :generic-t-l-s="genericTlS"
+          :generic-expose="genericExpose"
           :genericAlert="genericAlert"
           :genericIssuer="genericIssuer"
         />
@@ -251,6 +259,7 @@ onMounted(async () => {
         }}</RcButton>
       </div>
     </div>
+    <pre>{{ values }}</pre>
   </div>
 </template>
 

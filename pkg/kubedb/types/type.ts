@@ -106,3 +106,22 @@ export interface genericAlertType extends BaseCommon {
 export interface genericIssuerType extends BaseCommon {
   issuerModel: Ref<string, string>;
 }
+
+export interface genericMonitoring extends BaseCommon {
+  monitoringModel: Ref<string, string>;
+}
+export interface genericBackup extends BaseCommon {
+  backupModel: Ref<string, string>;
+}
+
+export interface genericArchiver extends BaseCommon {
+  archiverModel: Ref<string, string>;
+}
+
+export interface genericTLS extends BaseCommon {
+  tlsModel: Ref<string, string>;
+}
+
+export interface genericExpose extends BaseCommon {
+  exposeModel: Ref<string, string>;
+}

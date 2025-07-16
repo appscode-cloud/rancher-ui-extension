@@ -25,6 +25,11 @@ import {
   genericPitrNameType,
   genericAlertType,
   genericPasswordType,
+  genericMonitoring,
+  genericBackup,
+  genericArchiver,
+  genericTLS,
+  genericExpose,
 } from "types/type";
 
 //Hard-coded options
@@ -94,20 +99,17 @@ export const useProps = () => {
     labels,
     annotations,
     mode,
+    monitoring,
+    backup,
+    tls,
+    archiver,
+    expose,
   } = useCreateForm();
 
   const AdvancedToggleSwitch = ref({
     DbConfig: true,
     AuthCred: true,
     Pitr: true,
-  });
-
-  const AdditionalToggleSwitch = ref({
-    monitoring: false,
-    backup: false,
-    archiver: false,
-    tls: false,
-    expose: false,
   });
 
   // Basic Config generics
@@ -336,6 +338,31 @@ export const useProps = () => {
     issuerModel: clusterIssuer,
   });
 
+  const genericMonitoring = ref<genericMonitoring>({
+    show: false,
+    monitoringModel: monitoring,
+  });
+
+  const genericBackup = ref<genericBackup>({
+    show: false,
+    backupModel: backup,
+  });
+
+  const genericArchiver = ref<genericArchiver>({
+    show: false,
+    archiverModel: archiver,
+  });
+
+  const genericTlS = ref<genericTLS>({
+    show: false,
+    tlsModel: tls,
+  });
+
+  const genericExpose = ref<genericExpose>({
+    show: false,
+    exposeModel: expose,
+  });
+
   return {
     validate,
     values,
@@ -363,7 +390,6 @@ export const useProps = () => {
     annotations,
     mode,
     AdvancedToggleSwitch,
-    AdditionalToggleSwitch,
     genericNameSpaces,
     genericVersions,
     genericName,
@@ -386,5 +412,10 @@ export const useProps = () => {
     genericStreamingMode,
     genericAlert,
     genericIssuer,
+    genericMonitoring,
+    genericBackup,
+    genericArchiver,
+    genericTlS,
+    genericExpose,
   };
 };
