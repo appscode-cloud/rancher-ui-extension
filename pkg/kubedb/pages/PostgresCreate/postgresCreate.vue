@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
+import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 
 import BasicDbConfig from "../../components/BasicDbConfig.vue";
@@ -13,6 +14,10 @@ import { useProps } from "./props";
 import { useFunctions } from "./functions";
 
 const { required } = useRequiredRule();
+const store = useStore();
+const { params } = useRoute();
+const clusterName = ref("");
+
 const {
   validate,
   values,
@@ -59,9 +64,7 @@ const {
   isValuesLoading,
 } = useFunctions();
 
-const { params } = useRoute();
-const cluster = params.cluster;
-const DATABASE = "postgres";
+const modelApiPayload = ref();
 
 const EDITOR_MODES = {
   EDIT_CODE: "EDIT_CODE",
@@ -73,7 +76,9 @@ const step = ref(1);
 const disableNextBtn = ref(true);
 
 const previewTitle = computed(() => {
-  return `Create Postgres: ${namespace.value}/${name.value}`;
+  return step.value === 1
+    ? "Create Postgres"
+    : `Create Postgres: ${namespace.value}/${name.value}`;
 });
 
 watch(values, async () => {
@@ -82,8 +87,23 @@ watch(values, async () => {
   disableNextBtn.value = !validated;
 });
 
+const getClusters = async () => {
+  try {
+    const result = await store.dispatch("management/findAll", {
+      type: "management.cattle.io.cluster",
+    });
+    result.forEach((ele: { id: string; spec: { displayName: string } }) => {
+      if (ele.id === params.cluster) {
+        clusterName.value = ele.spec.displayName;
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 watch(namespace, (n) => {
-  getSecrets(n);
+  getSecrets(n, clusterName.value);
 });
 
 const gotoNext = () => {
@@ -95,12 +115,14 @@ const gotoNext = () => {
 };
 
 const setNamespaces = async () => {
-  const data = await getNamespaces();
+  const data = await getNamespaces(clusterName.value);
   genericNameSpaces.value.options = data;
 };
 
 const setValues = async () => {
-  const data = await getValues();
+  const data = await getValues(clusterName.value);
+
+  modelApiPayload.value = data?.values;
 
   //version
   const availableVersions =
@@ -139,7 +161,7 @@ const setValues = async () => {
 };
 
 const setBundle = async () => {
-  const data = await getBundle();
+  const data = await getBundle(clusterName.value);
 
   const availableClusterIssuer = data?.bundle.clusterissuers;
   const features = data?.bundle.features || [];
@@ -175,6 +197,7 @@ const setBundle = async () => {
 };
 
 onMounted(async () => {
+  await getClusters();
   validate();
   setNamespaces();
   setValues();
@@ -184,7 +207,7 @@ onMounted(async () => {
 
 <template>
   <div class="m-20">
-    <h1>{{ step === 1 ? "Create Postgres" : previewTitle }}</h1>
+    <h1>{{ previewTitle }}</h1>
     <p v-if="isValuesLoading || isBundleLoading || isNamespaceLoading">
       loading...
     </p>

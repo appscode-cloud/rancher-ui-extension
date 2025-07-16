@@ -3,13 +3,19 @@ import { useStore } from "vuex";
 import { ref } from "vue";
 const store = useStore();
 
+export const dbObject = {
+  kind: "Postgres",
+  resource: "postgreses",
+  chartName: "kubedbcom-postgres-editor-options",
+};
+
 export const useFunctions = () => {
   const isValuesLoading = ref(true);
   const isNamespaceLoading = ref(true);
   const isSecretLoading = ref(true);
   const isBundleLoading = ref(true);
 
-  const getBundle = async () => {
+  const getBundle = async (cluster: string) => {
     isBundleLoading.value = true;
     try {
       const response = await $axios.post(
@@ -18,15 +24,14 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/rancher-imported-cluster/db-bundle`,
+            path: `/api/v1/clusters/rancher/${cluster}/db-bundle`,
             verb: "GET",
-            query: "type=features,common,versions&db-singular=postgres",
+            query: `type=features,common,versions&db-singular=${dbObject.kind.toLocaleLowerCase()}`,
             body: "",
           },
         }
       );
       const data = await JSON.parse(response.data.response.body);
-      console.log({ bundle: data });
       isBundleLoading.value = false;
       return { bundle: data };
     } catch (e) {
@@ -35,7 +40,7 @@ export const useFunctions = () => {
     isBundleLoading.value = false;
   };
 
-  const getNamespaces = async () => {
+  const getNamespaces = async (cluster: string) => {
     isNamespaceLoading.value = true;
     try {
       const response = await $axios.post(
@@ -44,7 +49,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/rancher-imported-cluster/proxy/identity.k8s.appscode.com/v1alpha1/selfsubjectnamespaceaccessreviews`,
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/identity.k8s.appscode.com/v1alpha1/selfsubjectnamespaceaccessreviews`,
             verb: "POST",
             query: "",
             body: JSON.stringify({
@@ -56,7 +61,7 @@ export const useFunctions = () => {
                     verb: "create",
                     group: "kubedb.com",
                     version: "v1",
-                    resource: "postgreses",
+                    resource: dbObject.resource,
                   },
                 ],
               },
@@ -80,7 +85,7 @@ export const useFunctions = () => {
     isNamespaceLoading.value = false;
   };
 
-  const getSecrets = async (namespace: string) => {
+  const getSecrets = async (namespace: string, cluster: string) => {
     isSecretLoading.value = true;
     try {
       const response = await $axios.post(
@@ -89,7 +94,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/rancher-imported-cluster/proxy/core/v1/namespaces/${namespace}/secrets`,
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/core/v1/namespaces/${namespace}/secrets`,
             verb: "GET",
             query: "",
             body: "",
@@ -109,7 +114,7 @@ export const useFunctions = () => {
     isSecretLoading.value = false;
   };
 
-  const getValues = async () => {
+  const getValues = async (cluster: string) => {
     isValuesLoading.value = true;
     try {
       const response = await $axios.post(
@@ -118,10 +123,9 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/rancher-imported-cluster/helm/packageview/values`,
+            path: `/api/v1/clusters/rancher/${cluster}/helm/packageview/values`,
             verb: "GET",
-            query:
-              "name=kubedbcom-postgres-editor-options&sourceApiGroup=source.toolkit.fluxcd.io&sourceKind=HelmRepository&sourceNamespace=kubeops&sourceName=appscode-charts-oci&version=v0.19.0&group=kubedb.com&kind=Postgres&variant=default&namespace=default&format=json",
+            query: `name=${dbObject.chartName}&sourceApiGroup=source.toolkit.fluxcd.io&sourceKind=HelmRepository&sourceNamespace=kubeops&sourceName=appscode-charts-oci&version=v0.19.0&group=kubedb.com&kind=${dbObject.kind}&variant=default&namespace=default&format=json`,
             body: "",
           },
         }
