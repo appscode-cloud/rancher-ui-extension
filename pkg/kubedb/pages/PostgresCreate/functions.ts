@@ -114,7 +114,7 @@ export const useFunctions = () => {
     isSecretLoading.value = false;
   };
 
-  const getValues = async (cluster: string) => {
+  const getValues = async (cluster: string, namespace: string) => {
     isValuesLoading.value = true;
     try {
       const response = await $axios.post(
@@ -125,7 +125,7 @@ export const useFunctions = () => {
           request: {
             path: `/api/v1/clusters/rancher/${cluster}/helm/packageview/values`,
             verb: "GET",
-            query: `name=${dbObject.chartName}&sourceApiGroup=source.toolkit.fluxcd.io&sourceKind=HelmRepository&sourceNamespace=kubeops&sourceName=appscode-charts-oci&version=v0.19.0&group=kubedb.com&kind=${dbObject.kind}&variant=default&namespace=default&format=json`,
+            query: `name=${dbObject.chartName}&sourceApiGroup=source.toolkit.fluxcd.io&sourceKind=HelmRepository&sourceNamespace=kubeops&sourceName=appscode-charts-oci&version=v0.19.0&group=kubedb.com&kind=${dbObject.kind}&variant=default&namespace=${namespace}&format=json`,
             body: "",
           },
         }
@@ -154,11 +154,23 @@ export const useFunctions = () => {
     }
   };
 
+  const generateModelPayload = (
+    values: any,
+    modelApiValue: Record<string, any>
+  ) => {
+    modelApiValue.metadata.release.name = values.name;
+    modelApiValue.metadata.release.namespace = values.namespace;
+    console.log(values);
+    console.log(modelApiValue);
+    return modelApiValue;
+  };
+
   return {
     isBundleLoading,
     isNamespaceLoading,
     isValuesLoading,
     isSecretLoading,
+    generateModelPayload,
     getBundle,
     getNamespaces,
     getSecrets,

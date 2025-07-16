@@ -13,10 +13,15 @@ import { useRequiredRule } from "../../composables/useRequiredRule";
 import { useProps } from "./props";
 import { useFunctions } from "./functions";
 
+const EDITOR_MODES = {
+  EDIT_CODE: "EDIT_CODE",
+  VIEW_CODE: "VIEW_CODE",
+  DIFF_CODE: "DIFF_CODE",
+};
+
 const { required } = useRequiredRule();
 const store = useStore();
 const { params } = useRoute();
-const clusterName = ref("");
 
 const {
   validate,
@@ -59,19 +64,14 @@ const {
   getSecrets,
   getValues,
   getNamespaces,
+  generateModelPayload,
   isBundleLoading,
   isNamespaceLoading,
   isValuesLoading,
 } = useFunctions();
 
-const modelApiPayload = ref();
-
-const EDITOR_MODES = {
-  EDIT_CODE: "EDIT_CODE",
-  VIEW_CODE: "VIEW_CODE",
-  DIFF_CODE: "DIFF_CODE",
-};
-
+const clusterName = ref("");
+const modelApiPayload = ref({});
 const step = ref(1);
 const disableNextBtn = ref(true);
 
@@ -79,12 +79,6 @@ const previewTitle = computed(() => {
   return step.value === 1
     ? "Create Postgres"
     : `Create Postgres: ${namespace.value}/${name.value}`;
-});
-
-watch(values, async () => {
-  await validate();
-  const validated = Object.values(errors.value).every((value) => value === "");
-  disableNextBtn.value = !validated;
 });
 
 const getClusters = async () => {
@@ -102,25 +96,13 @@ const getClusters = async () => {
   }
 };
 
-watch(namespace, (n) => {
-  getSecrets(n, clusterName.value);
-});
-
-const gotoNext = () => {
-  validate();
-  if (step.value === 1) step.value = 2;
-  else {
-    // createPgInstance();
-  }
-};
-
 const setNamespaces = async () => {
   const data = await getNamespaces(clusterName.value);
   genericNameSpaces.value.options = data;
 };
 
 const setValues = async () => {
-  const data = await getValues(clusterName.value);
+  const data = await getValues(clusterName.value, namespace.value);
 
   modelApiPayload.value = data?.values;
 
@@ -195,6 +177,27 @@ const setBundle = async () => {
     });
   }
 };
+
+const gotoNext = () => {
+  validate();
+  if (step.value === 1) step.value = 2;
+  else {
+    // createPgInstance();
+  }
+};
+
+watch(values, async () => {
+  if (namespace.value && modelApiPayload.value)
+    modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
+  await validate();
+  const validated = Object.values(errors.value).every((value) => value === "");
+  disableNextBtn.value = !validated;
+});
+
+watch(namespace, (n) => {
+  getSecrets(n, clusterName.value);
+  setValues();
+});
 
 onMounted(async () => {
   await getClusters();
