@@ -2,7 +2,8 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
-
+import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
+import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
 import BasicDbConfig from "../../components/BasicDbConfig.vue";
 import AdvancedDbConfig from "../../components/AdvancedDbConfig.vue";
 import AdditionalOptions from "../../components/AdditionalOptions.vue";
@@ -223,6 +224,36 @@ onMounted(async () => {
 <template>
   <div class="m-20">
     <h1>{{ previewTitle }}</h1>
+     <div class="row mb-20">
+      <div class="col span-6">
+        <LabeledSelect
+          v-if="genericNameSpaces.show"
+          v-model:value="genericNameSpaces.namespaceModel"
+          :clearable="genericNameSpaces.clearable"
+          :options="genericNameSpaces.options"
+          :disabled="genericNameSpaces.disabled"
+          :searchable="genericNameSpaces.searchable"
+          :multiple="genericNameSpaces.multiple"
+          :label="genericNameSpaces.label"
+          :placeholder="genericNameSpaces.placeholder"
+          :required="genericNameSpaces.required"
+          :rules="genericNameSpaces.rules"
+        />
+      </div>
+
+      <div class="col span-6">
+        <LabeledInput
+          v-if="genericName.show"
+          v-model:value="genericName.nameModel"
+          :label="genericName.label"
+          :placeholder="genericName.placeholder"
+          :disabled="genericName.disabled"
+          :min-height="genericName.minHeight"
+          :required="genericName.required"
+          :rules="genericName.rules"
+        />
+      </div>
+    </div>
     <p v-if="isValuesLoading || isBundleLoading || isNamespaceLoading">
       loading...
     </p>

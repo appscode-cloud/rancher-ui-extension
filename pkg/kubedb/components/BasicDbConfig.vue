@@ -43,7 +43,7 @@ const showReplicas = computed(() => {
 
 <template>
   <div>
-    <div class="row mb-20">
+    <!-- <div class="row mb-20">
       <div class="col span-6">
         <LabeledSelect
           v-if="props.genericNameSpaces.show"
@@ -72,7 +72,7 @@ const showReplicas = computed(() => {
           :rules="props.genericName.rules"
         />
       </div>
-    </div>
+    </div> -->
     <div class="row mb-20">
       <div class="col span-6">
         <LabeledSelect

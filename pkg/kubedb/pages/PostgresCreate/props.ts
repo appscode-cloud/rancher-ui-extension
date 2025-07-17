@@ -293,6 +293,7 @@ export const useProps = () => {
     placeholder: "Select Standby Mode",
     standbyModeModel: standbyMode,
     rules: [required],
+    required: true,
   });
 
   const genericPitrNamespace = ref<genericPitrNamespaceType>({
@@ -321,6 +322,7 @@ export const useProps = () => {
     placeholder: "Select Streaming Mode",
     streamingModeModel: streamingMode,
     rules: [required],
+    required: true,
   });
 
   // Additional Options generics

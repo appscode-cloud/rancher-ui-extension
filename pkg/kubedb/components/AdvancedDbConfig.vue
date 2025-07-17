@@ -177,6 +177,8 @@ const isPitr = ref(false);
       :options="props.genericStandbyMode.options"
       :label="props.genericStandbyMode.label"
       :placeholder="props.genericStandbyMode.placeholder"
+      :required="props.genericStandbyMode.required"
+      :rules="props.genericStandbyMode.rules"
     />
 
     <LabeledSelect
@@ -186,6 +188,8 @@ const isPitr = ref(false);
       :options="props.genericStreamingMode.options"
       :label="props.genericStreamingMode.label"
       :placeholder="props.genericStreamingMode.placeholder"
+      :required="props.genericStreamingMode.required"
+      :rules="props.genericStreamingMode.rules"
     />
   </Accordion>
 </template>

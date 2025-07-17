@@ -4,7 +4,7 @@ import { IPlugin } from '@shell/core/types';
 export function init($plugin: IPlugin, store: any) {
   const YOUR_PRODUCT_NAME = 'Kubedb';
   const CUSTOM_PAGE_NAME1 = 'postgres';
-  const CUSTOM_PAGE_NAME2 = 'mongodb';
+  const CUSTOM_PAGE_NAME2 = 'overview';
   const {
     product,
     configureType,
