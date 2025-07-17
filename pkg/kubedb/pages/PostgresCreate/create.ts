@@ -43,7 +43,7 @@ export const useCreateForm = () => {
   const { value: annotations } =
     useField<Record<string, string>>("annotations");
   const { value: mode } = useField<string>("mode", "", {
-    initialValue: "standalone",
+    initialValue: "Standalone",
   });
   const { value: monitoring } = useField<boolean>("monitoring");
   const { value: backup } = useField<boolean>("backup");

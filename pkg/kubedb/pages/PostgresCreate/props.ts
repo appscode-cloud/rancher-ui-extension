@@ -34,9 +34,9 @@ import {
 
 //Hard-coded options
 const databaseModes = ref<Array<{ value: string; label: string }>>([
-  { label: "standalone", value: "standalone" },
-  { label: "HA", value: "HA" },
-  { label: "replica", value: "replica" },
+  { label: "Standalone", value: "Standalone" },
+  { label: "HA Cluster", value: "Cluster" },
+  { label: "RemoteReplica", value: "RemoteReplica" },
 ]);
 const alertsList = ref<Array<{ value: string; label: string }>>([
   { label: "Critical", value: "Critical" },
