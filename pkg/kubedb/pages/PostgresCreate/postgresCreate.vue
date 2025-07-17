@@ -68,9 +68,9 @@ const {
   modelApiCall,
   generateModelPayload,
   resourceSkipCRDApiCall,
-  isBundleLoading,
   isModelLoading,
   isResourceSkipLoading,
+  isBundleLoading,
   isNamespaceLoading,
   isValuesLoading,
 } = useFunctions();
@@ -183,22 +183,6 @@ const setBundle = async () => {
   }
 };
 
-const gotoNext = async () => {
-  const resourceSkipPayload = await modelApiCall(
-    clusterName.value,
-    modelApiPayload.value
-  );
-
-  await resourceSkipCRDApiCall(clusterName.value, resourceSkipPayload?.values);
-
-  // validate();
-  // if (step.value === 1) step.value = 2;
-  // else {
-  //   // createPgInstance();
-  //   modelApiCall(clusterName.value, modelApiPayload);
-  // }
-};
-
 watch(values, async () => {
   if (namespace.value && modelApiPayload.value)
     modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
@@ -219,13 +203,35 @@ onMounted(async () => {
   setValues();
   setBundle();
 });
+
+const previewFiles = ref<
+  Array<{ key: string; filename: string; data: Record<string, string> }>
+>([]);
+
+const gotoNext = async () => {
+  if (step.value === 1) step.value = 2;
+  else if (step.value === 2) {
+    const resourceSkipPayload = await modelApiCall(
+      clusterName.value,
+      modelApiPayload.value
+    );
+
+    const resourceSkipCRDResponse = await resourceSkipCRDApiCall(
+      clusterName.value,
+      resourceSkipPayload?.values
+    );
+
+    previewFiles.value = resourceSkipCRDResponse?.values.resources;
+    step.value = 3;
+  }
+};
 </script>
 
 <template>
-  <div class="m-20">
+  <div class="m-24">
     <h1>{{ previewTitle }}</h1>
-     <div class="row mb-20">
-      <div class="col span-6">
+    <div class="mb-20" v-if="step === 1">
+      <div class="col span-6 mb-20">
         <LabeledSelect
           v-if="genericNameSpaces.show"
           v-model:value="genericNameSpaces.namespaceModel"
@@ -254,81 +260,92 @@ onMounted(async () => {
         />
       </div>
     </div>
-    <p v-if="isValuesLoading || isBundleLoading || isNamespaceLoading">
-      loading...
-    </p>
-    <div v-else>
-      <div v-if="step === 1">
-        <!-- Basic Configuration Component -->
-        <BasicDbConfig
-          :genericNameSpaces="genericNameSpaces"
-          :genericVersions="genericVersions"
-          :genericName="genericName"
-          :genericMode="genericMode"
-          :required="required"
-          :genericStorageSize="genericStorageSize"
-          :genericStorageClass="genericStorageClass"
-          :genericReplica="genericReplica"
-          :genericMachine="genericMachine"
-          :genericCPU="genericCPU"
-          :genericMemory="genericMemory"
-        />
+    <div v-if="step === 2">
+      <p
+        v-if="
+          isValuesLoading ||
+          isBundleLoading ||
+          isNamespaceLoading ||
+          isModelLoading ||
+          isResourceSkipLoading
+        "
+      >
+        loading...
+      </p>
+      <div v-else>
+        <div>
+          <!-- Basic Configuration Component -->
+          <BasicDbConfig
+            :genericNameSpaces="genericNameSpaces"
+            :genericVersions="genericVersions"
+            :genericName="genericName"
+            :genericMode="genericMode"
+            :required="required"
+            :genericStorageSize="genericStorageSize"
+            :genericStorageClass="genericStorageClass"
+            :genericReplica="genericReplica"
+            :genericMachine="genericMachine"
+            :genericCPU="genericCPU"
+            :genericMemory="genericMemory"
+          />
 
-        <AdvancedDbConfig
-          :AdvancedToggleSwitch="AdvancedToggleSwitch"
-          :genericDeletionPolicy="genericDeletionPolicy"
-          :genericLabels="genericLabels"
-          :genericAnnotations="genericAnnotations"
-          :genericDbConfiguration="genericDbConfiguration"
-          :genericPassword="genericPassword"
-          :genericSecret="genericSecret"
-          :genericStandbyMode="genericStandbyMode"
-          :genericPitrNamespace="genericPitrNamespace"
-          :genericPitrName="genericPitrName"
-          :genericStreamingMode="genericStreamingMode"
-          :required="required"
-        />
+          <AdvancedDbConfig
+            :AdvancedToggleSwitch="AdvancedToggleSwitch"
+            :genericDeletionPolicy="genericDeletionPolicy"
+            :genericLabels="genericLabels"
+            :genericAnnotations="genericAnnotations"
+            :genericDbConfiguration="genericDbConfiguration"
+            :genericPassword="genericPassword"
+            :genericSecret="genericSecret"
+            :genericStandbyMode="genericStandbyMode"
+            :genericPitrNamespace="genericPitrNamespace"
+            :genericPitrName="genericPitrName"
+            :genericStreamingMode="genericStreamingMode"
+            :required="required"
+          />
 
-        <AdditionalOptions
-          :generic-monitoring="genericMonitoring"
-          :generic-backup="genericBackup"
-          :generic-archiver="genericArchiver"
-          :generic-t-l-s="genericTlS"
-          :generic-expose="genericExpose"
-          :genericAlert="genericAlert"
-          :genericIssuer="genericIssuer"
+          <AdditionalOptions
+            :generic-monitoring="genericMonitoring"
+            :generic-backup="genericBackup"
+            :generic-archiver="genericArchiver"
+            :generic-t-l-s="genericTlS"
+            :generic-expose="genericExpose"
+            :genericAlert="genericAlert"
+            :genericIssuer="genericIssuer"
+          />
+        </div>
+      </div>
+    </div>
+    <div v-if="step === 3">
+      <div v-for="file in previewFiles" :key="file.key">
+        <p>{{ file.filename }}</p>
+        <YamlEditor
+          ref="yamleditor"
+          v-model:value="file.data"
+          mode="create"
+          :asObject="false"
+          :initial-yaml-values="file.data"
+          class="yaml-editor flex-content"
+          :editor-mode="EDITOR_MODES.EDIT_CODE"
+          @update:value="console.log('write function to update ')"
         />
       </div>
-
-      <YamlEditor
-        v-if="step === 2"
-        ref="yamleditor"
-        v-model:value="values"
-        mode="create"
-        :asObject="true"
-        :initial-yaml-values="values"
-        class="yaml-editor flex-content"
-        :editor-mode="EDITOR_MODES.EDIT_CODE"
-        @update:value="console.log('write function to update ')"
-      />
     </div>
-
     <div class="button-container">
       <RcButton secondary>Cancel</RcButton>
       <div>
         <RcButton
-          v-if="step === 2"
+          v-if="step > 1"
           primary
-          @click="step = 1"
+          @click="step--"
           :disabled="disableNextBtn"
           >Previous</RcButton
         >
         <RcButton primary @click="gotoNext" :disabled="disableNextBtn">{{
-          step === 1 ? "Preview" : "Deploy"
+          step === 1 ? "Next" : step === 2 ? "Preview" : "Deploy"
         }}</RcButton>
       </div>
     </div>
-    <pre>{{ values }}</pre>
   </div>
 </template>
 

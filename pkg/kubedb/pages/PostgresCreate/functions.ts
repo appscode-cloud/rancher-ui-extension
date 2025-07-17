@@ -8,12 +8,12 @@ export const dbObject = {
 };
 
 export const useFunctions = () => {
-  const isValuesLoading = ref(true);
-  const isNamespaceLoading = ref(true);
-  const isSecretLoading = ref(true);
-  const isBundleLoading = ref(true);
-  const isModelLoading = ref(true);
-  const isResourceSkipLoading = ref(true);
+  const isValuesLoading = ref(false);
+  const isNamespaceLoading = ref(false);
+  const isSecretLoading = ref(false);
+  const isBundleLoading = ref(false);
+  const isModelLoading = ref(false);
+  const isResourceSkipLoading = ref(false);
 
   const getBundle = async (cluster: string) => {
     isBundleLoading.value = true;
@@ -233,7 +233,6 @@ export const useFunctions = () => {
       );
 
       const data = await JSON.parse(response.data.response?.body);
-      console.log({ resourceSkipCRDApiCall: data });
       isResourceSkipLoading.value = false;
       return { values: data };
     } catch (error) {
