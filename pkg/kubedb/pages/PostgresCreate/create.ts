@@ -1,6 +1,6 @@
 import { useField, useForm } from "vee-validate";
-import { useRequiredRule } from "../../composables/useRequiredRule";
-const { required } = useRequiredRule();
+import { useRules } from "../../composables/rules";
+const { required } = useRules();
 
 export const useCreateForm = () => {
   const { values, errors, validate } = useForm({});

@@ -14,6 +14,7 @@ export const useFunctions = () => {
   const isBundleLoading = ref(false);
   const isModelLoading = ref(false);
   const isResourceSkipLoading = ref(false);
+  const isDeploying = ref(false);
 
   const getBundle = async (cluster: string) => {
     isBundleLoading.value = true;
@@ -147,10 +148,10 @@ export const useFunctions = () => {
     modelApiValue.metadata.release.name = values.name;
     modelApiValue.metadata.release.namespace = values.namespace;
     modelApiValue.spec.admin.databases[dbObject.kind].default = values.version;
-    modelApiValue.spec.admin.archiver.enable.default = values.archiver;
+    // modelApiValue.spec.admin.archiver.enable.default = values.archiver;
     modelApiValue.spec.admin.storageClasses.default = values.storageClass;
-    modelApiValue.spec.admin.tls.default = values.tls;
-    modelApiValue.spec.admin.expose.default = values.expose;
+    // modelApiValue.spec.admin.tls.default = values.tls;
+    // modelApiValue.spec.admin.expose.default = values.expose;
     // modelApiValue.form.alert.enabled = values.alert;
     modelApiValue.spec.deletionPolicy = values.deletionPolicy;
     modelApiValue.spec.annotations = values.annotations;
@@ -170,11 +171,11 @@ export const useFunctions = () => {
     modelApiValue.spec.standbyMode = values.standbyMode;
     modelApiValue.spec.streamingMode = values.streamingMode;
     modelApiValue.spec.admin.clusterIssuers = values.clusterIssuer;
-    modelApiValue.spec.archiverName = values.archiver
-      ? dbObject.kind.toLocaleLowerCase()
-      : "";
+    // modelApiValue.spec.archiverName = values.archiver
+    //   ? dbObject.kind.toLocaleLowerCase()
+    //   : "";
 
-    modelApiValue.spec.backup.tool = values.backup ? "KubeStash" : "";
+    // modelApiValue.spec.backup.tool = values.backup ? "KubeStash" : "";
     // modelApiValue.spec.monitoring.agent = values.monitoring
     //   ? "prometheus.io/operator"
     //   : "";
@@ -203,7 +204,6 @@ export const useFunctions = () => {
       );
 
       const data = await JSON.parse(response.data.response?.body);
-      console.log({ model: data });
       isModelLoading.value = false;
       return { values: data };
     } catch (error) {
@@ -241,6 +241,32 @@ export const useFunctions = () => {
     isResourceSkipLoading.value = false;
   };
 
+  const deployCall = async (cluster: string, payload: Record<string, any>) => {
+    isDeploying.value = true;
+    try {
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/helm/editor`,
+            verb: "PUT",
+            query: "",
+            body: JSON.stringify(payload),
+          },
+        }
+      );
+
+      const data = await JSON.parse(response.data.response?.body);
+      isDeploying.value = false;
+      return { values: data };
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+    isDeploying.value = false;
+  };
+
   return {
     isBundleLoading,
     isNamespaceLoading,
@@ -248,6 +274,8 @@ export const useFunctions = () => {
     isSecretLoading,
     isModelLoading,
     isResourceSkipLoading,
+    isDeploying,
+    deployCall,
     resourceSkipCRDApiCall,
     generateModelPayload,
     modelApiCall,

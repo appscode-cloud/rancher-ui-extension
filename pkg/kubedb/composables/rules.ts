@@ -1,4 +1,4 @@
-export function useRequiredRule() {
+export function useRules() {
   const required = (value: unknown) => {
     if (!!value || value === 0) {
       if (Array.isArray(value) && value.length > 0) return "";
@@ -9,5 +9,5 @@ export function useRequiredRule() {
     }
     return "This field is required";
   };
-  return {required}
+  return { required };
 }

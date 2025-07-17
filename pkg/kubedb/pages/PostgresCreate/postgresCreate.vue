@@ -10,7 +10,8 @@ import AdditionalOptions from "../../components/AdditionalOptions.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
 
-import { useRequiredRule } from "../../composables/useRequiredRule";
+import { useUtils } from "../../composables/utils";
+import { useRules } from "../../composables/rules";
 import { useProps } from "./props";
 import { useFunctions } from "./functions";
 
@@ -20,9 +21,10 @@ const EDITOR_MODES = {
   DIFF_CODE: "DIFF_CODE",
 };
 
-const { required } = useRequiredRule();
+const { required } = useRules();
 const store = useStore();
 const { params } = useRoute();
+const { yamlToJs } = useUtils();
 
 const {
   validate,
@@ -68,6 +70,8 @@ const {
   modelApiCall,
   generateModelPayload,
   resourceSkipCRDApiCall,
+  deployCall,
+  isDeploying,
   isModelLoading,
   isResourceSkipLoading,
   isBundleLoading,
@@ -75,9 +79,10 @@ const {
   isValuesLoading,
 } = useFunctions();
 
+const step = ref(1);
 const clusterName = ref("");
 const modelApiPayload = ref({});
-const step = ref(1);
+const resourceSkipPayload = ref();
 const disableNextBtn = ref(true);
 
 const previewTitle = computed(() => {
@@ -184,7 +189,7 @@ const setBundle = async () => {
 };
 
 watch(values, async () => {
-  if (namespace.value && modelApiPayload.value)
+  if (namespace.value && modelApiPayload.value && name.value)
     modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
   await validate();
   const validated = Object.values(errors.value).every((value) => value === "");
@@ -205,24 +210,42 @@ onMounted(async () => {
 });
 
 const previewFiles = ref<
-  Array<{ key: string; filename: string; data: Record<string, string> }>
+  Array<{ key: string; filename: string; data: string }>
 >([]);
 
 const gotoNext = async () => {
   if (step.value === 1) step.value = 2;
   else if (step.value === 2) {
-    const resourceSkipPayload = await modelApiCall(
+    resourceSkipPayload.value = await modelApiCall(
       clusterName.value,
       modelApiPayload.value
     );
 
     const resourceSkipCRDResponse = await resourceSkipCRDApiCall(
       clusterName.value,
-      resourceSkipPayload?.values
+      resourceSkipPayload.value?.values
     );
 
     previewFiles.value = resourceSkipCRDResponse?.values.resources;
     step.value = 3;
+  } else if (step.value === 3) {
+    const deployApiPayload: {
+      form: Record<string, any>;
+      metadata: Record<string, any>;
+      resources: Record<string, any>;
+    } = {
+      form: {},
+      metadata: {},
+      resources: {},
+    };
+    deployApiPayload.form = resourceSkipPayload.value.values.form;
+    deployApiPayload.metadata = resourceSkipPayload.value.values.metadata;
+    previewFiles.value.forEach(
+      (file: { key: string; filename: string; data: string }) => {
+        deployApiPayload.resources[file.key] = yamlToJs(file.data);
+      }
+    );
+    deployCall(clusterName.value, deployApiPayload);
   }
 };
 </script>
@@ -341,9 +364,23 @@ const gotoNext = async () => {
           :disabled="disableNextBtn"
           >Previous</RcButton
         >
-        <RcButton primary @click="gotoNext" :disabled="disableNextBtn">{{
-          step === 1 ? "Next" : step === 2 ? "Preview" : "Deploy"
-        }}</RcButton>
+        <RcButton
+          primary
+          @click="gotoNext"
+          :disabled="
+            disableNextBtn ||
+            isValuesLoading ||
+            isDeploying ||
+            isModelLoading ||
+            isResourceSkipLoading ||
+            isBundleLoading ||
+            isNamespaceLoading ||
+            isValuesLoading
+          "
+          >{{
+            step === 1 ? "Next" : step === 2 ? "Preview" : "Deploy"
+          }}</RcButton
+        >
       </div>
     </div>
   </div>

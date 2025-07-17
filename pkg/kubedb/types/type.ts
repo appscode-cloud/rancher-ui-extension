@@ -16,47 +16,47 @@ interface BaseCommon {
 }
 
 export interface genericNameSpacesType extends BaseCommon {
-  namespaceModel: Ref<string, string>;
+  namespaceModel: any;
 }
 
 export interface genericNameType extends BaseCommon {
-  nameModel: Ref<string, string>;
+  nameModel: any;
 }
 
 export interface genericVersionType extends BaseCommon {
-  versionModel: Ref<string, string>;
+  versionModel: any;
 }
 export interface genericModeType extends BaseCommon {
-  modeModel: Ref<string, string>;
+  modeModel: any;
   row?: boolean;
 }
 
 export interface genericReplicaType extends BaseCommon {
-  replicaModel: Ref<string, string>;
+  replicaModel: any;
 }
 
 export interface genericMachineType extends BaseCommon {
-  machineModel: Ref<string, string>;
+  machineModel: any;
 }
 
 export interface genericCPUType extends BaseCommon {
-  cpuModel: Ref<string, string>;
+  cpuModel: any;
   baseUnit: string;
   min: number;
 }
 
 export interface genericMemoryType extends BaseCommon {
-  memoryModel: Ref<string, string>;
+  memoryModel: any;
   baseUnit: string;
   min: number;
 }
 
 export interface genericStorageSizeType extends BaseCommon {
-  storageSizeModel: Ref<string, string>;
+  storageSizeModel: any;
 }
 
 export interface genericStorageClassType extends BaseCommon {
-  storageClassModel: Ref<string, string>;
+  storageClassModel: any;
 }
 
 export interface AdvancedBaseCommon extends BaseCommon {
@@ -68,60 +68,60 @@ export interface AdvancedBaseCommon extends BaseCommon {
   valueCanBeEmpty?: boolean;
 }
 export interface genericLabelsType extends AdvancedBaseCommon {
-  labelsModel: Ref<string, string>;
+  labelsModel: any;
 }
 export interface genericAnnotationsType extends AdvancedBaseCommon {
-  annotationsModel: Ref<string, string>;
+  annotationsModel: any;
 }
 export interface genericDeletionPolicyType extends AdvancedBaseCommon {
-  deletionPolicyModel: Ref<string, string>;
+  deletionPolicyModel: any;
 }
 
 export interface genericSecretType extends AdvancedBaseCommon {
-  secretModel: Ref<string, string>;
+  secretModel: any;
 }
 
 export interface genericPasswordType extends AdvancedBaseCommon {
-  passwordModel: Ref<string, string>;
+  passwordModel: any;
 }
 export interface genericDbConfigurationType extends AdvancedBaseCommon {
-  dbConfigurationModel: Ref<string, string>;
+  dbConfigurationModel: any;
 }
 export interface genericPitrNamespaceType extends AdvancedBaseCommon {
-  pitrNamespaceModel: Ref<string, string>;
+  pitrNamespaceModel: any;
 }
 export interface genericPitrNameType extends AdvancedBaseCommon {
-  pitrNameModel: Ref<string, string>;
+  pitrNameModel: any;
 }
 export interface genericStreamingModeType extends AdvancedBaseCommon {
-  streamingModeModel: Ref<string, string>;
+  streamingModeModel: any;
 }
 export interface genericStandbyModeType extends AdvancedBaseCommon {
-  standbyModeModel: Ref<string, string>;
+  standbyModeModel: any;
 }
 export interface genericAlertType extends BaseCommon {
-  alertModel: Ref<string, string>;
+  alertModel: any;
 }
 
 export interface genericIssuerType extends BaseCommon {
-  issuerModel: Ref<string, string>;
+  issuerModel: any;
 }
 
 export interface genericMonitoring extends BaseCommon {
-  monitoringModel: Ref<string, string>;
+  monitoringModel: any;
 }
 export interface genericBackup extends BaseCommon {
-  backupModel: Ref<string, string>;
+  backupModel: any;
 }
 
 export interface genericArchiver extends BaseCommon {
-  archiverModel: Ref<string, string>;
+  archiverModel: any;
 }
 
 export interface genericTLS extends BaseCommon {
-  tlsModel: Ref<string, string>;
+  tlsModel: any;
 }
 
 export interface genericExpose extends BaseCommon {
-  exposeModel: Ref<string, string>;
+  exposeModel: any;
 }

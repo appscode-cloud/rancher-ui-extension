@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { useRequiredRule } from "../../composables/useRequiredRule";
+import { useRules } from "../../composables/rules";
 import { useCreateForm } from "./create";
 
 import {
@@ -70,7 +70,7 @@ const deletionPolicies = ref<Array<{ value: string; label: string }>>([
   },
 ]);
 
-const { required } = useRequiredRule();
+const { required } = useRules();
 
 export const useProps = () => {
   const {
