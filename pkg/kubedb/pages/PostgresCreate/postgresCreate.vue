@@ -64,8 +64,12 @@ const {
   getSecrets,
   getValues,
   getNamespaces,
+  modelApiCall,
   generateModelPayload,
+  resourceSkipCRDApiCall,
   isBundleLoading,
+  isModelLoading,
+  isResourceSkipLoading,
   isNamespaceLoading,
   isValuesLoading,
 } = useFunctions();
@@ -178,12 +182,20 @@ const setBundle = async () => {
   }
 };
 
-const gotoNext = () => {
-  validate();
-  if (step.value === 1) step.value = 2;
-  else {
-    // createPgInstance();
-  }
+const gotoNext = async () => {
+  const resourceSkipPayload = await modelApiCall(
+    clusterName.value,
+    modelApiPayload.value
+  );
+
+  await resourceSkipCRDApiCall(clusterName.value, resourceSkipPayload?.values);
+
+  // validate();
+  // if (step.value === 1) step.value = 2;
+  // else {
+  //   // createPgInstance();
+  //   modelApiCall(clusterName.value, modelApiPayload);
+  // }
 };
 
 watch(values, async () => {
