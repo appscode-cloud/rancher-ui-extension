@@ -37,42 +37,12 @@ const isCustom = computed(() => {
 });
 
 const showReplicas = computed(() => {
-  return props.genericMode.modeModel !== "standalone";
+  return props.genericMode.modeModel === "Cluster";
 });
 </script>
 
 <template>
   <div>
-    <div class="row mb-20">
-      <div class="col span-6">
-        <LabeledSelect
-          v-if="props.genericNameSpaces.show"
-          v-model:value="props.genericNameSpaces.namespaceModel"
-          :clearable="props.genericNameSpaces.clearable"
-          :options="props.genericNameSpaces.options"
-          :disabled="props.genericNameSpaces.disabled"
-          :searchable="props.genericNameSpaces.searchable"
-          :multiple="props.genericNameSpaces.multiple"
-          :label="props.genericNameSpaces.label"
-          :placeholder="props.genericNameSpaces.placeholder"
-          :required="props.genericNameSpaces.required"
-          :rules="props.genericNameSpaces.rules"
-        />
-      </div>
-
-      <div class="col span-6">
-        <LabeledInput
-          v-if="props.genericName.show"
-          v-model:value="props.genericName.nameModel"
-          :label="props.genericName.label"
-          :placeholder="props.genericName.placeholder"
-          :disabled="props.genericName.disabled"
-          :min-height="props.genericName.minHeight"
-          :required="props.genericName.required"
-          :rules="props.genericName.rules"
-        />
-      </div>
-    </div>
     <div class="row mb-20">
       <div class="col span-6">
         <LabeledSelect
@@ -108,6 +78,8 @@ const showReplicas = computed(() => {
         :label="props.genericReplica.label"
         :placeholder="props.genericReplica.placeholder"
         :min-height="props.genericReplica.minHeight"
+        :required="showReplicas"
+        :rules="props.genericStorageSize.rules"
       />
     </div>
 

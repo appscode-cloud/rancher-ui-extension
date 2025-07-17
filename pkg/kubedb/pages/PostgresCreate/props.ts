@@ -1,5 +1,5 @@
 import { ref } from "vue";
-import { useRequiredRule } from "../../composables/useRequiredRule";
+import { useRules } from "../../composables/rules";
 import { useCreateForm } from "./create";
 
 import {
@@ -34,9 +34,9 @@ import {
 
 //Hard-coded options
 const databaseModes = ref<Array<{ value: string; label: string }>>([
-  { label: "standalone", value: "standalone" },
-  { label: "HA", value: "HA" },
-  { label: "replica", value: "replica" },
+  { label: "Standalone", value: "Standalone" },
+  { label: "HA Cluster", value: "Cluster" },
+  { label: "RemoteReplica", value: "RemoteReplica" },
 ]);
 const alertsList = ref<Array<{ value: string; label: string }>>([
   { label: "Critical", value: "Critical" },
@@ -70,7 +70,7 @@ const deletionPolicies = ref<Array<{ value: string; label: string }>>([
   },
 ]);
 
-const { required } = useRequiredRule();
+const { required } = useRules();
 
 export const useProps = () => {
   const {
@@ -293,6 +293,7 @@ export const useProps = () => {
     placeholder: "Select Standby Mode",
     standbyModeModel: standbyMode,
     rules: [required],
+    required: true,
   });
 
   const genericPitrNamespace = ref<genericPitrNamespaceType>({
@@ -321,6 +322,7 @@ export const useProps = () => {
     placeholder: "Select Streaming Mode",
     streamingModeModel: streamingMode,
     rules: [required],
+    required: true,
   });
 
   // Additional Options generics

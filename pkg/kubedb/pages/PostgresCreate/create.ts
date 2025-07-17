@@ -1,6 +1,6 @@
 import { useField, useForm } from "vee-validate";
-import { useRequiredRule } from "../../composables/useRequiredRule";
-const { required } = useRequiredRule();
+import { useRules } from "../../composables/rules";
+const { required } = useRules();
 
 export const useCreateForm = () => {
   const { values, errors, validate } = useForm({});
@@ -43,7 +43,7 @@ export const useCreateForm = () => {
   const { value: annotations } =
     useField<Record<string, string>>("annotations");
   const { value: mode } = useField<string>("mode", "", {
-    initialValue: "standalone",
+    initialValue: "Standalone",
   });
   const { value: monitoring } = useField<boolean>("monitoring");
   const { value: backup } = useField<boolean>("backup");

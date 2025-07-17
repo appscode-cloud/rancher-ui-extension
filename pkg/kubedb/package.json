@@ -18,6 +18,13 @@
     "@vue/cli-service": "~5.0.0",
     "@vue/cli-plugin-typescript": "~5.0.0"
   },
+  "dependencies": {
+    "@rancher/shell": "^3.0.4",
+    "axios": "^1.10.0",
+    "js-yaml": "^4.1.0",
+    "vee-validate": "^4.15.1",
+    "yaml": "^2.8.0"
+  },
   "browserslist": [
     "> 1%",
     "last 2 versions",

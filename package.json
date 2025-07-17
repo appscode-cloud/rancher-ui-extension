@@ -9,7 +9,8 @@
     "@rancher/shell": "^3.0.4",
     "axios": "^1.10.0",
     "js-yaml": "^4.1.0",
-    "vee-validate": "^4.15.1"
+    "vee-validate": "^4.15.1",
+    "yaml": "^2.8.0"
   },
   "resolutions": {
     "@types/node": "~20.10.0",

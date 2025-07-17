@@ -1,7 +1,5 @@
 import $axios from "../../composables/axios";
-import { useStore } from "vuex";
 import { ref } from "vue";
-const store = useStore();
 
 export const dbObject = {
   kind: "Postgres",
@@ -10,10 +8,13 @@ export const dbObject = {
 };
 
 export const useFunctions = () => {
-  const isValuesLoading = ref(true);
-  const isNamespaceLoading = ref(true);
-  const isSecretLoading = ref(true);
-  const isBundleLoading = ref(true);
+  const isValuesLoading = ref(false);
+  const isNamespaceLoading = ref(false);
+  const isSecretLoading = ref(false);
+  const isBundleLoading = ref(false);
+  const isModelLoading = ref(false);
+  const isResourceSkipLoading = ref(false);
+  const isDeploying = ref(false);
 
   const getBundle = async (cluster: string) => {
     isBundleLoading.value = true;
@@ -140,29 +141,130 @@ export const useFunctions = () => {
     isValuesLoading.value = false;
   };
 
-  const getClusters = async () => {
-    try {
-      const result = await store.dispatch("management/findAll", {
-        type: "management.cattle.io.cluster",
-      });
-      const clusterIdList = result.map((ele: { id: string }) => {
-        return ele.id;
-      });
-      return clusterIdList;
-    } catch (e) {
-      console.log(e);
-    }
-  };
-
   const generateModelPayload = (
     values: any,
     modelApiValue: Record<string, any>
   ) => {
     modelApiValue.metadata.release.name = values.name;
     modelApiValue.metadata.release.namespace = values.namespace;
-    console.log(values);
-    console.log(modelApiValue);
+    modelApiValue.spec.admin.databases[dbObject.kind].default = values.version;
+    // modelApiValue.spec.admin.archiver.enable.default = values.archiver;
+    modelApiValue.spec.admin.storageClasses.default = values.storageClass;
+    // modelApiValue.spec.admin.tls.default = values.tls;
+    // modelApiValue.spec.admin.expose.default = values.expose;
+    // modelApiValue.form.alert.enabled = values.alert;
+    modelApiValue.spec.deletionPolicy = values.deletionPolicy;
+    modelApiValue.spec.annotations = values.annotations;
+    modelApiValue.spec.labels = values.labels;
+    modelApiValue.spec.authSecret.name = values.secret;
+    modelApiValue.spec.authSecret.password = values.password;
+    modelApiValue.spec.configuration = values.dbConfiguration;
+    modelApiValue.spec.mode = values.mode;
+    modelApiValue.spec.persistence.size = values.storageSize;
+    modelApiValue.spec.podResources.machine = values.machine;
+    modelApiValue.spec.podResources.resources.requests.cpu = values.cpu;
+    modelApiValue.spec.podResources.resources.requests.memory = values.memory;
+    modelApiValue.spec.podResources.resources.limits = {};
+    modelApiValue.spec.podResources.resources.limits.cpu = values.cpu;
+    modelApiValue.spec.podResources.resources.limits.memory = values.memory;
+    modelApiValue.spec.replicas = values.replicas;
+    modelApiValue.spec.standbyMode = values.standbyMode;
+    modelApiValue.spec.streamingMode = values.streamingMode;
+    modelApiValue.spec.admin.clusterIssuers = values.clusterIssuer;
+    // modelApiValue.spec.archiverName = values.archiver
+    //   ? dbObject.kind.toLocaleLowerCase()
+    //   : "";
+
+    // modelApiValue.spec.backup.tool = values.backup ? "KubeStash" : "";
+    // modelApiValue.spec.monitoring.agent = values.monitoring
+    //   ? "prometheus.io/operator"
+    //   : "";
+
     return modelApiValue;
+  };
+
+  const modelApiCall = async (
+    cluster: string,
+    modelApiValue: Record<string, any>
+  ) => {
+    isModelLoading.value = true;
+    try {
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/helm/options/model`,
+            verb: "PUT",
+            query: "",
+            body: JSON.stringify(modelApiValue),
+          },
+        }
+      );
+
+      const data = await JSON.parse(response.data.response?.body);
+      isModelLoading.value = false;
+      return { values: data };
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+    isModelLoading.value = false;
+  };
+
+  const resourceSkipCRDApiCall = async (
+    cluster: string,
+    payload: Record<string, any>
+  ) => {
+    isResourceSkipLoading.value = true;
+    try {
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/helm/options/resources`,
+            verb: "PUT",
+            query: "skipCRDs=true",
+            body: JSON.stringify(payload),
+          },
+        }
+      );
+
+      const data = await JSON.parse(response.data.response?.body);
+      isResourceSkipLoading.value = false;
+      return { values: data };
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+    isResourceSkipLoading.value = false;
+  };
+
+  const deployCall = async (cluster: string, payload: Record<string, any>) => {
+    isDeploying.value = true;
+    try {
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/helm/editor`,
+            verb: "PUT",
+            query: "",
+            body: JSON.stringify(payload),
+          },
+        }
+      );
+
+      const data = await JSON.parse(response.data.response?.body);
+      isDeploying.value = false;
+      return { values: data };
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+    isDeploying.value = false;
   };
 
   return {
@@ -170,7 +272,13 @@ export const useFunctions = () => {
     isNamespaceLoading,
     isValuesLoading,
     isSecretLoading,
+    isModelLoading,
+    isResourceSkipLoading,
+    isDeploying,
+    deployCall,
+    resourceSkipCRDApiCall,
     generateModelPayload,
+    modelApiCall,
     getBundle,
     getNamespaces,
     getSecrets,
