@@ -6,6 +6,7 @@ export function init($plugin: IPlugin, store: any) {
   const CUSTOM_PAGE_NAME1 = 'postgres';
   const CUSTOM_PAGE_NAME2 = 'overview';
   const CUSTOM_PAGE_NAME3 = 'tabs';
+  const CUSTOM_PAGE_NAME4 = 'loading';
   const {
     product,
     configureType,
@@ -49,7 +50,14 @@ export function init($plugin: IPlugin, store: any) {
       params: { product: YOUR_PRODUCT_NAME }
     }
   });
-
+  virtualType({
+    labelKey: CUSTOM_PAGE_NAME4,
+    name:     CUSTOM_PAGE_NAME4,
+    route:    {
+      name:   `c-cluster-${ YOUR_PRODUCT_NAME }-${ CUSTOM_PAGE_NAME4 }`,
+      params: { product: YOUR_PRODUCT_NAME }
+    }
+  });
   // registering the defined pages as side-menu entries
-  basicType([CUSTOM_PAGE_NAME1, CUSTOM_PAGE_NAME2, CUSTOM_PAGE_NAME3]);
+  basicType([CUSTOM_PAGE_NAME1, CUSTOM_PAGE_NAME2, CUSTOM_PAGE_NAME3, CUSTOM_PAGE_NAME4]);
 }
