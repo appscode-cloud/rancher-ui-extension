@@ -15,6 +15,8 @@ export const useFunctions = () => {
   const isModelLoading = ref(false);
   const isResourceSkipLoading = ref(false);
   const isDeploying = ref(false);
+  const genericResourceLoading = ref(false);
+  const resourceSummaryLoading = ref(false);
 
   const getBundle = async (cluster: string) => {
     isBundleLoading.value = true;
@@ -267,6 +269,60 @@ export const useFunctions = () => {
     isDeploying.value = false;
   };
 
+  const genericResourceCall = async (cluster: string) => {
+    genericResourceLoading.value = true;
+    const date = Date.now();
+    try {
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/core.k8s.appscode.com/v1alpha1/genericresources`,
+            verb: "GET",
+            query: `convertToTable=true&labelSelector=k8s.io/group=kubedb.com&ctag=${date}`,
+            body: "",
+          },
+        }
+      );
+
+      const data = await JSON.parse(response.data.response?.body);
+      genericResourceLoading.value = false;
+      return { values: data };
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+    genericResourceLoading.value = false;
+  };
+
+  const resourceSummaryCall = async (cluster: string) => {
+    resourceSummaryLoading.value = true;
+    const date = Date.now();
+    try {
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/core.k8s.appscode.com/v1alpha1/resourcesummaries`,
+            verb: "GET",
+            query: `convertToTable=true&labelSelector=k8s.io/group=kubedb.com&ctag=${date}`,
+            body: "",
+          },
+        }
+      );
+
+      const data = await JSON.parse(response.data.response?.body);
+      resourceSummaryLoading.value = false;
+      return { values: data };
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+    resourceSummaryLoading.value = false;
+  };
+
   return {
     isBundleLoading,
     isNamespaceLoading,
@@ -275,6 +331,10 @@ export const useFunctions = () => {
     isModelLoading,
     isResourceSkipLoading,
     isDeploying,
+    genericResourceLoading,
+    resourceSummaryLoading,
+    resourceSummaryCall,
+    genericResourceCall,
     deployCall,
     resourceSkipCRDApiCall,
     generateModelPayload,
