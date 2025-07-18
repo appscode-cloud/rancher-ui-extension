@@ -7,28 +7,29 @@ import TextAreaAutoGrow from "@rancher/shell/rancher-components/Form/TextArea/Te
 import KeyValue from "@rancher/shell/components/form/KeyValue.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
 import {
-  genericDeletionPolicyType,
-  genericLabelsType,
-  genericAnnotationsType,
-  genericSecretType,
-  genericPasswordType,
-  genericDbConfigurationType,
-  genericPitrNamespaceType,
-  genericPitrNameType,
-  genericStreamingModeType,
-  genericStandbyModeType,
+  DeletionPolicyType,
+  LabelsType,
+  AnnotationsType,
+  AuthSecretType,
+  AuthPasswordType,
+  DbConfigurationType,
+  PitrNamespaceType,
+  PitrNameType,
+  StreamingModeType,
+  StandbyModeType,
 } from "../types/type";
+
 interface Props {
-  genericDeletionPolicy: genericDeletionPolicyType;
-  genericLabels: genericLabelsType;
-  genericAnnotations: genericAnnotationsType;
-  genericDbConfiguration: genericDbConfigurationType;
-  genericPassword: genericPasswordType;
-  genericSecret: genericSecretType;
-  genericStandbyMode: genericStandbyModeType;
-  genericPitrNamespace: genericPitrNamespaceType;
-  genericPitrName: genericPitrNameType;
-  genericStreamingMode: genericStreamingModeType;
+  DeletionPolicyProps: DeletionPolicyType;
+  LabelsProps: LabelsType;
+  AnnotationsProps: AnnotationsType;
+  DbConfigurationProps: DbConfigurationType;
+  AuthPasswordProps: AuthPasswordType;
+  AuthSecretProps: AuthSecretType;
+  StandbyModeProps: StandbyModeType;
+  PitrNamespaceProps: PitrNamespaceType;
+  PitrNameProps: PitrNameType;
+  StreamingModeProps: StreamingModeType;
   AdvancedToggleSwitch: {
     DbConfig: boolean;
     AuthCred: boolean;
@@ -41,7 +42,7 @@ const props = defineProps<Props>();
 
 const isDbConfig = ref(false);
 const isAuthCred = ref(false);
-const isReferSecret = ref(false);
+const isReferAuthSecret = ref(false);
 const isPitr = ref(false);
 </script>
 
@@ -53,39 +54,39 @@ const isPitr = ref(false);
         <KeyValue
           class="mb-20"
           key="labels"
-          v-model:value="props.genericLabels.labelsModel"
-          :protected-keys="props.genericLabels.protectedKeys"
-          :toggle-filter="props.genericLabels.toggleFilter"
-          :add-label="props.genericLabels.addLabel"
-          :add-icon="props.genericLabels.addIcon"
-          :read-allowed="props.genericLabels.readAllowed"
-          :value-can-be-empty="props.genericLabels.valueCanBeEmpty"
+          v-model:value="props.LabelsProps.labelsModel"
+          :protected-keys="props.LabelsProps.protectedKeys"
+          :toggle-filter="props.LabelsProps.toggleFilter"
+          :add-label="props.LabelsProps.addLabel"
+          :add-icon="props.LabelsProps.addIcon"
+          :read-allowed="props.LabelsProps.readAllowed"
+          :value-can-be-empty="props.LabelsProps.valueCanBeEmpty"
         />
         <h3>Annotations</h3>
         <KeyValue
           class="mb-20"
           key="annotations"
-          v-model:value="props.genericAnnotations.annotationsModel"
-          :add-label="props.genericAnnotations.addLabel"
-          :add-icon="props.genericAnnotations.addIcon"
-          :read-allowed="props.genericAnnotations.readAllowed"
-          :value-can-be-empty="props.genericAnnotations.valueCanBeEmpty"
+          v-model:value="props.AnnotationsProps.annotationsModel"
+          :add-label="props.AnnotationsProps.addLabel"
+          :add-icon="props.AnnotationsProps.addIcon"
+          :read-allowed="props.AnnotationsProps.readAllowed"
+          :value-can-be-empty="props.AnnotationsProps.valueCanBeEmpty"
         />
       </Accordion>
     </div>
 
     <LabeledSelect
       class="mb-20"
-      v-if="props.genericDeletionPolicy.show"
-      v-model:value="props.genericDeletionPolicy.deletionPolicyModel"
-      :options="props.genericDeletionPolicy.options"
-      :label="props.genericDeletionPolicy.label"
-      :placeholder="props.genericDeletionPolicy.placeholder"
-      :required="props.genericDeletionPolicy.required"
-      :rules="props.genericDeletionPolicy.rules"
-      :clearable="props.genericDeletionPolicy.clearable"
-      :searchable="props.genericDeletionPolicy.searchable"
-      :multiple="props.genericDeletionPolicy.multiple"
+      v-if="props.DeletionPolicyProps.show"
+      v-model:value="props.DeletionPolicyProps.deletionPolicyModel"
+      :options="props.DeletionPolicyProps.options"
+      :label="props.DeletionPolicyProps.label"
+      :placeholder="props.DeletionPolicyProps.placeholder"
+      :required="props.DeletionPolicyProps.required"
+      :rules="props.DeletionPolicyProps.rules"
+      :clearable="props.DeletionPolicyProps.clearable"
+      :searchable="props.DeletionPolicyProps.searchable"
+      :multiple="props.DeletionPolicyProps.multiple"
     />
 
     <div v-if="props.AdvancedToggleSwitch.AuthCred">
@@ -100,26 +101,26 @@ const isPitr = ref(false);
     <div v-if="isAuthCred">
       <ToggleSwitch
         class="mb-20"
-        :value="isReferSecret"
-        off-label="Refer Existing Secret?"
-        @update:value="isReferSecret = !isReferSecret"
+        :value="isReferAuthSecret"
+        off-label="Refer Existing AuthSecret?"
+        @update:value="isReferAuthSecret = !isReferAuthSecret"
       />
       <LabeledSelect
-        v-if="isReferSecret && props.genericSecret.show"
+        v-if="isReferAuthSecret && props.AuthSecretProps.show"
         class="mb-20"
-        v-model:value="props.genericSecret.secretModel"
-        :options="props.genericSecret.options"
-        :label="props.genericSecret.label"
-        :placeholder="props.genericSecret.placeholder"
+        v-model:value="props.AuthSecretProps.AuthSecretModel"
+        :options="props.AuthSecretProps.options"
+        :label="props.AuthSecretProps.label"
+        :placeholder="props.AuthSecretProps.placeholder"
       />
       <LabeledInput
         class="mb-20"
-        v-if="props.genericPassword.show"
-        v-model:value="props.genericPassword.passwordModel"
-        :label="props.genericPassword.label"
-        :disabled="props.genericPassword.disabled"
-        :min-height="props.genericPassword.minHeight"
-        :placeholder="props.genericPassword.placeholder"
+        v-if="props.AuthPasswordProps.show"
+        v-model:value="props.AuthPasswordProps.AuthPasswordModel"
+        :label="props.AuthPasswordProps.label"
+        :disabled="props.AuthPasswordProps.disabled"
+        :min-height="props.AuthPasswordProps.minHeight"
+        :placeholder="props.AuthPasswordProps.placeholder"
       />
     </div>
 
@@ -131,12 +132,12 @@ const isPitr = ref(false);
       />
     </div>
 
-    <div v-if="isDbConfig && props.genericDbConfiguration.show">
+    <div v-if="isDbConfig && props.DbConfigurationProps.show">
       Configuration
       <TextAreaAutoGrow
         class="mb-20"
-        v-model:value="props.genericDbConfiguration.dbConfigurationModel"
-        :min-height="props.genericDbConfiguration.minHeight"
+        v-model:value="props.DbConfigurationProps.dbConfigurationModel"
+        :min-height="props.DbConfigurationProps.minHeight"
       />
     </div>
 
@@ -152,44 +153,44 @@ const isPitr = ref(false);
     <div v-if="isPitr">
       <LabeledInput
         class="mb-20"
-        v-if="props.genericPitrNamespace.show"
-        v-model:value="props.genericPitrNamespace.pitrNamespaceModel"
-        :label="props.genericPitrNamespace.label"
-        :min-height="props.genericPitrNamespace.minHeight"
-        :placeholder="props.genericPitrNamespace.placeholder"
+        v-if="props.PitrNamespaceProps.show"
+        v-model:value="props.PitrNamespaceProps.pitrNamespaceModel"
+        :label="props.PitrNamespaceProps.label"
+        :min-height="props.PitrNamespaceProps.minHeight"
+        :placeholder="props.PitrNamespaceProps.placeholder"
         :required="isPitr ? true : false"
       />
       <LabeledInput
         class="mb-20"
-        v-if="props.genericPitrName.show"
-        v-model:value="props.genericPitrName.pitrNameModel"
-        :label="props.genericPitrName.label"
-        :min-height="props.genericPitrName.minHeight"
-        :placeholder="props.genericPitrName.placeholder"
+        v-if="props.PitrNameProps.show"
+        v-model:value="props.PitrNameProps.pitrNameModel"
+        :label="props.PitrNameProps.label"
+        :min-height="props.PitrNameProps.minHeight"
+        :placeholder="props.PitrNameProps.placeholder"
         :required="isPitr ? true : false"
       />
     </div>
 
     <LabeledSelect
       class="mb-20"
-      v-if="props.genericStandbyMode.show"
-      v-model:value="props.genericStandbyMode.standbyModeModel"
-      :options="props.genericStandbyMode.options"
-      :label="props.genericStandbyMode.label"
-      :placeholder="props.genericStandbyMode.placeholder"
-      :required="props.genericStandbyMode.required"
-      :rules="props.genericStandbyMode.rules"
+      v-if="props.StandbyModeProps.show"
+      v-model:value="props.StandbyModeProps.standbyModeModel"
+      :options="props.StandbyModeProps.options"
+      :label="props.StandbyModeProps.label"
+      :placeholder="props.StandbyModeProps.placeholder"
+      :required="props.StandbyModeProps.required"
+      :rules="props.StandbyModeProps.rules"
     />
 
     <LabeledSelect
       class="mb-20"
-      v-if="props.genericStreamingMode.show"
-      v-model:value="props.genericStreamingMode.streamingModeModel"
-      :options="props.genericStreamingMode.options"
-      :label="props.genericStreamingMode.label"
-      :placeholder="props.genericStreamingMode.placeholder"
-      :required="props.genericStreamingMode.required"
-      :rules="props.genericStreamingMode.rules"
+      v-if="props.StreamingModeProps.show"
+      v-model:value="props.StreamingModeProps.streamingModeModel"
+      :options="props.StreamingModeProps.options"
+      :label="props.StreamingModeProps.label"
+      :placeholder="props.StreamingModeProps.placeholder"
+      :required="props.StreamingModeProps.required"
+      :rules="props.StreamingModeProps.rules"
     />
   </Accordion>
 </template>

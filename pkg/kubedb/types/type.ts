@@ -15,47 +15,47 @@ interface BaseCommon {
   minHeight?: number;
 }
 
-export interface genericNameSpacesType extends BaseCommon {
+export interface NameSpacesType extends BaseCommon {
   namespaceModel: any;
 }
 
-export interface genericNameType extends BaseCommon {
+export interface NameType extends BaseCommon {
   nameModel: any;
 }
 
-export interface genericVersionType extends BaseCommon {
+export interface VersionType extends BaseCommon {
   versionModel: any;
 }
-export interface genericModeType extends BaseCommon {
+export interface ModeType extends BaseCommon {
   modeModel: any;
   row?: boolean;
 }
 
-export interface genericReplicaType extends BaseCommon {
+export interface ReplicaType extends BaseCommon {
   replicaModel: any;
 }
 
-export interface genericMachineType extends BaseCommon {
+export interface MachineType extends BaseCommon {
   machineModel: any;
 }
 
-export interface genericCPUType extends BaseCommon {
+export interface CPUType extends BaseCommon {
   cpuModel: any;
   baseUnit: string;
   min: number;
 }
 
-export interface genericMemoryType extends BaseCommon {
+export interface MemoryType extends BaseCommon {
   memoryModel: any;
   baseUnit: string;
   min: number;
 }
 
-export interface genericStorageSizeType extends BaseCommon {
+export interface StorageSizeType extends BaseCommon {
   storageSizeModel: any;
 }
 
-export interface genericStorageClassType extends BaseCommon {
+export interface StorageClassType extends BaseCommon {
   storageClassModel: any;
 }
 
@@ -67,61 +67,64 @@ export interface AdvancedBaseCommon extends BaseCommon {
   readAllowed?: boolean;
   valueCanBeEmpty?: boolean;
 }
-export interface genericLabelsType extends AdvancedBaseCommon {
+export interface LabelsType extends AdvancedBaseCommon {
   labelsModel: any;
 }
-export interface genericAnnotationsType extends AdvancedBaseCommon {
+export interface AnnotationsType extends AdvancedBaseCommon {
   annotationsModel: any;
 }
-export interface genericDeletionPolicyType extends AdvancedBaseCommon {
+export interface DeletionPolicyType extends AdvancedBaseCommon {
   deletionPolicyModel: any;
 }
 
-export interface genericSecretType extends AdvancedBaseCommon {
-  secretModel: any;
+export interface AuthSecretType extends AdvancedBaseCommon {
+  AuthSecretModel: any;
 }
 
-export interface genericPasswordType extends AdvancedBaseCommon {
-  passwordModel: any;
+export interface AuthPasswordType extends AdvancedBaseCommon {
+  AuthPasswordModel: any;
 }
-export interface genericDbConfigurationType extends AdvancedBaseCommon {
+export interface DbConfigurationType extends AdvancedBaseCommon {
   dbConfigurationModel: any;
 }
-export interface genericPitrNamespaceType extends AdvancedBaseCommon {
+export interface PitrNamespaceType extends AdvancedBaseCommon {
   pitrNamespaceModel: any;
 }
-export interface genericPitrNameType extends AdvancedBaseCommon {
+export interface PitrNameType extends AdvancedBaseCommon {
   pitrNameModel: any;
 }
-export interface genericStreamingModeType extends AdvancedBaseCommon {
+export interface StreamingModeType extends AdvancedBaseCommon {
   streamingModeModel: any;
 }
-export interface genericStandbyModeType extends AdvancedBaseCommon {
+export interface StandbyModeType extends AdvancedBaseCommon {
   standbyModeModel: any;
 }
-export interface genericAlertType extends BaseCommon {
+export interface AlertType extends BaseCommon {
   alertModel: any;
 }
 
-export interface genericIssuerType extends BaseCommon {
+export interface IssuerType extends BaseCommon {
   issuerModel: any;
 }
 
-export interface genericMonitoring extends BaseCommon {
+export interface MonitoringType extends BaseCommon {
   monitoringModel: any;
 }
-export interface genericBackup extends BaseCommon {
+export interface BackupType extends BaseCommon {
   backupModel: any;
 }
 
-export interface genericArchiver extends BaseCommon {
+export interface ArchiverType extends BaseCommon {
   archiverModel: any;
 }
 
-export interface genericTLS extends BaseCommon {
+export interface TLSType extends BaseCommon {
   tlsModel: any;
 }
 
-export interface genericExpose extends BaseCommon {
+export interface ExposeType extends BaseCommon {
   exposeModel: any;
+}
+export interface RemoteReplicaType extends BaseCommon{
+  remoteReplicaModel: any;
 }

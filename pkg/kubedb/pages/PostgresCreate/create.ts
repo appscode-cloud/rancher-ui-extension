@@ -27,8 +27,8 @@ export const useCreateForm = () => {
     }
   );
   const { value: dbConfiguration } = useField<string>("dbConfiguration");
-  const { value: password } = useField<string>("password");
-  const { value: secret } = useField<string>("secret");
+  const { value: AuthPassword } = useField<string>("AuthPassword");
+  const { value: AuthSecret } = useField<string>("AuthSecret");
   const { value: pitrNamespace } = useField<string>("pitrNamespace");
   const { value: pitrName } = useField<string>("pitrName");
   const { value: alert } = useField<string>("alert");
@@ -50,7 +50,7 @@ export const useCreateForm = () => {
   const { value: archiver } = useField<boolean>("archiver");
   const { value: tls } = useField<boolean>("tls");
   const { value: expose } = useField<boolean>("expose");
-
+  const { value: RemoteReplica } = useField<string>("RemoteReplica");
   return {
     values,
     errors,
@@ -65,8 +65,8 @@ export const useCreateForm = () => {
     storageSize,
     deletionPolicy,
     dbConfiguration,
-    password,
-    secret,
+    AuthPassword,
+    AuthSecret,
     pitrNamespace,
     pitrName,
     alert,
@@ -81,6 +81,7 @@ export const useCreateForm = () => {
     tls,
     archiver,
     expose,
+    RemoteReplica,
     validate,
   };
 };

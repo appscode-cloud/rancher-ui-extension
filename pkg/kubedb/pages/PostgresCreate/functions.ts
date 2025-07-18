@@ -10,7 +10,7 @@ export const dbObject = {
 export const useFunctions = () => {
   const isValuesLoading = ref(false);
   const isNamespaceLoading = ref(false);
-  const isSecretLoading = ref(false);
+  const isAuthSecretLoading = ref(false);
   const isBundleLoading = ref(false);
   const isModelLoading = ref(false);
   const isResourceSkipLoading = ref(false);
@@ -88,8 +88,8 @@ export const useFunctions = () => {
     isNamespaceLoading.value = false;
   };
 
-  const getSecrets = async (namespace: string, cluster: string) => {
-    isSecretLoading.value = true;
+  const getAuthSecrets = async (namespace: string, cluster: string) => {
+    isAuthSecretLoading.value = true;
     try {
       const response = await $axios.post(
         `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
@@ -109,12 +109,12 @@ export const useFunctions = () => {
       options = data?.items?.map((ele: { metadata: { name: string } }) => {
         return ele?.metadata.name;
       });
-      isSecretLoading.value = false;
+      isAuthSecretLoading.value = false;
       return options;
     } catch (e) {
       console.log(e);
     }
-    isSecretLoading.value = false;
+    isAuthSecretLoading.value = false;
   };
 
   const getValues = async (cluster: string, namespace: string) => {
@@ -158,8 +158,8 @@ export const useFunctions = () => {
     modelApiValue.spec.deletionPolicy = values.deletionPolicy;
     modelApiValue.spec.annotations = values.annotations;
     modelApiValue.spec.labels = values.labels;
-    modelApiValue.spec.authSecret.name = values.secret;
-    modelApiValue.spec.authSecret.password = values.password;
+    modelApiValue.spec.AuthSecret.name = values.secret;
+    modelApiValue.spec.AuthSecret.password = values.password;
     modelApiValue.spec.configuration = values.dbConfiguration;
     modelApiValue.spec.mode = values.mode;
     modelApiValue.spec.persistence.size = values.storageSize;
@@ -327,7 +327,7 @@ export const useFunctions = () => {
     isBundleLoading,
     isNamespaceLoading,
     isValuesLoading,
-    isSecretLoading,
+    isAuthSecretLoading,
     isModelLoading,
     isResourceSkipLoading,
     isDeploying,
@@ -341,7 +341,7 @@ export const useFunctions = () => {
     modelApiCall,
     getBundle,
     getNamespaces,
-    getSecrets,
+    getAuthSecrets,
     getValues,
   };
 };
