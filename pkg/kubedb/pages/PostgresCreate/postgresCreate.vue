@@ -9,6 +9,8 @@ import AdvancedDbConfig from "../../components/AdvancedDbConfig.vue";
 import AdditionalOptions from "../../components/AdditionalOptions.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
+import Tabbed from "@shell/components/Tabbed/index.vue";
+import Tab from "@shell/components/Tabbed/Tab.vue";
 
 import { useUtils } from "../../composables/utils";
 import { useRules } from "../../composables/rules";
@@ -339,18 +341,29 @@ const gotoNext = async () => {
       </div>
     </div>
     <div v-if="step === 3">
-      <div v-for="file in previewFiles" :key="file.key">
-        <p>{{ file.filename }}</p>
-        <YamlEditor
-          ref="yamleditor"
-          v-model:value="file.data"
-          mode="create"
-          :asObject="false"
-          :initial-yaml-values="file.data"
-          class="yaml-editor flex-content"
-          :editor-mode="EDITOR_MODES.EDIT_CODE"
-        />
-      </div>
+      <Tabbed class="mb-20" default-tab="overview" :use-hash="true">
+        <Tab
+          v-for="file in previewFiles"
+          :key="file.key"
+          :name="file.filename"
+          :label="file.filename"
+          :weight="2"
+          :badge="0"
+          :error="false"
+        >
+          <div class="tab-content">
+            <YamlEditor
+              ref="yamleditor"
+              v-model:value="file.data"
+              mode="create"
+              :asObject="false"
+              :initial-yaml-values="file.data"
+              class="yaml-editor flex-content"
+              :editor-mode="EDITOR_MODES.EDIT_CODE"
+            />
+          </div>
+        </Tab>
+      </Tabbed>
     </div>
     <div class="button-container">
       <RcButton secondary>Cancel</RcButton>
