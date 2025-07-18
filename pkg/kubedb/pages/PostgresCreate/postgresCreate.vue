@@ -349,7 +349,6 @@ const gotoNext = async () => {
           :initial-yaml-values="file.data"
           class="yaml-editor flex-content"
           :editor-mode="EDITOR_MODES.EDIT_CODE"
-          @update:value="console.log('write function to update ')"
         />
       </div>
     </div>
