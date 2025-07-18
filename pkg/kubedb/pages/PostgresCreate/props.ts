@@ -115,7 +115,7 @@ export const useProps = () => {
   });
 
   // Basic Config generics
-  const genericNameSpaces = ref<NameSpacesType>({
+  const NameSpacesProps = ref<NameSpacesType>({
     show: true,
     disabled: false,
     options: [],
@@ -129,7 +129,7 @@ export const useProps = () => {
     namespaceModel: namespace,
   });
 
-  const genericVersions = ref<VersionType>({
+  const VersionsProps = ref<VersionType>({
     show: true,
     disabled: false,
     options: [],
@@ -143,7 +143,7 @@ export const useProps = () => {
     versionModel: version,
   });
 
-  const genericName = ref<NameType>({
+  const NameProps = ref<NameType>({
     show: true,
     disabled: false,
     label: "Name",
@@ -154,7 +154,7 @@ export const useProps = () => {
     nameModel: name,
   });
 
-  const genericStorageSize = ref<StorageSizeType>({
+  const StorageSizeProps = ref<StorageSizeType>({
     show: true,
     disabled: false,
     label: "Storage Size",
@@ -165,7 +165,7 @@ export const useProps = () => {
     storageSizeModel: storageSize,
   });
 
-  const genericStorageClass = ref<StorageClassType>({
+  const StorageClassProps = ref<StorageClassType>({
     show: true,
     disabled: false,
     label: "Storage Class",
@@ -178,7 +178,7 @@ export const useProps = () => {
     storageClassModel: storageClass,
   });
 
-  const genericDeletionPolicy = ref<DeletionPolicyType>({
+  const DeletionPolicyProps = ref<DeletionPolicyType>({
     show: true,
     disabled: false,
     options: deletionPolicies.value,
@@ -192,7 +192,7 @@ export const useProps = () => {
     deletionPolicyModel: deletionPolicy,
   });
 
-  const genericReplica = ref<ReplicaType>({
+  const ReplicaProps = ref<ReplicaType>({
     show: true,
     disabled: false,
     label: "Replicas",
@@ -204,7 +204,7 @@ export const useProps = () => {
     replicaModel: replicas,
   });
 
-  const genericMachine = ref<MachineType>({
+  const MachineProps = ref<MachineType>({
     show: true,
     options: machines.value,
     searchable: true,
@@ -216,7 +216,7 @@ export const useProps = () => {
     rules: [required],
   });
 
-  const genericCPU = ref<CPUType>({
+  const CPUProps = ref<CPUType>({
     show: true,
     label: "cpu",
     placeholder: "cpu limits",
@@ -225,7 +225,7 @@ export const useProps = () => {
     min: 0,
   });
 
-  const genericMemory = ref<MemoryType>({
+  const MemoryProps = ref<MemoryType>({
     show: true,
     label: "Memory",
     placeholder: "memory limits",
@@ -234,7 +234,7 @@ export const useProps = () => {
     min: 0,
   });
 
-  const genericMode = ref<ModeType>({
+  const ModeProps = ref<ModeType>({
     show: true,
     label: "Database Mode",
     options: databaseModes.value,
@@ -243,7 +243,7 @@ export const useProps = () => {
   });
 
   // Advanced Config generics
-  const genericLabels = ref<LabelsType>({
+  const LabelsProps = ref<LabelsType>({
     show: true,
     labelsModel: labels,
     protectedKeys: [],
@@ -254,7 +254,7 @@ export const useProps = () => {
     valueCanBeEmpty: true,
   });
 
-  const genericAnnotations = ref<AnnotationsType>({
+  const AnnotationsProps = ref<AnnotationsType>({
     show: true,
     annotationsModel: annotations,
     addLabel: "Add Annotations",
@@ -263,13 +263,13 @@ export const useProps = () => {
     valueCanBeEmpty: true,
   });
 
-  const genericDbConfiguration = ref<DbConfigurationType>({
+  const DbConfigurationProps = ref<DbConfigurationType>({
     show: true,
     dbConfigurationModel: dbConfiguration,
     minHeight: 120,
   });
 
-  const genericAuthPassword = ref<AuthPasswordType>({
+  const AuthPasswordProps = ref<AuthPasswordType>({
     show: true,
     disabled: false,
     label: "AuthPassword (Leave it blank to auto generate AuthPassword)",
@@ -278,14 +278,14 @@ export const useProps = () => {
     AuthPasswordModel: AuthPassword,
   });
 
-  const genericAuthSecret = ref<AuthSecretType>({
+  const AuthSecretProps = ref<AuthSecretType>({
     show: true,
     options: [],
     placeholder: "Select AuthSecret",
     AuthSecretModel: AuthSecret,
   });
 
-  const genericStandbyMode = ref<StandbyModeType>({
+  const StandbyModeProps = ref<StandbyModeType>({
     show: true,
     options: [
       { value: "Asynchronous", label: "Asynchronous" },
@@ -298,7 +298,7 @@ export const useProps = () => {
     required: true,
   });
 
-  const genericPitrNamespace = ref<PitrNamespaceType>({
+  const PitrNamespaceProps = ref<PitrNamespaceType>({
     show: true,
     label: "Namespace",
     placeholder: "PITR Namespace",
@@ -306,7 +306,7 @@ export const useProps = () => {
     pitrNamespaceModel: pitrNamespace,
   });
 
-  const genericPitrName = ref<PitrNameType>({
+  const PitrNameProps = ref<PitrNameType>({
     show: true,
     label: "Name",
     placeholder: "PITR Name",
@@ -314,7 +314,7 @@ export const useProps = () => {
     pitrNameModel: pitrName,
   });
 
-  const genericStreamingMode = ref<StreamingModeType>({
+  const StreamingModeProps = ref<StreamingModeType>({
     show: true,
     options: [
       { value: "Hot", label: "Hot" },
@@ -328,41 +328,41 @@ export const useProps = () => {
   });
 
   // Additional Options generics
-  const genericAlert = ref<AlertType>({
+  const AlertProps = ref<AlertType>({
     show: true,
     options: alertsList.value,
     label: "Alert Options",
     alertModel: alert,
   });
 
-  const genericIssuer = ref<IssuerType>({
+  const IssuerProps = ref<IssuerType>({
     show: true,
     options: [],
     label: "Cluster Issuers",
     issuerModel: clusterIssuer,
   });
 
-  const genericMonitoring = ref<MonitoringType>({
+  const MonitoringProps = ref<MonitoringType>({
     show: false,
     monitoringModel: monitoring,
   });
 
-  const genericBackup = ref<BackupType>({
+  const BackupProps = ref<BackupType>({
     show: false,
     backupModel: backup,
   });
 
-  const genericArchiver = ref<ArchiverType>({
+  const ArchiverProps = ref<ArchiverType>({
     show: false,
     archiverModel: archiver,
   });
 
-  const genericTlS = ref<TLSType>({
+  const TLSProps = ref<TLSType>({ // Corrected from TlsProps
     show: false,
     tlsModel: tls,
   });
 
-  const genericExpose = ref<ExposeType>({
+  const ExposeProps = ref<ExposeType>({
     show: false,
     exposeModel: expose,
   });
@@ -405,33 +405,33 @@ export const useProps = () => {
     annotations,
     mode,
     AdvancedToggleSwitch,
-    genericNameSpaces,
-    genericVersions,
-    genericName,
-    genericStorageSize,
-    genericStorageClass,
-    genericDeletionPolicy,
-    genericReplica,
-    genericMachine,
-    genericCPU,
-    genericMemory,
-    genericMode,
-    genericLabels,
-    genericAnnotations,
-    genericDbConfiguration,
-    genericAuthPassword,
-    genericAuthSecret,
-    genericStandbyMode,
-    genericPitrNamespace,
-    genericPitrName,
-    genericStreamingMode,
-    genericAlert,
-    genericIssuer,
-    genericMonitoring,
-    genericBackup,
-    genericArchiver,
-    genericTlS,
-    genericExpose,
+    NameSpacesProps,
+    VersionsProps,
+    NameProps,
+    StorageSizeProps,
+    StorageClassProps,
+    DeletionPolicyProps,
+    ReplicaProps,
+    MachineProps,
+    CPUProps,
+    MemoryProps,
+    ModeProps,
+    LabelsProps,
+    AnnotationsProps,
+    DbConfigurationProps,
+    AuthPasswordProps,
+    AuthSecretProps,
+    StandbyModeProps,
+    PitrNamespaceProps,
+    PitrNameProps,
+    StreamingModeProps,
+    AlertProps,
+    IssuerProps,
+    MonitoringProps,
+    BackupProps,
+    ArchiverProps,
+    TLSProps,
+    ExposeProps,
     RemoteReplicaProps,
   };
 };

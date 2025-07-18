@@ -14,58 +14,76 @@ import {
 } from "../types/type";
 
 interface Props {
-  genericMonitoring: MonitoringType;
-  genericBackup: BackupType;
-  genericArchiver: ArchiverType;
-  genericTLS: TLSType;
-  genericExpose: ExposeType;
-  genericAlert: AlertType;
-  genericIssuer: IssuerType;
+  MonitoringProps: MonitoringType;
+  BackupProps: BackupType;
+  ArchiverProps: ArchiverType;
+  TLSProps: TLSType; 
+  ExposeProps: ExposeType;
+  AlertProps: AlertType;
+  IssuerProps: IssuerType;
 }
 
 const props = defineProps<Props>();
 
 const monitoringModel = computed({
-  get: () => props.genericMonitoring?.monitoringModel,
+  get: () => props.MonitoringProps?.monitoringModel,
   set: (val) => {
-    if (props.genericMonitoring) {
-      props.genericMonitoring.monitoringModel = val;
+    if (props.MonitoringProps) {
+      props.MonitoringProps.monitoringModel = val;
+    }
+  },
+});
+
+const alertModel = computed({
+  get: () => props.AlertProps?.alertModel,
+  set: (val) => {
+    if (props.AlertProps) {
+      props.AlertProps.alertModel = val;
     }
   },
 });
 
 const backupModel = computed({
-  get: () => props.genericBackup?.backupModel,
+  get: () => props.BackupProps?.backupModel,
   set: (val) => {
-    if (props.genericBackup) {
-      props.genericBackup.backupModel = val;
+    if (props.BackupProps) {
+      props.BackupProps.backupModel = val;
     }
   },
 });
 
 const archiverModel = computed({
-  get: () => props.genericArchiver?.archiverModel,
+  get: () => props.ArchiverProps?.archiverModel,
   set: (val) => {
-    if (props.genericArchiver) {
-      props.genericArchiver.archiverModel = val;
+    if (props.ArchiverProps) {
+      props.ArchiverProps.archiverModel = val;
     }
   },
 });
 
 const tlsModel = computed({
-  get: () => props.genericTLS?.tlsModel,
+  get: () => props.TLSProps?.tlsModel, 
   set: (val) => {
-    if (props.genericTLS) {
-      props.genericTLS.tlsModel = val;
+    if (props.TLSProps) { 
+      props.TLSProps.tlsModel = val; 
+    }
+  },
+});
+
+const issuerModel = computed({
+  get: () => props.IssuerProps?.issuerModel,
+  set: (val) => {
+    if (props.IssuerProps) {
+      props.IssuerProps.issuerModel = val;
     }
   },
 });
 
 const exposeModel = computed({
-  get: () => props.genericExpose?.exposeModel,
+  get: () => props.ExposeProps?.exposeModel,
   set: (val) => {
-    if (props.genericExpose) {
-      props.genericExpose.exposeModel = val;
+    if (props.ExposeProps) {
+      props.ExposeProps.exposeModel = val;
     }
   },
 });
@@ -74,49 +92,54 @@ const exposeModel = computed({
 <template>
   <Accordion title="Additional Options" class="mb-20">
     <ToggleSwitch
-      v-if="props.genericMonitoring?.show"
+      v-if="props.MonitoringProps?.show"
       class="mb-20"
       v-model:value="monitoringModel"
       off-label="Enable Monitoring?"
     />
+
     <LabeledSelect
-      v-if="props.genericMonitoring?.monitoringModel && props.genericAlert.show"
+      v-if="props.MonitoringProps?.monitoringModel && props.AlertProps?.show"
       class="mb-20"
-      v-model:value="props.genericAlert.alertModel"
-      :options="props.genericAlert.options"
-      :label="props.genericAlert.label"
+      v-model:value="alertModel"
+      :options="props.AlertProps.options"
+      :label="props.AlertProps.label"
     />
 
     <ToggleSwitch
-      v-if="props.genericBackup?.show"
+      v-if="props.BackupProps?.show"
       class="mb-20"
       v-model:value="backupModel"
       off-label="Enable Backup?"
     />
+
     <ToggleSwitch
-      v-if="props.genericArchiver?.show"
+      v-if="props.ArchiverProps?.show"
       class="mb-20"
       v-model:value="archiverModel"
       off-label="Enable Archiver?"
     />
+
     <ToggleSwitch
-      v-if="props.genericTLS?.show"
+      v-if="props.TLSProps?.show"
       class="mb-20"
       v-model:value="tlsModel"
       off-label="Enable TLS?"
     />
+
     <LabeledSelect
-      v-if="props.genericTLS?.tlsModel && props.genericIssuer.show"
+      v-if="props.TLSProps?.tlsModel && props.IssuerProps?.show"
       class="mb-20"
-      v-model:value="props.genericIssuer.issuerModel"
-      :options="props.genericIssuer.options"
-      :label="props.genericIssuer.label"
+      v-model:value="issuerModel"
+      :options="props.IssuerProps.options"
+      :label="props.IssuerProps.label"
     />
+
     <ToggleSwitch
-      v-if="props.genericExpose?.show"
+      v-if="props.ExposeProps?.show"
       class="mb-20"
       v-model:value="exposeModel"
-      off-label="Expose via Gateway ?"
+      off-label="Expose via Gateway?"
     />
   </Accordion>
 </template>
