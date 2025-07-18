@@ -33,38 +33,39 @@ const {
   name,
   namespace,
   AdvancedToggleSwitch,
-  genericNameSpaces,
-  genericVersions,
-  genericName,
-  genericStorageSize,
-  genericStorageClass,
-  genericDeletionPolicy,
-  genericReplica,
-  genericMachine,
-  genericCPU,
-  genericMemory,
-  genericMode,
-  genericLabels,
-  genericAnnotations,
-  genericDbConfiguration,
-  genericPassword,
-  genericSecret,
-  genericStandbyMode,
-  genericPitrNamespace,
-  genericPitrName,
-  genericStreamingMode,
-  genericAlert,
-  genericIssuer,
-  genericMonitoring,
-  genericBackup,
-  genericArchiver,
-  genericTlS,
-  genericExpose,
+  NameSpacesProps,
+  VersionsProps,
+  NameProps,
+  StorageSizeProps,
+  StorageClassProps,
+  DeletionPolicyProps,
+  ReplicaProps,
+  MachineProps,
+  CPUProps,
+  MemoryProps,
+  ModeProps,
+  LabelsProps,
+  AnnotationsProps,
+  DbConfigurationProps,
+  AuthPasswordProps,
+  AuthSecretProps,
+  StandbyModeProps,
+  PitrNamespaceProps,
+  PitrNameProps,
+  StreamingModeProps,
+  AlertProps,
+  IssuerProps,
+  MonitoringProps,
+  BackupProps,
+  ArchiverProps,
+  TLSProps, // Corrected from TlSProps
+  ExposeProps,
+  RemoteReplicaProps,
 } = useProps();
 
 const {
   getBundle,
-  getSecrets,
+  getAuthSecrets,
   getValues,
   getNamespaces,
   modelApiCall,
@@ -108,7 +109,7 @@ const getClusters = async () => {
 
 const setNamespaces = async () => {
   const data = await getNamespaces(clusterName.value);
-  genericNameSpaces.value.options = data;
+  NameSpacesProps.value.options = data;
 };
 
 const setValues = async () => {
@@ -116,38 +117,35 @@ const setValues = async () => {
 
   modelApiPayload.value = data?.values;
 
-  //version
   const availableVersions =
     data?.values.spec.admin.databases.Postgres.versions.available || [];
-  genericVersions.value.versionModel =
+  VersionsProps.value.versionModel =
     data?.values.spec.admin.databases.Postgres.versions.default;
   if (availableVersions) {
     availableVersions.forEach((ele: string) => {
-      genericVersions.value.options?.push({
+      VersionsProps.value.options?.push({
         label: ele,
         value: ele,
       });
     });
   }
 
-  //Storageclasses
   const availableStorageClass =
     data?.values.spec.admin.storageClasses.available || [];
   if (availableStorageClass) {
     availableStorageClass.forEach((ele: string) => {
-      genericStorageClass.value.options?.push({ label: ele, value: ele });
+      StorageClassProps.value.options?.push({ label: ele, value: ele });
     });
     if (availableStorageClass.length === 1) {
-      genericStorageClass.value.storageClassModel = availableStorageClass[0];
+      StorageClassProps.value.storageClassModel = availableStorageClass[0];
     }
   }
 
-  //ClusterIssuer
   const availableClusterIssuer =
     data?.values.spec.admin.clusterIssuers.available || [];
   if (availableClusterIssuer) {
     availableClusterIssuer.forEach((ele: string) => {
-      genericIssuer.value.options?.push({ label: ele, value: ele });
+      IssuerProps.value.options?.push({ label: ele, value: ele });
     });
   }
 };
@@ -158,32 +156,32 @@ const setBundle = async () => {
   const availableClusterIssuer = data?.bundle.clusterissuers;
   const features = data?.bundle.features || [];
   if (features.includes("backup")) {
-    genericBackup.value.show = true;
+    BackupProps.value.show = true;
   }
   if (features.includes("tls")) {
-    genericTlS.value.show = true;
+    TLSProps.value.show = true;
   }
   if (features.includes("monitoring")) {
-    genericMonitoring.value.show = true;
+    MonitoringProps.value.show = true;
   }
   if (features.includes("binding")) {
-    genericExpose.value.show = true;
+    ExposeProps.value.show = true;
   }
 
   const availableStorageClass = data?.bundle.storageclasses;
   if (availableStorageClass) {
-    genericStorageClass.value.options = [];
+    StorageClassProps.value.options = [];
     availableStorageClass.forEach((ele: string) => {
-      genericStorageClass.value.options?.push({ label: ele, value: ele });
+      StorageClassProps.value.options?.push({ label: ele, value: ele });
     });
     if (availableStorageClass.length === 1) {
-      genericStorageClass.value.storageClassModel = availableStorageClass[0];
+      StorageClassProps.value.storageClassModel = availableStorageClass[0];
     }
   }
 
   if (availableClusterIssuer) {
     availableClusterIssuer.forEach((ele: string) => {
-      genericIssuer.value.options?.push({ label: ele, value: ele });
+      IssuerProps.value.options?.push({ label: ele, value: ele });
     });
   }
 };
@@ -197,7 +195,7 @@ watch(values, async () => {
 });
 
 watch(namespace, (n) => {
-  getSecrets(n, clusterName.value);
+  getAuthSecrets(n, clusterName.value);
   setValues();
 });
 
@@ -256,30 +254,30 @@ const gotoNext = async () => {
     <div class="mb-20" v-if="step === 1">
       <div class="col span-6 mb-20">
         <LabeledSelect
-          v-if="genericNameSpaces.show"
-          v-model:value="genericNameSpaces.namespaceModel"
-          :clearable="genericNameSpaces.clearable"
-          :options="genericNameSpaces.options"
-          :disabled="genericNameSpaces.disabled"
-          :searchable="genericNameSpaces.searchable"
-          :multiple="genericNameSpaces.multiple"
-          :label="genericNameSpaces.label"
-          :placeholder="genericNameSpaces.placeholder"
-          :required="genericNameSpaces.required"
-          :rules="genericNameSpaces.rules"
+          v-if="NameSpacesProps.show"
+          v-model:value="NameSpacesProps.namespaceModel"
+          :clearable="NameSpacesProps.clearable"
+          :options="NameSpacesProps.options"
+          :disabled="NameSpacesProps.disabled"
+          :searchable="NameSpacesProps.searchable"
+          :multiple="NameSpacesProps.multiple"
+          :label="NameSpacesProps.label"
+          :placeholder="NameSpacesProps.placeholder"
+          :required="NameSpacesProps.required"
+          :rules="NameSpacesProps.rules"
         />
       </div>
 
       <div class="col span-6">
         <LabeledInput
-          v-if="genericName.show"
-          v-model:value="genericName.nameModel"
-          :label="genericName.label"
-          :placeholder="genericName.placeholder"
-          :disabled="genericName.disabled"
-          :min-height="genericName.minHeight"
-          :required="genericName.required"
-          :rules="genericName.rules"
+          v-if="NameProps.show"
+          v-model:value="NameProps.nameModel"
+          :label="NameProps.label"
+          :placeholder="NameProps.placeholder"
+          :disabled="NameProps.disabled"
+          :min-height="NameProps.minHeight"
+          :required="NameProps.required"
+          :rules="NameProps.rules"
         />
       </div>
     </div>
@@ -299,42 +297,43 @@ const gotoNext = async () => {
         <div>
           <!-- Basic Configuration Component -->
           <BasicDbConfig
-            :genericNameSpaces="genericNameSpaces"
-            :genericVersions="genericVersions"
-            :genericName="genericName"
-            :genericMode="genericMode"
+            :NameSpacesProps="NameSpacesProps"
+            :VersionsProps="VersionsProps"
+            :NameProps="NameProps"
+            :ModeProps="ModeProps"
             :required="required"
-            :genericStorageSize="genericStorageSize"
-            :genericStorageClass="genericStorageClass"
-            :genericReplica="genericReplica"
-            :genericMachine="genericMachine"
-            :genericCPU="genericCPU"
-            :genericMemory="genericMemory"
+            :StorageSizeProps="StorageSizeProps"
+            :StorageClassProps="StorageClassProps"
+            :ReplicaProps="ReplicaProps"
+            :MachineProps="MachineProps"
+            :CPUProps="CPUProps"
+            :MemoryProps="MemoryProps"
+            :RemoteReplicaProps="RemoteReplicaProps"
           />
 
           <AdvancedDbConfig
             :AdvancedToggleSwitch="AdvancedToggleSwitch"
-            :genericDeletionPolicy="genericDeletionPolicy"
-            :genericLabels="genericLabels"
-            :genericAnnotations="genericAnnotations"
-            :genericDbConfiguration="genericDbConfiguration"
-            :genericPassword="genericPassword"
-            :genericSecret="genericSecret"
-            :genericStandbyMode="genericStandbyMode"
-            :genericPitrNamespace="genericPitrNamespace"
-            :genericPitrName="genericPitrName"
-            :genericStreamingMode="genericStreamingMode"
+            :DeletionPolicyProps="DeletionPolicyProps"
+            :LabelsProps="LabelsProps"
+            :AnnotationsProps="AnnotationsProps"
+            :DbConfigurationProps="DbConfigurationProps"
+            :AuthPasswordProps="AuthPasswordProps"
+            :AuthSecretProps="AuthSecretProps"
+            :StandbyModeProps="StandbyModeProps"
+            :PitrNamespaceProps="PitrNamespaceProps"
+            :PitrNameProps="PitrNameProps"
+            :StreamingModeProps="StreamingModeProps"
             :required="required"
           />
 
           <AdditionalOptions
-            :generic-monitoring="genericMonitoring"
-            :generic-backup="genericBackup"
-            :generic-archiver="genericArchiver"
-            :generic-t-l-s="genericTlS"
-            :generic-expose="genericExpose"
-            :genericAlert="genericAlert"
-            :genericIssuer="genericIssuer"
+            :MonitoringProps="MonitoringProps"
+            :BackupProps="BackupProps"
+            :ArchiverProps="ArchiverProps"
+            :TLSProps="TLSProps"
+            :ExposeProps="ExposeProps"
+            :AlertProps="AlertProps"
+            :IssuerProps="IssuerProps"
           />
         </div>
       </div>

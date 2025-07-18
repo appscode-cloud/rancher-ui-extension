@@ -10,11 +10,13 @@ export const dbObject = {
 export const useFunctions = () => {
   const isValuesLoading = ref(false);
   const isNamespaceLoading = ref(false);
-  const isSecretLoading = ref(false);
+  const isAuthSecretLoading = ref(false);
   const isBundleLoading = ref(false);
   const isModelLoading = ref(false);
   const isResourceSkipLoading = ref(false);
   const isDeploying = ref(false);
+  const genericResourceLoading = ref(false);
+  const resourceSummaryLoading = ref(false);
 
   const getBundle = async (cluster: string) => {
     isBundleLoading.value = true;
@@ -86,8 +88,8 @@ export const useFunctions = () => {
     isNamespaceLoading.value = false;
   };
 
-  const getSecrets = async (namespace: string, cluster: string) => {
-    isSecretLoading.value = true;
+  const getAuthSecrets = async (namespace: string, cluster: string) => {
+    isAuthSecretLoading.value = true;
     try {
       const response = await $axios.post(
         `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
@@ -107,12 +109,12 @@ export const useFunctions = () => {
       options = data?.items?.map((ele: { metadata: { name: string } }) => {
         return ele?.metadata.name;
       });
-      isSecretLoading.value = false;
+      isAuthSecretLoading.value = false;
       return options;
     } catch (e) {
       console.log(e);
     }
-    isSecretLoading.value = false;
+    isAuthSecretLoading.value = false;
   };
 
   const getValues = async (cluster: string, namespace: string) => {
@@ -156,8 +158,8 @@ export const useFunctions = () => {
     modelApiValue.spec.deletionPolicy = values.deletionPolicy;
     modelApiValue.spec.annotations = values.annotations;
     modelApiValue.spec.labels = values.labels;
-    modelApiValue.spec.authSecret.name = values.secret;
-    modelApiValue.spec.authSecret.password = values.password;
+    modelApiValue.spec.AuthSecret.name = values.secret;
+    modelApiValue.spec.AuthSecret.password = values.password;
     modelApiValue.spec.configuration = values.dbConfiguration;
     modelApiValue.spec.mode = values.mode;
     modelApiValue.spec.persistence.size = values.storageSize;
@@ -267,21 +269,79 @@ export const useFunctions = () => {
     isDeploying.value = false;
   };
 
+  const genericResourceCall = async (cluster: string) => {
+    genericResourceLoading.value = true;
+    const date = Date.now();
+    try {
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/core.k8s.appscode.com/v1alpha1/genericresources`,
+            verb: "GET",
+            query: `convertToTable=true&labelSelector=k8s.io/group=kubedb.com&ctag=${date}`,
+            body: "",
+          },
+        }
+      );
+
+      const data = await JSON.parse(response.data.response?.body);
+      genericResourceLoading.value = false;
+      return { values: data };
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+    genericResourceLoading.value = false;
+  };
+
+  const resourceSummaryCall = async (cluster: string) => {
+    resourceSummaryLoading.value = true;
+    const date = Date.now();
+    try {
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/core.k8s.appscode.com/v1alpha1/resourcesummaries`,
+            verb: "GET",
+            query: `convertToTable=true&labelSelector=k8s.io/group=kubedb.com&ctag=${date}`,
+            body: "",
+          },
+        }
+      );
+
+      const data = await JSON.parse(response.data.response?.body);
+      resourceSummaryLoading.value = false;
+      return { values: data };
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+    resourceSummaryLoading.value = false;
+  };
+
   return {
     isBundleLoading,
     isNamespaceLoading,
     isValuesLoading,
-    isSecretLoading,
+    isAuthSecretLoading,
     isModelLoading,
     isResourceSkipLoading,
     isDeploying,
+    genericResourceLoading,
+    resourceSummaryLoading,
+    resourceSummaryCall,
+    genericResourceCall,
     deployCall,
     resourceSkipCRDApiCall,
     generateModelPayload,
     modelApiCall,
     getBundle,
     getNamespaces,
-    getSecrets,
+    getAuthSecrets,
     getValues,
   };
 };

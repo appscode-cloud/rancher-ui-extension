@@ -1,43 +1,45 @@
 <script setup lang="ts">
-import { computed, defineProps } from "vue";
+import { computed, defineProps, ref } from "vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
 import UnitInput from "@rancher/shell/components/form/UnitInput.vue";
 import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
 import {
-  genericNameSpacesType,
-  genericNameType,
-  genericVersionType,
-  genericModeType,
-  genericReplicaType,
-  genericMachineType,
-  genericCPUType,
-  genericMemoryType,
-  genericStorageSizeType,
-  genericStorageClassType,
+  NameSpacesType,
+  NameType,
+  VersionType,
+  ModeType,
+  ReplicaType,
+  MachineType,
+  CPUType,
+  MemoryType,
+  StorageSizeType,
+  StorageClassType,
+  RemoteReplicaType,
 } from "../types/type";
 
 interface Props {
-  genericNameSpaces: genericNameSpacesType;
+  NameSpacesProps: NameSpacesType;
   required: (value: unknown) => string;
-  genericVersions: genericVersionType;
-  genericName: genericNameType;
-  genericStorageSize: genericStorageSizeType;
-  genericStorageClass: genericStorageClassType;
-  genericReplica: genericReplicaType;
-  genericMachine: genericMachineType;
-  genericCPU: genericCPUType;
-  genericMemory: genericMemoryType;
-  genericMode: genericModeType;
+  VersionsProps: VersionType;
+  NameProps: NameType;
+  StorageSizeProps: StorageSizeType;
+  StorageClassProps: StorageClassType;
+  ReplicaProps: ReplicaType;
+  MachineProps: MachineType;
+  CPUProps: CPUType;
+  MemoryProps: MemoryType;
+  ModeProps: ModeType;
+  RemoteReplicaProps: RemoteReplicaType;
 }
 
 const props = defineProps<Props>();
 const isCustom = computed(() => {
-  return props.genericMachine.machineModel === "custom";
+  return props.MachineProps.machineModel === "custom";
 });
 
 const showReplicas = computed(() => {
-  return props.genericMode.modeModel === "Cluster";
+  return props.ModeProps.modeModel === "Cluster";
 });
 </script>
 
@@ -46,75 +48,86 @@ const showReplicas = computed(() => {
     <div class="row mb-20">
       <div class="col span-6">
         <LabeledSelect
-          v-if="props.genericVersions.show"
-          v-model:value="props.genericVersions.versionModel"
-          :clearable="props.genericVersions.clearable"
-          :options="props.genericVersions.options"
-          :disabled="props.genericVersions.disabled"
-          :searchable="props.genericVersions.searchable"
-          :multiple="props.genericVersions.multiple"
-          :label="props.genericVersions.label"
-          :placeholder="props.genericVersions.placeholder"
-          :required="props.genericVersions.required"
-          :rules="props.genericVersions.rules"
+          v-if="props.VersionsProps.show"
+          v-model:value="props.VersionsProps.versionModel"
+          :clearable="props.VersionsProps.clearable"
+          :options="props.VersionsProps.options"
+          :disabled="props.VersionsProps.disabled"
+          :searchable="props.VersionsProps.searchable"
+          :multiple="props.VersionsProps.multiple"
+          :label="props.VersionsProps.label"
+          :placeholder="props.VersionsProps.placeholder"
+          :required="props.VersionsProps.required"
+          :rules="props.VersionsProps.rules"
+        />
+      </div>
+      <div class="col span-6">
+        <LabeledSelect
+          v-if="true"
+          v-model:value="props.RemoteReplicaProps.remoteReplicaModel"
+          :options="props.RemoteReplicaProps.options"
+          :disabled="props.RemoteReplicaProps.disabled"
+          :label="props.RemoteReplicaProps.label"
+          :placeholder="props.RemoteReplicaProps.placeholder"
+          :required="props.RemoteReplicaProps.required"
         />
       </div>
       <div class="col span-6">
         <RadioGroup
-          v-if="props.genericMode.show"
-          v-model:value="props.genericMode.modeModel"
-          :label="props.genericMode.label"
-          :options="props.genericMode.options"
-          :row="props.genericMode.row"
+          v-if="props.ModeProps.show"
+          v-model:value="props.ModeProps.modeModel"
+          :label="props.ModeProps.label"
+          :options="props.ModeProps.options"
+          :row="props.ModeProps.row"
         />
       </div>
     </div>
 
     <div class="mb-20">
       <LabeledInput
-        v-if="showReplicas && props.genericReplica.show"
-        v-model:value="props.genericReplica.replicaModel"
+        v-if="showReplicas && props.ReplicaProps.show"
+        v-model:value="props.ReplicaProps.replicaModel"
         type="number"
-        :label="props.genericReplica.label"
-        :placeholder="props.genericReplica.placeholder"
-        :min-height="props.genericReplica.minHeight"
+        :label="props.ReplicaProps.label"
+        :placeholder="props.ReplicaProps.placeholder"
+        :min-height="props.ReplicaProps.minHeight"
         :required="showReplicas"
-        :rules="props.genericStorageSize.rules"
+        :rules="props.StorageSizeProps.rules"
       />
     </div>
 
     <div class="mb-20">
       <LabeledSelect
-        v-if="props.genericMachine.show"
-        v-model:value="props.genericMachine.machineModel"
-        :options="props.genericMachine.options"
-        :searchable="props.genericMachine.searchable"
-        :multiple="props.genericMachine.multiple"
-        :label="props.genericMachine.label"
-        :placeholder="genericMachine.placeholder"
-        :required="props.genericMachine.required"
+        v-if="props.MachineProps.show"
+        v-model:value="props.MachineProps.machineModel"
+        :options="props.MachineProps.options"
+        :searchable="props.MachineProps.searchable"
+        :multiple="props.MachineProps.multiple"
+        :label="props.MachineProps.label"
+        :placeholder="props.MachineProps.placeholder"
+        :required="props.MachineProps.required"
       />
     </div>
 
-    <div class="row mb-20" v-if="isCustom && props.genericCPU.show">
+    <div class="row mb-20" v-if="isCustom && props.CPUProps.show">
       <div class="col span-6">
         <UnitInput
-          v-model:value="props.genericCPU.cpuModel"
-          :placeholder="props.genericCPU.placeholder"
-          :label="props.genericCPU.label"
-          :base-unit="props.genericCPU.baseUnit"
+          v-model:value="props.CPUProps.cpuModel"
+          :placeholder="props.CPUProps.placeholder"
+          :label="props.CPUProps.label"
+          :base-unit="props.CPUProps.baseUnit"
           :required="isCustom ? true : false"
-          :min="props.genericCPU.min"
+          :min="props.CPUProps.min"
         />
       </div>
       <div class="col span-6">
         <UnitInput
-          v-model:value="props.genericMemory.memoryModel"
-          :placeholder="props.genericMemory.placeholder"
-          :label="props.genericMemory.label"
-          :base-unit="props.genericMemory.baseUnit"
+          v-model:value="props.MemoryProps.memoryModel"
+          :placeholder="props.MemoryProps.placeholder"
+          :label="props.MemoryProps.label"
+          :base-unit="props.MemoryProps.baseUnit"
           :required="isCustom ? true : false"
-          :min="props.genericMemory.min"
+          :min="props.MemoryProps.min"
         />
       </div>
     </div>
@@ -122,25 +135,25 @@ const showReplicas = computed(() => {
     <div class="row mb-20">
       <div class="col span-6">
         <LabeledSelect
-          v-if="props.genericStorageClass.show"
-          v-model:value="props.genericStorageClass.storageClassModel"
-          :options="props.genericStorageClass.options"
-          :searchable="props.genericStorageClass.searchable"
-          :multiple="props.genericStorageClass.multiple"
-          :label="props.genericStorageClass.label"
-          :placeholder="props.genericStorageClass.placeholder"
-          :required="props.genericStorageClass.required"
+          v-if="props.StorageClassProps.show"
+          v-model:value="props.StorageClassProps.storageClassModel"
+          :options="props.StorageClassProps.options"
+          :searchable="props.StorageClassProps.searchable"
+          :multiple="props.StorageClassProps.multiple"
+          :label="props.StorageClassProps.label"
+          :placeholder="props.StorageClassProps.placeholder"
+          :required="props.StorageClassProps.required"
         />
       </div>
-      <div v-if="props.genericStorageSize.show" class="col span-6">
+      <div v-if="props.StorageSizeProps.show" class="col span-6">
         <LabeledInput
-          v-model:value="props.genericStorageSize.storageSizeModel"
-          :label="props.genericStorageSize.label"
-          :disabled="props.genericStorageSize.disabled"
-          :min-height="props.genericStorageSize.minHeight"
-          :required="props.genericStorageSize.required"
-          :placeholder="props.genericStorageSize.placeholder"
-          :rules="props.genericStorageSize.rules"
+          v-model:value="props.StorageSizeProps.storageSizeModel"
+          :label="props.StorageSizeProps.label"
+          :disabled="props.StorageSizeProps.disabled"
+          :min-height="props.StorageSizeProps.minHeight"
+          :required="props.StorageSizeProps.required"
+          :placeholder="props.StorageSizeProps.placeholder"
+          :rules="props.StorageSizeProps.rules"
         />
       </div>
     </div>
