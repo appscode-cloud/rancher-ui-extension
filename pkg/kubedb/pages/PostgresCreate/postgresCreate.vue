@@ -60,6 +60,7 @@ const {
   genericArchiver,
   genericTlS,
   genericExpose,
+  RemoteReplicaProps,
 } = useProps();
 
 const {
@@ -310,6 +311,7 @@ const gotoNext = async () => {
             :genericMachine="genericMachine"
             :genericCPU="genericCPU"
             :genericMemory="genericMemory"
+            :RemoteReplicaProps="RemoteReplicaProps"
           />
 
           <AdvancedDbConfig

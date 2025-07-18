@@ -15,6 +15,7 @@ import {
   MemoryType,
   StorageSizeType,
   StorageClassType,
+  RemoteReplicaType,
 } from "../types/type";
 
 interface Props {
@@ -29,6 +30,7 @@ interface Props {
   genericCPU: CPUType;
   genericMemory: MemoryType;
   genericMode: ModeType;
+  RemoteReplicaProps: RemoteReplicaType;
 }
 
 const props = defineProps<Props>();
@@ -39,14 +41,7 @@ const isCustom = computed(() => {
 const showReplicas = computed(() => {
   return props.genericMode.modeModel === "Cluster";
 });
-const RemoteReplica = ref({
-  replicaModel: "remote",
-  options: [{ label: "demo", value: "demo" }],
-  disabled: false,
-  required: true,
-  placeholder: "Remote Replica",
-  label: "RemoteReplica",
-});
+
 </script>
 
 <template>
@@ -70,12 +65,12 @@ const RemoteReplica = ref({
       <div class="col span-6">
         <LabeledSelect
           v-if="true"
-          v-model:value="RemoteReplica.replicaModel"
-          :options="RemoteReplica.options"
-          :disabled="RemoteReplica.disabled"
-          :label="RemoteReplica.label"
-          :placeholder="RemoteReplica.placeholder"
-          :required="RemoteReplica.placeholder"
+          v-model:value="props.RemoteReplicaProps.remoteReplicaModel"
+          :options="props.RemoteReplicaProps.options"
+          :disabled="props.RemoteReplicaProps.disabled"
+          :label="props.RemoteReplicaProps.label"
+          :placeholder="props.RemoteReplicaProps.placeholder"
+          :required="props.RemoteReplicaProps.required"
         />
       </div>
       <div class="col span-6">

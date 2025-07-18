@@ -95,7 +95,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/proxy/core/v1/namespaces/${namespace}/authSecrets`,
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/core/v1/namespaces/${namespace}/secrets`,
             verb: "GET",
             query: "",
             body: "",
@@ -156,8 +156,8 @@ export const useFunctions = () => {
     modelApiValue.spec.deletionPolicy = values.deletionPolicy;
     modelApiValue.spec.annotations = values.annotations;
     modelApiValue.spec.labels = values.labels;
-    modelApiValue.spec.authauthSecret.name = values.authSecret;
-    modelApiValue.spec.authauthSecret.password = values.password;
+    modelApiValue.spec.authSecret.name = values.secret;
+    modelApiValue.spec.authSecret.password = values.password;
     modelApiValue.spec.configuration = values.dbConfiguration;
     modelApiValue.spec.mode = values.mode;
     modelApiValue.spec.persistence.size = values.storageSize;

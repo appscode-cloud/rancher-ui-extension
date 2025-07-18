@@ -50,7 +50,7 @@ export const useCreateForm = () => {
   const { value: archiver } = useField<boolean>("archiver");
   const { value: tls } = useField<boolean>("tls");
   const { value: expose } = useField<boolean>("expose");
-
+  const { value: RemoteReplica } = useField<string>("RemoteReplica");
   return {
     values,
     errors,
@@ -81,6 +81,7 @@ export const useCreateForm = () => {
     tls,
     archiver,
     expose,
+    RemoteReplica,
     validate,
   };
 };

@@ -30,6 +30,7 @@ import {
   ArchiverType,
   TLSType,
   ExposeType,
+  RemoteReplicaType,
 } from "types/type";
 
 //Hard-coded options
@@ -104,6 +105,7 @@ export const useProps = () => {
     tls,
     archiver,
     expose,
+    RemoteReplica,
   } = useCreateForm();
 
   const AdvancedToggleSwitch = ref({
@@ -365,6 +367,17 @@ export const useProps = () => {
     exposeModel: expose,
   });
 
+  const RemoteReplicaProps = ref<RemoteReplicaType>({
+    show: true,
+    disabled: false,
+    options: [],
+    label: "RemoteReplica",
+    placeholder: "Remote Replica",
+    required: true,
+    rules: [required],
+    remoteReplicaModel: RemoteReplica,
+  });
+
   return {
     validate,
     values,
@@ -419,5 +432,6 @@ export const useProps = () => {
     genericArchiver,
     genericTlS,
     genericExpose,
+    RemoteReplicaProps,
   };
 };

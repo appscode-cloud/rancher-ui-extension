@@ -125,3 +125,6 @@ export interface TLSType extends BaseCommon {
 export interface ExposeType extends BaseCommon {
   exposeModel: any;
 }
+export interface RemoteReplicaType extends BaseCommon{
+  remoteReplicaModel: any;
+}
