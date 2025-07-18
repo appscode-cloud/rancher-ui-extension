@@ -21,8 +21,8 @@ const EDITOR_MODES = {
   DIFF_CODE: "DIFF_CODE",
 };
 
-const { required } = useRules();
 const store = useStore();
+const { required } = useRules();
 const { params } = useRoute();
 const { yamlToJs } = useUtils();
 
@@ -58,7 +58,7 @@ const {
   MonitoringProps,
   BackupProps,
   ArchiverProps,
-  TLSProps, // Corrected from TlSProps
+  TLSProps,
   ExposeProps,
   RemoteReplicaProps,
 } = useProps();
