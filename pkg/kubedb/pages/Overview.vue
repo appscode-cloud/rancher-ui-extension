@@ -164,21 +164,6 @@ onMounted(async () => {
     }
   );
 });
-
-// {
-//   dbName: "pg1",
-//   namespace: "demo",
-//   type: "PostgresSQL",
-//   mode: "Standalone",
-//   version: "6.0.12",
-//   replicas: "1",
-//   cpu: "900m / 900m",
-//   memory: "1Gi / 1Gi",
-//   storage: "2Gi / 2Gi",
-//   status: "Ready",
-//   age: 20,
-//   link: "/",
-// },
 </script>
 
 <template>
