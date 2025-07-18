@@ -9,7 +9,7 @@ import {
   genericIssuerType,
   genericStreamingModeType,
   genericStandbyModeType,
-  genericSecretType,
+  genericauthSecretType,
   genericNameType,
   genericModeType,
   genericReplicaType,
@@ -24,7 +24,7 @@ import {
   genericPitrNamespaceType,
   genericPitrNameType,
   genericAlertType,
-  genericPasswordType,
+  genericauthPasswordType,
   genericMonitoring,
   genericBackup,
   genericArchiver,
@@ -53,11 +53,11 @@ const machines = ref<Array<{ value: string; label: string }>>([
 ]);
 const deletionPolicies = ref<Array<{ value: string; label: string }>>([
   {
-    label: "Delete (Keep only database Secrets and backed up data)",
+    label: "Delete (Keep only database authSecrets and backed up data)",
     value: "Delete",
   },
   {
-    label: "Halt (Keep PVCs, database Secrets and backed up data)",
+    label: "Halt (Keep PVCs, database authSecrets and backed up data)",
     value: "Halt",
   },
   {
@@ -88,8 +88,8 @@ export const useProps = () => {
     storageSize,
     deletionPolicy,
     dbConfiguration,
-    password,
-    secret,
+    authPassword,
+    authSecret,
     pitrName,
     pitrNamespace,
     alert,
@@ -267,20 +267,20 @@ export const useProps = () => {
     minHeight: 120,
   });
 
-  const genericPassword = ref<genericPasswordType>({
+  const genericauthPassword = ref<genericauthPasswordType>({
     show: true,
     disabled: false,
-    label: "Password (Leave it blank to auto generate password)",
+    label: "authPassword (Leave it blank to auto generate authPassword)",
     placeholder: "",
     minHeight: 30,
-    passwordModel: password,
+    authPasswordModel: authPassword,
   });
 
-  const genericSecret = ref<genericSecretType>({
+  const genericauthSecret = ref<genericauthSecretType>({
     show: true,
     options: [],
-    placeholder: "Select Secret",
-    secretModel: secret,
+    placeholder: "Select authSecret",
+    authSecretModel: authSecret,
   });
 
   const genericStandbyMode = ref<genericStandbyModeType>({
@@ -380,8 +380,8 @@ export const useProps = () => {
     storageSize,
     deletionPolicy,
     dbConfiguration,
-    password,
-    secret,
+    authPassword,
+    authSecret,
     pitrName,
     pitrNamespace,
     alert,
@@ -406,8 +406,8 @@ export const useProps = () => {
     genericLabels,
     genericAnnotations,
     genericDbConfiguration,
-    genericPassword,
-    genericSecret,
+    genericauthPassword,
+    genericauthSecret,
     genericStandbyMode,
     genericPitrNamespace,
     genericPitrName,

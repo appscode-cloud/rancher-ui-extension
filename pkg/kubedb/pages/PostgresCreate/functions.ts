@@ -10,7 +10,7 @@ export const dbObject = {
 export const useFunctions = () => {
   const isValuesLoading = ref(false);
   const isNamespaceLoading = ref(false);
-  const isSecretLoading = ref(false);
+  const isauthSecretLoading = ref(false);
   const isBundleLoading = ref(false);
   const isModelLoading = ref(false);
   const isResourceSkipLoading = ref(false);
@@ -86,8 +86,8 @@ export const useFunctions = () => {
     isNamespaceLoading.value = false;
   };
 
-  const getSecrets = async (namespace: string, cluster: string) => {
-    isSecretLoading.value = true;
+  const getauthSecrets = async (namespace: string, cluster: string) => {
+    isauthSecretLoading.value = true;
     try {
       const response = await $axios.post(
         `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
@@ -95,7 +95,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/proxy/core/v1/namespaces/${namespace}/secrets`,
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/core/v1/namespaces/${namespace}/authSecrets`,
             verb: "GET",
             query: "",
             body: "",
@@ -107,12 +107,12 @@ export const useFunctions = () => {
       options = data?.items?.map((ele: { metadata: { name: string } }) => {
         return ele?.metadata.name;
       });
-      isSecretLoading.value = false;
+      isauthSecretLoading.value = false;
       return options;
     } catch (e) {
       console.log(e);
     }
-    isSecretLoading.value = false;
+    isauthSecretLoading.value = false;
   };
 
   const getValues = async (cluster: string, namespace: string) => {
@@ -156,8 +156,8 @@ export const useFunctions = () => {
     modelApiValue.spec.deletionPolicy = values.deletionPolicy;
     modelApiValue.spec.annotations = values.annotations;
     modelApiValue.spec.labels = values.labels;
-    modelApiValue.spec.authSecret.name = values.secret;
-    modelApiValue.spec.authSecret.password = values.password;
+    modelApiValue.spec.authauthSecret.name = values.authSecret;
+    modelApiValue.spec.authauthSecret.password = values.password;
     modelApiValue.spec.configuration = values.dbConfiguration;
     modelApiValue.spec.mode = values.mode;
     modelApiValue.spec.persistence.size = values.storageSize;
@@ -271,7 +271,7 @@ export const useFunctions = () => {
     isBundleLoading,
     isNamespaceLoading,
     isValuesLoading,
-    isSecretLoading,
+    isauthSecretLoading,
     isModelLoading,
     isResourceSkipLoading,
     isDeploying,
@@ -281,7 +281,7 @@ export const useFunctions = () => {
     modelApiCall,
     getBundle,
     getNamespaces,
-    getSecrets,
+    getauthSecrets,
     getValues,
   };
 };

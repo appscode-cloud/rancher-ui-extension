@@ -47,8 +47,8 @@ const {
   genericLabels,
   genericAnnotations,
   genericDbConfiguration,
-  genericPassword,
-  genericSecret,
+  genericauthPassword,
+  genericauthSecret,
   genericStandbyMode,
   genericPitrNamespace,
   genericPitrName,
@@ -64,7 +64,7 @@ const {
 
 const {
   getBundle,
-  getSecrets,
+  getauthSecrets,
   getValues,
   getNamespaces,
   modelApiCall,
@@ -197,7 +197,7 @@ watch(values, async () => {
 });
 
 watch(namespace, (n) => {
-  getSecrets(n, clusterName.value);
+  getauthSecrets(n, clusterName.value);
   setValues();
 });
 
@@ -318,8 +318,8 @@ const gotoNext = async () => {
             :genericLabels="genericLabels"
             :genericAnnotations="genericAnnotations"
             :genericDbConfiguration="genericDbConfiguration"
-            :genericPassword="genericPassword"
-            :genericSecret="genericSecret"
+            :genericauthPassword="genericauthPassword"
+            :genericauthSecret="genericauthSecret"
             :genericStandbyMode="genericStandbyMode"
             :genericPitrNamespace="genericPitrNamespace"
             :genericPitrName="genericPitrName"
