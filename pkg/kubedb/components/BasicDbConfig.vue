@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, defineProps } from "vue";
+import { computed, defineProps, ref } from "vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
 import UnitInput from "@rancher/shell/components/form/UnitInput.vue";
@@ -39,6 +39,14 @@ const isCustom = computed(() => {
 const showReplicas = computed(() => {
   return props.genericMode.modeModel === "Cluster";
 });
+const RemoteReplica = ref({
+  replicaModel: "remote",
+  options: [{ label: "demo", value: "demo" }],
+  disabled: false,
+  required: true,
+  placeholder: "Remote Replica",
+  label: "RemoteReplica",
+});
 </script>
 
 <template>
@@ -57,6 +65,17 @@ const showReplicas = computed(() => {
           :placeholder="props.genericVersions.placeholder"
           :required="props.genericVersions.required"
           :rules="props.genericVersions.rules"
+        />
+      </div>
+      <div class="col span-6">
+        <LabeledSelect
+          v-if="true"
+          v-model:value="RemoteReplica.replicaModel"
+          :options="RemoteReplica.options"
+          :disabled="RemoteReplica.disabled"
+          :label="RemoteReplica.label"
+          :placeholder="RemoteReplica.placeholder"
+          :required="RemoteReplica.placeholder"
         />
       </div>
       <div class="col span-6">
