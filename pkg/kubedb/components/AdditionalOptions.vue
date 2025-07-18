@@ -4,23 +4,23 @@ import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import Accordion from "@rancher/shell/rancher-components/Accordion/Accordion.vue";
 import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/ToggleSwitch.vue";
 import {
-  genericAlertType,
-  genericArchiver,
-  genericBackup,
-  genericExpose,
-  genericIssuerType,
-  genericMonitoring,
-  genericTLS,
+  AlertType,
+  ArchiverType,
+  BackupType,
+  ExposeType,
+  IssuerType,
+  MonitoringType,
+  TLSType,
 } from "../types/type";
 
 interface Props {
-  genericMonitoring: genericMonitoring;
-  genericBackup: genericBackup;
-  genericArchiver: genericArchiver;
-  genericTLS: genericTLS;
-  genericExpose: genericExpose;
-  genericAlert: genericAlertType;
-  genericIssuer: genericIssuerType;
+  genericMonitoring: MonitoringType;
+  genericBackup: BackupType;
+  genericArchiver: ArchiverType;
+  genericTLS: TLSType;
+  genericExpose: ExposeType;
+  genericAlert: AlertType;
+  genericIssuer: IssuerType;
 }
 
 const props = defineProps<Props>();

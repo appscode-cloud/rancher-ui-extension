@@ -5,30 +5,30 @@ import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/La
 import UnitInput from "@rancher/shell/components/form/UnitInput.vue";
 import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
 import {
-  genericNameSpacesType,
-  genericNameType,
-  genericVersionType,
-  genericModeType,
-  genericReplicaType,
-  genericMachineType,
-  genericCPUType,
-  genericMemoryType,
-  genericStorageSizeType,
-  genericStorageClassType,
+  NameSpacesType,
+  NameType,
+  VersionType,
+  ModeType,
+  ReplicaType,
+  MachineType,
+  CPUType,
+  MemoryType,
+  StorageSizeType,
+  StorageClassType,
 } from "../types/type";
 
 interface Props {
-  genericNameSpaces: genericNameSpacesType;
+  genericNameSpaces: NameSpacesType;
   required: (value: unknown) => string;
-  genericVersions: genericVersionType;
-  genericName: genericNameType;
-  genericStorageSize: genericStorageSizeType;
-  genericStorageClass: genericStorageClassType;
-  genericReplica: genericReplicaType;
-  genericMachine: genericMachineType;
-  genericCPU: genericCPUType;
-  genericMemory: genericMemoryType;
-  genericMode: genericModeType;
+  genericVersions: VersionType;
+  genericName: NameType;
+  genericStorageSize: StorageSizeType;
+  genericStorageClass: StorageClassType;
+  genericReplica: ReplicaType;
+  genericMachine: MachineType;
+  genericCPU: CPUType;
+  genericMemory: MemoryType;
+  genericMode: ModeType;
 }
 
 const props = defineProps<Props>();

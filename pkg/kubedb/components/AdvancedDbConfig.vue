@@ -7,28 +7,28 @@ import TextAreaAutoGrow from "@rancher/shell/rancher-components/Form/TextArea/Te
 import KeyValue from "@rancher/shell/components/form/KeyValue.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
 import {
-  genericDeletionPolicyType,
-  genericLabelsType,
-  genericAnnotationsType,
-  genericauthSecretType,
-  genericauthPasswordType,
-  genericDbConfigurationType,
-  genericPitrNamespaceType,
-  genericPitrNameType,
-  genericStreamingModeType,
-  genericStandbyModeType,
+  DeletionPolicyType,
+  LabelsType,
+  AnnotationsType,
+  authSecretType,
+  authPasswordType,
+  DbConfigurationType,
+  PitrNamespaceType,
+  PitrNameType,
+  StreamingModeType,
+  StandbyModeType,
 } from "../types/type";
 interface Props {
-  genericDeletionPolicy: genericDeletionPolicyType;
-  genericLabels: genericLabelsType;
-  genericAnnotations: genericAnnotationsType;
-  genericDbConfiguration: genericDbConfigurationType;
-  genericauthPassword: genericauthPasswordType;
-  genericauthSecret: genericauthSecretType;
-  genericStandbyMode: genericStandbyModeType;
-  genericPitrNamespace: genericPitrNamespaceType;
-  genericPitrName: genericPitrNameType;
-  genericStreamingMode: genericStreamingModeType;
+  genericDeletionPolicy: DeletionPolicyType;
+  genericLabels: LabelsType;
+  genericAnnotations: AnnotationsType;
+  genericDbConfiguration: DbConfigurationType;
+  genericauthPassword: authPasswordType;
+  genericauthSecret: authSecretType;
+  genericStandbyMode: StandbyModeType;
+  genericPitrNamespace: PitrNamespaceType;
+  genericPitrName: PitrNameType;
+  genericStreamingMode: StreamingModeType;
   AdvancedToggleSwitch: {
     DbConfig: boolean;
     AuthCred: boolean;
