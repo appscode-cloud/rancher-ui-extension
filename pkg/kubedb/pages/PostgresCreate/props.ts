@@ -9,7 +9,7 @@ import {
   IssuerType,
   StreamingModeType,
   StandbyModeType,
-  authSecretType,
+  AuthSecretType,
   NameType,
   ModeType,
   ReplicaType,
@@ -24,7 +24,7 @@ import {
   PitrNamespaceType,
   PitrNameType,
   AlertType,
-  authPasswordType,
+  AuthPasswordType,
   MonitoringType,
   BackupType,
   ArchiverType,
@@ -54,11 +54,11 @@ const machines = ref<Array<{ value: string; label: string }>>([
 ]);
 const deletionPolicies = ref<Array<{ value: string; label: string }>>([
   {
-    label: "Delete (Keep only database authSecrets and backed up data)",
+    label: "Delete (Keep only database AuthSecrets and backed up data)",
     value: "Delete",
   },
   {
-    label: "Halt (Keep PVCs, database authSecrets and backed up data)",
+    label: "Halt (Keep PVCs, database AuthSecrets and backed up data)",
     value: "Halt",
   },
   {
@@ -89,8 +89,8 @@ export const useProps = () => {
     storageSize,
     deletionPolicy,
     dbConfiguration,
-    authPassword,
-    authSecret,
+    AuthPassword,
+    AuthSecret,
     pitrName,
     pitrNamespace,
     alert,
@@ -269,20 +269,20 @@ export const useProps = () => {
     minHeight: 120,
   });
 
-  const genericauthPassword = ref<authPasswordType>({
+  const genericAuthPassword = ref<AuthPasswordType>({
     show: true,
     disabled: false,
-    label: "authPassword (Leave it blank to auto generate authPassword)",
+    label: "AuthPassword (Leave it blank to auto generate AuthPassword)",
     placeholder: "",
     minHeight: 30,
-    authPasswordModel: authPassword,
+    AuthPasswordModel: AuthPassword,
   });
 
-  const genericauthSecret = ref<authSecretType>({
+  const genericAuthSecret = ref<AuthSecretType>({
     show: true,
     options: [],
-    placeholder: "Select authSecret",
-    authSecretModel: authSecret,
+    placeholder: "Select AuthSecret",
+    AuthSecretModel: AuthSecret,
   });
 
   const genericStandbyMode = ref<StandbyModeType>({
@@ -393,8 +393,8 @@ export const useProps = () => {
     storageSize,
     deletionPolicy,
     dbConfiguration,
-    authPassword,
-    authSecret,
+    AuthPassword,
+    AuthSecret,
     pitrName,
     pitrNamespace,
     alert,
@@ -419,8 +419,8 @@ export const useProps = () => {
     genericLabels,
     genericAnnotations,
     genericDbConfiguration,
-    genericauthPassword,
-    genericauthSecret,
+    genericAuthPassword,
+    genericAuthSecret,
     genericStandbyMode,
     genericPitrNamespace,
     genericPitrName,

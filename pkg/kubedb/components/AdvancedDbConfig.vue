@@ -10,8 +10,8 @@ import {
   DeletionPolicyType,
   LabelsType,
   AnnotationsType,
-  authSecretType,
-  authPasswordType,
+  AuthSecretType,
+  AuthPasswordType,
   DbConfigurationType,
   PitrNamespaceType,
   PitrNameType,
@@ -23,8 +23,8 @@ interface Props {
   genericLabels: LabelsType;
   genericAnnotations: AnnotationsType;
   genericDbConfiguration: DbConfigurationType;
-  genericauthPassword: authPasswordType;
-  genericauthSecret: authSecretType;
+  genericAuthPassword: AuthPasswordType;
+  genericAuthSecret: AuthSecretType;
   genericStandbyMode: StandbyModeType;
   genericPitrNamespace: PitrNamespaceType;
   genericPitrName: PitrNameType;
@@ -41,7 +41,7 @@ const props = defineProps<Props>();
 
 const isDbConfig = ref(false);
 const isAuthCred = ref(false);
-const isReferauthSecret = ref(false);
+const isReferAuthSecret = ref(false);
 const isPitr = ref(false);
 </script>
 
@@ -100,26 +100,26 @@ const isPitr = ref(false);
     <div v-if="isAuthCred">
       <ToggleSwitch
         class="mb-20"
-        :value="isReferauthSecret"
-        off-label="Refer Existing authSecret?"
-        @update:value="isReferauthSecret = !isReferauthSecret"
+        :value="isReferAuthSecret"
+        off-label="Refer Existing AuthSecret?"
+        @update:value="isReferAuthSecret = !isReferAuthSecret"
       />
       <LabeledSelect
-        v-if="isReferauthSecret && props.genericauthSecret.show"
+        v-if="isReferAuthSecret && props.genericAuthSecret.show"
         class="mb-20"
-        v-model:value="props.genericauthSecret.authSecretModel"
-        :options="props.genericauthSecret.options"
-        :label="props.genericauthSecret.label"
-        :placeholder="props.genericauthSecret.placeholder"
+        v-model:value="props.genericAuthSecret.AuthSecretModel"
+        :options="props.genericAuthSecret.options"
+        :label="props.genericAuthSecret.label"
+        :placeholder="props.genericAuthSecret.placeholder"
       />
       <LabeledInput
         class="mb-20"
-        v-if="props.genericauthPassword.show"
-        v-model:value="props.genericauthPassword.authPasswordModel"
-        :label="props.genericauthPassword.label"
-        :disabled="props.genericauthPassword.disabled"
-        :min-height="props.genericauthPassword.minHeight"
-        :placeholder="props.genericauthPassword.placeholder"
+        v-if="props.genericAuthPassword.show"
+        v-model:value="props.genericAuthPassword.AuthPasswordModel"
+        :label="props.genericAuthPassword.label"
+        :disabled="props.genericAuthPassword.disabled"
+        :min-height="props.genericAuthPassword.minHeight"
+        :placeholder="props.genericAuthPassword.placeholder"
       />
     </div>
 

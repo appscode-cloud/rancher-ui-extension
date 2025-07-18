@@ -77,12 +77,12 @@ export interface DeletionPolicyType extends AdvancedBaseCommon {
   deletionPolicyModel: any;
 }
 
-export interface authSecretType extends AdvancedBaseCommon {
-  authSecretModel: any;
+export interface AuthSecretType extends AdvancedBaseCommon {
+  AuthSecretModel: any;
 }
 
-export interface authPasswordType extends AdvancedBaseCommon {
-  authPasswordModel: any;
+export interface AuthPasswordType extends AdvancedBaseCommon {
+  AuthPasswordModel: any;
 }
 export interface DbConfigurationType extends AdvancedBaseCommon {
   dbConfigurationModel: any;

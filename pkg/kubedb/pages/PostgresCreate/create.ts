@@ -27,8 +27,8 @@ export const useCreateForm = () => {
     }
   );
   const { value: dbConfiguration } = useField<string>("dbConfiguration");
-  const { value: authPassword } = useField<string>("authPassword");
-  const { value: authSecret } = useField<string>("authSecret");
+  const { value: AuthPassword } = useField<string>("AuthPassword");
+  const { value: AuthSecret } = useField<string>("AuthSecret");
   const { value: pitrNamespace } = useField<string>("pitrNamespace");
   const { value: pitrName } = useField<string>("pitrName");
   const { value: alert } = useField<string>("alert");
@@ -65,8 +65,8 @@ export const useCreateForm = () => {
     storageSize,
     deletionPolicy,
     dbConfiguration,
-    authPassword,
-    authSecret,
+    AuthPassword,
+    AuthSecret,
     pitrNamespace,
     pitrName,
     alert,
