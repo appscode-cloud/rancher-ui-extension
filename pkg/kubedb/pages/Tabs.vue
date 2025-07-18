@@ -1,101 +1,78 @@
 <template>
-  <div class="simple-tabs">
-    <ul class="tab-list">
-      <li
-        v-for="tab in tabs"
-        :key="tab.name"
-        :class="{ active: tab.active, disabled: tab.disabled }"
-        @click="select(tab.name)"
+  <div class="container">
+    <h1>Using Rancher's Tabbed Component</h1>
+    
+    <Tabbed
+      class="mb-20"
+      :use-hash="true"
+      :default-tab="'overview'"
+    >
+      <Tab
+        name="overview"
+        label="Overview"
+        :weight="10"
       >
-        {{ tab.labelDisplay }}
-        <span v-if="tab.badge" class="badge">{{ tab.badge }}</span>
-      </li>
-    </ul>
-
-    <div class="tab-content">
-      <div v-for="tab in tabs" :key="tab.name" v-show="tab.active">
-        <h3>{{ tab.labelDisplay }} Content</h3>
-        <p>This is dummy content for the {{ tab.labelDisplay }} tab.</p>
-      </div>
-    </div>
+        <div class="tab-content">
+          <h3>Cluster Overview</h3>
+          <p>Total Nodes: 3</p>
+          <p>Active Nodes: 2</p>
+        </div>
+      </Tab>
+      
+      <Tab
+        name="config"
+        label="Configuration"
+        :weight="20"
+        :badge="3"
+      >
+        <div class="tab-content">
+          <h3>Configuration Items</h3>
+          <ul>
+            <li>CPU Limit: 2 cores</li>
+            <li>Memory Limit: 4GB</li>
+            <li>Storage: 100GB</li>
+          </ul>
+        </div>
+      </Tab>
+      
+      <Tab
+        name="logs"
+        label="Logs"
+        :weight="30"
+        :error="true"
+      >
+        <div class="tab-content">
+          <h3>System Logs</h3>
+          <div class="error-message">
+            Warning: There are errors in the logs
+          </div>
+          <pre>[2024-01-15 10:30:00] INFO: System started
+[2024-01-15 10:30:01] INFO: Nodes initialized
+[2024-01-15 10:30:02] WARNING: High memory usage detected
+[2024-01-15 10:30:03] INFO: All services running</pre>
+        </div>
+      </Tab>
+    </Tabbed>
   </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue';
+<script>
+import Tabbed from '@shell/components/Tabbed/index.vue';
+import Tab from '@shell/components/Tabbed/Tab.vue';
 
-interface Tab {
-  name: string;
-  labelDisplay: string;
-  active: boolean;
-  disabled?: boolean;
-  badge?: number;
-}
-
-const tabs = ref<Tab[]>([
-  {
-    name: 'cluster-events',
-    labelDisplay: 'Events',
-    active: true,
-    badge: 0,
-  },
-  {
-    name: 'cluster-certs',
-    labelDisplay: 'Certificates',
-    active: false,
-    badge: 0,
+export default {
+  name: 'MyApp',
+  components: {
+    Tabbed,
+    Tab
   }
-]);
-
-function select(name: string) {
-  tabs.value.forEach(tab => {
-    tab.active = tab.name === name;
-  });
 }
 </script>
 
 <style scoped>
-.simple-tabs {
-  font-family: sans-serif;
-}
-
-.tab-list {
-  list-style: none;
-  display: flex;
-  gap: 16px;
-  padding: 0;
-  border-bottom: 2px solid #ccc;
-  margin-bottom: 16px;
-}
-
-.tab-list li {
-  cursor: pointer;
-  padding: 8px 16px;
-  border-bottom: 2px solid transparent;
-}
-
-.tab-list li.active {
-  border-bottom: 2px solid #42b983;
-  font-weight: bold;
-}
-
-.tab-list li.disabled {
-  color: #aaa;
-  cursor: not-allowed;
-}
-
-.badge {
-  margin-left: 8px;
-  background: #007bff;
-  color: white;
-  border-radius: 12px;
-  padding: 0 6px;
-  font-size: 12px;
-}
-
-.tab-content {
-  padding: 16px;
-  border: 1px solid #eee;
-  border-radius: 6px;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
 }
 </style>
