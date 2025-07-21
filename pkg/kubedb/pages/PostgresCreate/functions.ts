@@ -110,7 +110,7 @@ export const useFunctions = () => {
         return ele?.metadata.name;
       });
       isAuthSecretLoading.value = false;
-      return options;
+      return { values: options };
     } catch (e) {
       console.log(e);
     }
@@ -150,36 +150,42 @@ export const useFunctions = () => {
     modelApiValue.metadata.release.name = values.name;
     modelApiValue.metadata.release.namespace = values.namespace;
     modelApiValue.spec.admin.databases[dbObject.kind].default = values.version;
-    // modelApiValue.spec.admin.archiver.enable.default = values.archiver;
-    modelApiValue.spec.admin.storageClasses.default = values.storageClass;
-    // modelApiValue.spec.admin.tls.default = values.tls;
-    // modelApiValue.spec.admin.expose.default = values.expose;
-    // modelApiValue.form.alert.enabled = values.alert;
-    modelApiValue.spec.deletionPolicy = values.deletionPolicy;
-    modelApiValue.spec.annotations = values.annotations;
-    modelApiValue.spec.labels = values.labels;
-    // modelApiValue.spec.AuthSecret.name = values.secret;
-    // modelApiValue.spec.AuthSecret.password = values.password;
-    modelApiValue.spec.configuration = values.dbConfiguration;
-    modelApiValue.spec.mode = values.mode;
-    modelApiValue.spec.persistence.size = values.storageSize;
+    modelApiValue.spec.replicas = values.replicas;
+    // modelApiValue.spec.RemoteReplica = values.RemoteReplica;
     modelApiValue.spec.podResources.machine = values.machine;
-    // modelApiValue.spec.podResources.resources.requests.cpu = values.cpu;
-    // modelApiValue.spec.podResources.resources.requests.memory = values.memory;
+    modelApiValue.spec.podResources.resources.requests = {};
+    modelApiValue.spec.podResources.resources.requests.cpu = values.cpu;
+    modelApiValue.spec.podResources.resources.requests.memory = values.memory;
     modelApiValue.spec.podResources.resources.limits = {};
     modelApiValue.spec.podResources.resources.limits.cpu = values.cpu;
     modelApiValue.spec.podResources.resources.limits.memory = values.memory;
-    modelApiValue.spec.replicas = values.replicas;
+    modelApiValue.spec.admin.storageClasses.default = values.storageClass;
+    modelApiValue.spec.annotations = values.annotations;
+    modelApiValue.spec.labels = values.labels;
+    modelApiValue.spec.deletionPolicy = values.deletionPolicy;
+    modelApiValue.spec.persistence.size = values.storageSize;
+    modelApiValue.spec.configuration = values.dbConfiguration;
+    modelApiValue.spec.mode = values.mode;
     modelApiValue.spec.standbyMode = values.standbyMode;
     modelApiValue.spec.streamingMode = values.streamingMode;
-    modelApiValue.spec.admin.clusterIssuers = values.clusterIssuer;
+    modelApiValue.form.alert.enabled = values.monitoring
+      ? values.alert ?? "warning"
+      : "none";
+    modelApiValue.spec.admin.monitoring.agent = values.monitoring
+      ? "prometheus.io/operator"
+      : "";
+
+    modelApiValue.spec.backup.tool = values.backup ? "KubeStash" : "";
+    modelApiValue.spec.admin.tls.default = values.tls;
+    modelApiValue.spec.admin.clusterIssuers.default = values.clusterIssuer;
+    modelApiValue.spec.admin.expose.default = values.expose;
+
+    // modelApiValue.spec.AuthSecret.name = values.secret;
+    // modelApiValue.spec.AuthSecret.password = values.password;
+
+    // modelApiValue.spec.admin.archiver.enable.default = values.archiver;
     // modelApiValue.spec.archiverName = values.archiver
     //   ? dbObject.kind.toLocaleLowerCase()
-    //   : "";
-
-    // modelApiValue.spec.backup.tool = values.backup ? "KubeStash" : "";
-    // modelApiValue.spec.monitoring.agent = values.monitoring
-    //   ? "prometheus.io/operator"
     //   : "";
 
     return modelApiValue;

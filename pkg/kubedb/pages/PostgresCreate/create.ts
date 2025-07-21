@@ -16,6 +16,12 @@ export const useCreateForm = () => {
   const machineRules = computed(() => {
     return values.machine !== "custom" ? required : undefined;
   });
+  const alertRules = computed(() => {
+    return values.monitoring ? required : undefined;
+  });
+  const clusterIssuerRule = computed(() => {
+    return values.tls ? required : undefined;
+  });
 
   const { value: name } = useField<string>("name", required);
   const { value: namespace } = useField<string>("namespace", required);
@@ -46,14 +52,17 @@ export const useCreateForm = () => {
   const { value: AuthSecret } = useField<string>("AuthSecret");
   const { value: pitrNamespace } = useField<string>("pitrNamespace");
   const { value: pitrName } = useField<string>("pitrName");
-  const { value: alert } = useField<string>("alert");
+  const { value: alert } = useField<string>("alert", alertRules);
   const { value: standbyMode } = useField<string>("standbyMode", required, {
     initialValue: "Hot",
   });
   const { value: streamingMode } = useField<string>("streamingMode", required, {
     initialValue: "Asynchronous",
   });
-  const { value: clusterIssuer } = useField<string>("clusterIssuer");
+  const { value: clusterIssuer } = useField<string>(
+    "clusterIssuer",
+    clusterIssuerRule
+  );
   const { value: labels } = useField<Record<string, string>>("labels");
   const { value: annotations } =
     useField<Record<string, string>>("annotations");

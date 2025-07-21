@@ -119,6 +119,25 @@ const setValues = async () => {
 
   modelApiPayload.value = data?.values;
 
+  //modes
+  const availableModes =
+    data?.values.spec.admin.databases.Postgres.mode.available || [];
+  if (availableModes) {
+    ModeProps.value.options = [];
+    availableModes.forEach((ele: string) => {
+      ModeProps.value.options?.push({
+        label: ele,
+        value: ele,
+      });
+    });
+    ModeProps.value.modeModel =
+      data?.values.spec.admin.databases.Postgres.mode.default;
+  }
+
+  //replicas
+  ReplicaProps.value.replicaModel = data?.values.spec.replicas;
+
+  //versions
   const availableVersions =
     data?.values.spec.admin.databases.Postgres.versions.available || [];
   VersionsProps.value.versionModel =
@@ -132,6 +151,7 @@ const setValues = async () => {
     });
   }
 
+  //storage class
   const availableStorageClass =
     data?.values.spec.admin.storageClasses.available || [];
   if (availableStorageClass) {
@@ -143,6 +163,7 @@ const setValues = async () => {
     }
   }
 
+  //cluster issuer
   const availableClusterIssuer =
     data?.values.spec.admin.clusterIssuers.available || [];
   if (availableClusterIssuer) {
@@ -150,24 +171,75 @@ const setValues = async () => {
       IssuerProps.value.options?.push({ label: ele, value: ele });
     });
   }
+
+  //monitoring
+  const isMonitoring = data?.values.spec.admin.monitoring.toggle;
+  const monitoringAgent = !!data?.values.spec.admin.monitoring.agent;
+  MonitoringProps.value.show = isMonitoring;
+  MonitoringProps.value.monitoringModel = monitoringAgent;
+
+  //Alert
+  AlertProps.value.show =
+    data?.values.spec.admin.alert.toggle &&
+    MonitoringProps.value.monitoringModel;
+  AlertProps.value.alertModel = data?.values.form.alert.enabled;
+
+  //backup
+  BackupProps.value.show =
+    data?.values.spec.admin.backup.enable.toggle &&
+    data?.values.spec.backup.tool === "KubeStash";
+  BackupProps.value.backupModel = !!(
+    data?.values.spec.admin.backup.enable.toggle &&
+    data?.values.spec.backup.tool === "KubeStash"
+  );
+
+  //TLS
+  TLSProps.value.show = data?.values.spec.admin.tls.toggle;
+  TLSProps.value.tlsModel = data?.values.spec.admin.tls.default;
+
+  //Cluster Issuer
+  IssuerProps.value.show = data?.values.spec.admin.tls.toggle;
+  IssuerProps.value.options = IssuerProps.value.options
+    ? IssuerProps.value.options
+    : data?.values.spec.admin.clusterIssuers.available || [];
+  IssuerProps.value.issuerModel =
+    data?.values.spec.admin.clusterIssuers.default;
+
+  //Expose
+  ExposeProps.value.show = data?.values.spec.admin.expose.toggle;
+  ExposeProps.value.exposeModel = data?.values.spec.admin.expose.default;
+
+  //Archiver
+  // ArchiverProps.value.show = data?.values.spec.admin.enable.toggle;
+  // ArchiverProps.value.archiverModel = data?.values.spec.admin.enable.default;
 };
 
 const setBundle = async () => {
   const data = await getBundle(clusterName.value);
 
   const availableClusterIssuer = data?.bundle.clusterissuers;
+  if (
+    availableClusterIssuer.length &&
+    IssuerProps.value.options?.length === 0
+  ) {
+    availableClusterIssuer.forEach((ele: string) => {
+      IssuerProps.value.options?.push({ label: ele, value: ele });
+    });
+    console.log(IssuerProps.value);
+  }
   const features = data?.bundle.features || [];
   if (features.includes("backup")) {
-    BackupProps.value.show = true;
+    ArchiverProps.value.show = ArchiverProps.value.show && true;
+    BackupProps.value.show = BackupProps.value.show && true;
   }
   if (features.includes("tls")) {
-    TLSProps.value.show = true;
+    TLSProps.value.show = TLSProps.value.show && true;
   }
   if (features.includes("monitoring")) {
-    MonitoringProps.value.show = true;
+    MonitoringProps.value.show = MonitoringProps.value.show && true;
   }
   if (features.includes("binding")) {
-    ExposeProps.value.show = true;
+    ExposeProps.value.show = ExposeProps.value.show && true;
   }
 
   const availableStorageClass = data?.bundle.storageclasses;
@@ -179,12 +251,6 @@ const setBundle = async () => {
     if (availableStorageClass.length === 1) {
       StorageClassProps.value.storageClassModel = availableStorageClass[0];
     }
-  }
-
-  if (availableClusterIssuer) {
-    availableClusterIssuer.forEach((ele: string) => {
-      IssuerProps.value.options?.push({ label: ele, value: ele });
-    });
   }
 };
 
@@ -211,14 +277,14 @@ watch(values, async () => {
     modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
 });
 
-watch(namespace, (n) => {
-  getAuthSecrets(n, clusterName.value);
+watch(namespace, async (n) => {
+  const options = await getAuthSecrets(n, clusterName.value);
+  AuthSecretProps.value.options = options?.values;
   setValues();
 });
 
 onMounted(async () => {
   await getClusters();
-  validate();
   setNamespaces();
   setValues();
   setBundle();
@@ -383,13 +449,7 @@ const gotoNext = async () => {
     <div class="button-container">
       <RcButton secondary>Cancel</RcButton>
       <div>
-        <RcButton
-          v-if="step > 1"
-          primary
-          @click="step--"
-          :disabled="disableNextBtn"
-          >Previous</RcButton
-        >
+        <RcButton v-if="step > 1" primary @click="step--">Previous</RcButton>
         <RcButton primary @click="gotoNext" :disabled="disableNextBtn">{{
           step === 1 ? "Next" : step === 2 ? "Preview" : "Deploy"
         }}</RcButton>

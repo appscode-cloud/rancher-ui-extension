@@ -84,7 +84,7 @@ const showRemoteReplica = computed(() => {
         :placeholder="props.ReplicaProps.placeholder"
         :min-height="props.ReplicaProps.minHeight"
         :required="showReplicas"
-        :rules="props.StorageSizeProps.rules"
+        :rules="props.ReplicaProps.rules"
       />
       <LabeledSelect
         v-if="showRemoteReplica && props.RemoteReplicaProps.show"
@@ -94,7 +94,7 @@ const showRemoteReplica = computed(() => {
         :label="props.RemoteReplicaProps.label"
         :placeholder="props.RemoteReplicaProps.placeholder"
         :required="showRemoteReplica"
-        :rules="props.VersionsProps.rules"
+        :rules="props.RemoteReplicaProps.rules"
       />
     </div>
 

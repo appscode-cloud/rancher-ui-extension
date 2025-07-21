@@ -34,11 +34,7 @@ import {
 } from "types/type";
 
 //Hard-coded options
-const databaseModes = ref<Array<{ value: string; label: string }>>([
-  { label: "Standalone", value: "Standalone" },
-  { label: "HA Cluster", value: "Cluster" },
-  { label: "RemoteReplica", value: "RemoteReplica" },
-]);
+const databaseModes = ref<Array<{ value: string; label: string }>>([]);
 const alertsList = ref<Array<{ value: string; label: string }>>([
   { label: "Critical", value: "Critical" },
   { label: "Info", value: "Info" },
@@ -288,8 +284,8 @@ export const useProps = () => {
   const StandbyModeProps = ref<StandbyModeType>({
     show: true,
     options: [
-      { value: "Asynchronous", label: "Asynchronous" },
-      { value: "Synchronous", label: "Synchronous" },
+      { value: "Hot", label: "Hot" },
+      { value: "Warn", label: "Warm" },
     ],
     label: "Standby Mode",
     placeholder: "Select Standby Mode",
@@ -317,8 +313,8 @@ export const useProps = () => {
   const StreamingModeProps = ref<StreamingModeType>({
     show: true,
     options: [
-      { value: "Hot", label: "Hot" },
-      { value: "Warn", label: "Warm" },
+      { value: "Asynchronous", label: "Asynchronous" },
+      { value: "Synchronous", label: "Synchronous" },
     ],
     label: "Streaming Mode",
     placeholder: "Select Streaming Mode",
@@ -340,6 +336,8 @@ export const useProps = () => {
     options: [],
     label: "Cluster Issuers",
     issuerModel: clusterIssuer,
+    rules: [required],
+    required: true,
   });
 
   const MonitoringProps = ref<MonitoringType>({
@@ -372,7 +370,7 @@ export const useProps = () => {
     disabled: false,
     options: [],
     label: "RemoteReplica",
-    placeholder: "Remote Replica",
+    placeholder: "",
     required: true,
     rules: [required],
     remoteReplicaModel: RemoteReplica,
