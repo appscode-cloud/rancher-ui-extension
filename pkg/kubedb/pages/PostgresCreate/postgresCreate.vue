@@ -87,7 +87,6 @@ const step = ref(1);
 const clusterName = ref("");
 const modelApiPayload = ref({});
 const resourceSkipPayload = ref();
-const disableNextBtn = ref(true);
 
 const previewTitle = computed(() => {
   return step.value === 1
@@ -189,12 +188,27 @@ const setBundle = async () => {
   }
 };
 
+const disableNextBtn = computed(() => {
+  if (step.value === 1) {
+    if (!errors.value.name && !errors.value.namespace) return false;
+  }
+
+  const validated = Object.values(errors.value).every((value) => value === "");
+  return (
+    !validated ||
+    isValuesLoading.value ||
+    isDeploying.value ||
+    isModelLoading.value ||
+    isResourceSkipLoading.value ||
+    isBundleLoading.value ||
+    isNamespaceLoading.value
+  );
+});
+
 watch(values, async () => {
+  await validate();
   if (namespace.value && modelApiPayload.value && name.value)
     modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
-  await validate();
-  const validated = Object.values(errors.value).every((value) => value === "");
-  disableNextBtn.value = !validated;
 });
 
 watch(namespace, (n) => {
@@ -270,7 +284,6 @@ const gotoNext = async () => {
           :rules="NameSpacesProps.rules"
         />
       </div>
-
       <div class="col span-6">
         <LabeledInput
           v-if="NameProps.show"
@@ -284,8 +297,8 @@ const gotoNext = async () => {
         />
       </div>
     </div>
-    <div v-if="step === 2">
-      <p
+    <div v-else>
+      <Loading
         v-if="
           isValuesLoading ||
           isBundleLoading ||
@@ -293,79 +306,79 @@ const gotoNext = async () => {
           isModelLoading ||
           isResourceSkipLoading
         "
-      >
-        <Loading />
-      </p>
-      <div v-else>
+      />
+      <div v-if="step === 2">
         <div>
-          <!-- Basic Configuration Component -->
-          <BasicDbConfig
-            :NameSpacesProps="NameSpacesProps"
-            :VersionsProps="VersionsProps"
-            :NameProps="NameProps"
-            :ModeProps="ModeProps"
-            :required="required"
-            :StorageSizeProps="StorageSizeProps"
-            :StorageClassProps="StorageClassProps"
-            :ReplicaProps="ReplicaProps"
-            :MachineProps="MachineProps"
-            :CPUProps="CPUProps"
-            :MemoryProps="MemoryProps"
-            :RemoteReplicaProps="RemoteReplicaProps"
-          />
+          <div>
+            <!-- Basic Configuration Component -->
+            <BasicDbConfig
+              :NameSpacesProps="NameSpacesProps"
+              :VersionsProps="VersionsProps"
+              :NameProps="NameProps"
+              :ModeProps="ModeProps"
+              :required="required"
+              :StorageSizeProps="StorageSizeProps"
+              :StorageClassProps="StorageClassProps"
+              :ReplicaProps="ReplicaProps"
+              :MachineProps="MachineProps"
+              :CPUProps="CPUProps"
+              :MemoryProps="MemoryProps"
+              :RemoteReplicaProps="RemoteReplicaProps"
+            />
 
-          <AdvancedDbConfig
-            :AdvancedToggleSwitch="AdvancedToggleSwitch"
-            :DeletionPolicyProps="DeletionPolicyProps"
-            :LabelsProps="LabelsProps"
-            :AnnotationsProps="AnnotationsProps"
-            :DbConfigurationProps="DbConfigurationProps"
-            :AuthPasswordProps="AuthPasswordProps"
-            :AuthSecretProps="AuthSecretProps"
-            :StandbyModeProps="StandbyModeProps"
-            :PitrNamespaceProps="PitrNamespaceProps"
-            :PitrNameProps="PitrNameProps"
-            :StreamingModeProps="StreamingModeProps"
-            :required="required"
-          />
+            <AdvancedDbConfig
+              :AdvancedToggleSwitch="AdvancedToggleSwitch"
+              :DeletionPolicyProps="DeletionPolicyProps"
+              :LabelsProps="LabelsProps"
+              :AnnotationsProps="AnnotationsProps"
+              :DbConfigurationProps="DbConfigurationProps"
+              :AuthPasswordProps="AuthPasswordProps"
+              :AuthSecretProps="AuthSecretProps"
+              :StandbyModeProps="StandbyModeProps"
+              :PitrNamespaceProps="PitrNamespaceProps"
+              :PitrNameProps="PitrNameProps"
+              :StreamingModeProps="StreamingModeProps"
+              :required="required"
+            />
 
-          <AdditionalOptions
-            :MonitoringProps="MonitoringProps"
-            :BackupProps="BackupProps"
-            :ArchiverProps="ArchiverProps"
-            :TLSProps="TLSProps"
-            :ExposeProps="ExposeProps"
-            :AlertProps="AlertProps"
-            :IssuerProps="IssuerProps"
-          />
-        </div>
-      </div>
-    </div>
-    <div v-if="step === 3">
-      <Tabbed class="mb-20" default-tab="overview" :use-hash="true">
-        <Tab
-          v-for="file in previewFiles"
-          :key="file.key"
-          :name="file.filename"
-          :label="file.filename"
-          :weight="2"
-          :badge="0"
-          :error="false"
-        >
-          <div class="tab-content">
-            <YamlEditor
-              ref="yamleditor"
-              :key="file.key"
-              v-model:value="file.data"
-              mode="create"
-              :asObject="false"
-              :initial-yaml-values="file.data"
-              class="yaml-editor flex-content"
-              :editor-mode="EDITOR_MODES.EDIT_CODE"
+            <AdditionalOptions
+              :MonitoringProps="MonitoringProps"
+              :BackupProps="BackupProps"
+              :ArchiverProps="ArchiverProps"
+              :TLSProps="TLSProps"
+              :ExposeProps="ExposeProps"
+              :AlertProps="AlertProps"
+              :IssuerProps="IssuerProps"
             />
           </div>
-        </Tab>
-      </Tabbed>
+        </div>
+      </div>
+      <div v-if="step === 3">
+        <Tabbed class="mb-20" default-tab="overview" :use-hash="true">
+          <Tab
+            v-for="file in previewFiles"
+            :key="file.key"
+            :name="file.filename"
+            :label="file.filename"
+            :weight="2"
+            :badge="0"
+            :error="false"
+          >
+            <div class="tab-content">
+              <YamlEditor
+                ref="yamleditor"
+                :key="file.key"
+                v-model:value="file.data"
+                mode="create"
+                :asObject="false"
+                :initial-yaml-values="file.data"
+                class="yaml-editor flex-content"
+                :editor-mode="EDITOR_MODES.EDIT_CODE"
+              />
+            </div>
+          </Tab>
+        </Tabbed>
+      </div>
     </div>
     <div class="button-container">
       <RcButton secondary>Cancel</RcButton>
@@ -374,35 +387,12 @@ const gotoNext = async () => {
           v-if="step > 1"
           primary
           @click="step--"
-          :disabled="
-            disableNextBtn ||
-            isValuesLoading ||
-            isDeploying ||
-            isModelLoading ||
-            isResourceSkipLoading ||
-            isBundleLoading ||
-            isNamespaceLoading ||
-            isValuesLoading
-          "
+          :disabled="disableNextBtn"
           >Previous</RcButton
         >
-        <RcButton
-          primary
-          @click="gotoNext"
-          :disabled="
-            disableNextBtn ||
-            isValuesLoading ||
-            isDeploying ||
-            isModelLoading ||
-            isResourceSkipLoading ||
-            isBundleLoading ||
-            isNamespaceLoading ||
-            isValuesLoading
-          "
-          >{{
-            step === 1 ? "Next" : step === 2 ? "Preview" : "Deploy"
-          }}</RcButton
-        >
+        <RcButton primary @click="gotoNext" :disabled="disableNextBtn">{{
+          step === 1 ? "Next" : step === 2 ? "Preview" : "Deploy"
+        }}</RcButton>
       </div>
     </div>
   </div>

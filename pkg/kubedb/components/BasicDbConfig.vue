@@ -41,12 +41,15 @@ const isCustom = computed(() => {
 const showReplicas = computed(() => {
   return props.ModeProps.modeModel === "Cluster";
 });
+const showRemoteReplica = computed(() => {
+  return props.ModeProps.modeModel === "RemoteReplica";
+});
 </script>
 
 <template>
   <div>
     <div class="row mb-20">
-      <div class="col span-3">
+      <div class="col span-6">
         <LabeledSelect
           v-if="props.VersionsProps.show"
           v-model:value="props.VersionsProps.versionModel"
@@ -59,17 +62,6 @@ const showReplicas = computed(() => {
           :placeholder="props.VersionsProps.placeholder"
           :required="props.VersionsProps.required"
           :rules="props.VersionsProps.rules"
-        />
-      </div>
-      <div class="col span-3">
-        <LabeledSelect
-          v-if="props.RemoteReplicaProps.show"
-          v-model:value="props.RemoteReplicaProps.remoteReplicaModel"
-          :options="props.RemoteReplicaProps.options"
-          :disabled="props.RemoteReplicaProps.disabled"
-          :label="props.RemoteReplicaProps.label"
-          :placeholder="props.RemoteReplicaProps.placeholder"
-          :required="props.RemoteReplicaProps.required"
         />
       </div>
       <div class="col span-6">
@@ -93,6 +85,16 @@ const showReplicas = computed(() => {
         :min-height="props.ReplicaProps.minHeight"
         :required="showReplicas"
         :rules="props.StorageSizeProps.rules"
+      />
+      <LabeledSelect
+        v-if="showRemoteReplica && props.RemoteReplicaProps.show"
+        v-model:value="props.RemoteReplicaProps.remoteReplicaModel"
+        :options="props.RemoteReplicaProps.options"
+        :disabled="props.RemoteReplicaProps.disabled"
+        :label="props.RemoteReplicaProps.label"
+        :placeholder="props.RemoteReplicaProps.placeholder"
+        :required="showRemoteReplica"
+        :rules="props.VersionsProps.rules"
       />
     </div>
 

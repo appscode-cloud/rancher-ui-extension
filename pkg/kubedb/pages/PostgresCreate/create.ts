@@ -1,18 +1,33 @@
 import { useField, useForm } from "vee-validate";
 import { useRules } from "../../composables/rules";
+import { computed } from "vue";
 const { required } = useRules();
 
 export const useCreateForm = () => {
+  // conditional rules
   const { values, errors, validate } = useForm({});
+
+  const replicaRules = computed(() => {
+    return values.mode === "Cluster" ? required : undefined;
+  });
+  const remoteReplicaRules = computed(() => {
+    return values.mode === "RemoteReplica" ? required : undefined;
+  });
+  const machineRules = computed(() => {
+    return values.machine !== "custom" ? required : undefined;
+  });
+
   const { value: name } = useField<string>("name", required);
   const { value: namespace } = useField<string>("namespace", required);
   const { value: version } = useField<string>("version", required);
-  const { value: replicas } = useField<string>("replicas");
+  const { value: replicas } = useField<string>("replicas", replicaRules);
   const { value: machine } = useField<string>("machine", required, {
     initialValue: "custom",
   });
-  const { value: cpu } = useField<string>("cpu", "", { initialValue: "500m" });
-  const { value: memory } = useField<string>("memory", "", {
+  const { value: cpu } = useField<string>("cpu", machineRules, {
+    initialValue: "500m",
+  });
+  const { value: memory } = useField<string>("memory", machineRules, {
     initialValue: "1",
   });
   const { value: storageClass } = useField<string>("storageClass", required);
@@ -50,7 +65,11 @@ export const useCreateForm = () => {
   const { value: archiver } = useField<boolean>("archiver");
   const { value: tls } = useField<boolean>("tls");
   const { value: expose } = useField<boolean>("expose");
-  const { value: RemoteReplica } = useField<string>("RemoteReplica");
+  const { value: RemoteReplica } = useField<string>(
+    "RemoteReplica",
+    remoteReplicaRules
+  );
+
   return {
     values,
     errors,
