@@ -39,7 +39,7 @@ const isCustom = computed(() => {
 });
 
 const showReplicas = computed(() => {
-  return props.ModeProps.modeModel === "Cluster";
+  return props.ModeProps.modeModel === "Cluster" && props.ReplicaProps.show;
 });
 const showRemoteReplica = computed(() => {
   return props.ModeProps.modeModel === "RemoteReplica";
@@ -77,14 +77,14 @@ const showRemoteReplica = computed(() => {
 
     <div class="mb-20">
       <LabeledInput
-        v-if="showReplicas && props.ReplicaProps.show"
+        v-if="showReplicas"
         v-model:value="props.ReplicaProps.replicaModel"
         type="number"
         :label="props.ReplicaProps.label"
         :placeholder="props.ReplicaProps.placeholder"
         :min-height="props.ReplicaProps.minHeight"
         :required="showReplicas"
-        :rules="props.ReplicaProps.rules"
+        :rules="showReplicas ? props.ReplicaProps.rules : []"
       />
       <LabeledSelect
         v-if="showRemoteReplica && props.RemoteReplicaProps.show"

@@ -180,14 +180,14 @@ export const useFunctions = () => {
     modelApiValue.spec.admin.clusterIssuers.default = values.clusterIssuer;
     modelApiValue.spec.admin.expose.default = values.expose;
 
-    // modelApiValue.spec.AuthSecret.name = values.secret;
-    // modelApiValue.spec.AuthSecret.password = values.password;
+    modelApiValue.spec.authSecret = {};
+    modelApiValue.spec.authSecret.name = values.AuthSecret;
+    modelApiValue.spec.authSecret.password = values.AuthPassword;
 
     // modelApiValue.spec.admin.archiver.enable.default = values.archiver;
     // modelApiValue.spec.archiverName = values.archiver
     //   ? dbObject.kind.toLocaleLowerCase()
     //   : "";
-
     return modelApiValue;
   };
 
