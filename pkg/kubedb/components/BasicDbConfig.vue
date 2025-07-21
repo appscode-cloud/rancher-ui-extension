@@ -46,7 +46,7 @@ const showReplicas = computed(() => {
 <template>
   <div>
     <div class="row mb-20">
-      <div class="col span-6">
+      <div class="col span-3">
         <LabeledSelect
           v-if="props.VersionsProps.show"
           v-model:value="props.VersionsProps.versionModel"
@@ -61,9 +61,9 @@ const showReplicas = computed(() => {
           :rules="props.VersionsProps.rules"
         />
       </div>
-      <div class="col span-6">
+      <div class="col span-3">
         <LabeledSelect
-          v-if="true"
+          v-if="props.RemoteReplicaProps.show"
           v-model:value="props.RemoteReplicaProps.remoteReplicaModel"
           :options="props.RemoteReplicaProps.options"
           :disabled="props.RemoteReplicaProps.disabled"

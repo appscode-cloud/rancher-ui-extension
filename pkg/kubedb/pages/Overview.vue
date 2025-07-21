@@ -27,78 +27,10 @@ function getPercentage(a: number, b: number): string {
   return `${percentage.toFixed(2)}%`;
 }
 
-// const rows = [
-//   {
-//     dbName: "pg1",
-//     namespace: "demo",
-//     type: "PostgresSQL",
-//     mode: "Standalone",
-//     version: "6.0.12",
-//     replicas: "1",
-//     cpu: "900m / 900m",
-//     memory: "1Gi / 1Gi",
-//     storage: "2Gi / 2Gi",
-//     status: "Ready",
-//     age: 20,
-//     link: "/",
-//   },
-// ];
-
-// const headers = [
-//   {
-//     name: "dbName",
-//     label: "Database Name",
-//     value: "dbName",
-//   },
-//   {
-//     name: "type",
-//     label: "Type",
-//     value: "type",
-//   },
-//   {
-//     name: "mode",
-//     label: "Mode",
-//     value: "mode",
-//   },
-//   {
-//     name: "version",
-//     label: "Version",
-//     value: "version",
-//   },
-//   {
-//     name: "replicas",
-//     label: "Replicas",
-//     value: "replicas",
-//   },
-//   {
-//     name: "cpu",
-//     label: "CPU (request/limit)",
-//     value: "cpu",
-//   },
-//   {
-//     name: "memory",
-//     label: "Memory (request/limit)",
-//     value: "memory",
-//   },
-//   {
-//     name: "storage",
-//     label: "Storage (request/limit)",
-//     value: "storage",
-//   },
-//   {
-//     name: "status",
-//     label: "Status",
-//     value: "status",
-//   },
-//   {
-//     name: "age",
-//     label: "Age",
-//     value: "age",
-//     sort: ["age"],
-//   },
-// ];
 const headers = ref<Array<Record<string, any>>>([]);
 const rows = ref<Array<Record<string, string>>>([]);
+const resourceSummary =
+  ref<Array<{ cells: Array<{ data: number | string }> }>>();
 
 const getClusters = async () => {
   try {
@@ -117,17 +49,20 @@ const getClusters = async () => {
 
 onMounted(async () => {
   await getClusters();
-  resourceSummaryCall(clusterName.value);
   const genericResourceResponse = await genericResourceCall(clusterName.value);
   genericResourceResponse?.values.columns.forEach(
     (col: { name: string; sort: { enable: boolean }; link: boolean }) => {
-      const obj = {
+      const obj: {
+        name: string;
+        value: string;
+        label: string;
+        sort?: Array<string>;
+      } = {
         name: col.name,
         value: col.name,
         label: col.name,
-        sort: [""],
       };
-      if (col.sort.enable) obj.sort = [col.name];
+      if (col?.sort?.enable) obj.sort = [col.name];
       headers.value.push(obj);
     }
   );
@@ -163,15 +98,30 @@ onMounted(async () => {
       rows.value.push(obj);
     }
   );
+
+  const resourceSummaryResponse = await resourceSummaryCall(clusterName.value);
+  resourceSummary.value = resourceSummaryResponse?.values.rows.filter(
+    (ele: { cells: Array<{ data: number }> }) => {
+      return ele.cells[1].data > 0;
+    }
+  );
 });
 </script>
 
 <template>
   <div>
-    <div>
+    <div v-if="genericResourceLoading || resourceSummaryLoading">
+      Loading...
+    </div>
+    <div v-else>
       <div class="simple-box-container">
-        <SimpleBox title="PostgresSQL" class="simple-box">
-          <ConsumptionGauge
+        <SimpleBox
+          v-for="resource in resourceSummary"
+          :key="resource.cells[0].data"
+          :title="resource.cells[0].data"
+          class="simple-box"
+        >
+          <!-- <ConsumptionGauge
             class="mb-20"
             :capacity="16"
             :used="8"
@@ -214,10 +164,19 @@ onMounted(async () => {
               </span>
               <span> {{ getPercentage(30, 31) }} </span>
             </template>
-          </ConsumptionGauge>
+          </ConsumptionGauge> -->
+          <div>
+            <div>
+              <p>{{ resource.cells[1].data }}</p>
+            </div>
+            <div>
+              <p>CPU: {{ resource.cells[2].data }}</p>
+              <p>MEMORY: {{ resource.cells[3].data }}</p>
+              <p>STORAGE: {{ resource.cells[4].data }}</p>
+            </div>
+          </div>
         </SimpleBox>
       </div>
-
       <SortableTable
         default-sort-by="error"
         :table-actions="false"

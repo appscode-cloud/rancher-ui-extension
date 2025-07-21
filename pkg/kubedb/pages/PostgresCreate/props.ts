@@ -357,7 +357,7 @@ export const useProps = () => {
     archiverModel: archiver,
   });
 
-  const TLSProps = ref<TLSType>({ // Corrected from TlsProps
+  const TLSProps = ref<TLSType>({
     show: false,
     tlsModel: tls,
   });

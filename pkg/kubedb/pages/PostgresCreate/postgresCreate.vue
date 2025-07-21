@@ -354,6 +354,7 @@ const gotoNext = async () => {
           <div class="tab-content">
             <YamlEditor
               ref="yamleditor"
+              :key="file.key"
               v-model:value="file.data"
               mode="create"
               :asObject="false"
@@ -372,7 +373,16 @@ const gotoNext = async () => {
           v-if="step > 1"
           primary
           @click="step--"
-          :disabled="disableNextBtn"
+          :disabled="
+            disableNextBtn ||
+            isValuesLoading ||
+            isDeploying ||
+            isModelLoading ||
+            isResourceSkipLoading ||
+            isBundleLoading ||
+            isNamespaceLoading ||
+            isValuesLoading
+          "
           >Previous</RcButton
         >
         <RcButton
