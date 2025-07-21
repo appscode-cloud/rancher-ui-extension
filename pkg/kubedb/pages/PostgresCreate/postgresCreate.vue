@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
+import Loading from "@shell/components/Loading.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
 import BasicDbConfig from "../../components/BasicDbConfig.vue";
@@ -293,7 +294,7 @@ const gotoNext = async () => {
           isResourceSkipLoading
         "
       >
-        loading...
+        <Loading />
       </p>
       <div v-else>
         <div>

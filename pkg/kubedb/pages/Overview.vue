@@ -2,6 +2,7 @@
 import SortableTable from "@rancher/shell/components/SortableTable/index.vue";
 import BadgeStateFormatter from "@rancher/shell/components/formatter/BadgeStateFormatter.vue";
 import ConsumptionGauge from "@rancher/shell/components/ConsumptionGauge.vue";
+import Loading from "@shell/components/Loading.vue";
 import SimpleBox from "@rancher/shell/components/SimpleBox.vue";
 import { useFunctions } from "./PostgresCreate/functions";
 import { onMounted, ref } from "vue";
@@ -111,7 +112,7 @@ onMounted(async () => {
 <template>
   <div>
     <div v-if="genericResourceLoading || resourceSummaryLoading">
-      Loading...
+      <Loading />
     </div>
     <div v-else>
       <div class="simple-box-container">
