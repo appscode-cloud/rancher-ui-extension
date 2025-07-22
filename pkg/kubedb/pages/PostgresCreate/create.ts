@@ -4,9 +4,9 @@ import { computed } from "vue";
 const { required } = useRules();
 
 export const useCreateForm = () => {
-  // conditional rules
   const { values, errors, validate } = useForm({});
 
+  // conditional rules
   const replicaRules = computed(() => {
     return values.mode === "Cluster" ? required : undefined;
   });

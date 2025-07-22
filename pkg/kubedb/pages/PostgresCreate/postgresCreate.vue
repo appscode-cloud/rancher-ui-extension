@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import Loading from "@shell/components/Loading.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
@@ -343,6 +343,11 @@ const previewFiles = ref<
   Array<{ key: string; filename: string; data: string }>
 >([]);
 
+const router = useRouter();
+const NavigateToOverview = () => {
+  router.push({ name: "c-cluster-Kubedb-overview" });
+};
+
 const gotoNext = async () => {
   if (step.value === 1) step.value = 2;
   else if (step.value === 2) {
@@ -511,8 +516,8 @@ const gotoNext = async () => {
       v-if="showDialog"
       name="example-modal"
       title="Postgres Create"
-      @okay="showDialog = false"
-      @closed="showDialog = false"
+      @okay="NavigateToOverview"
+      @closed="NavigateToOverview"
     >
       <template #default>
         <p>Your db has been deployed</p>
