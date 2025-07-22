@@ -17,12 +17,7 @@ import { useUtils } from "../../composables/utils";
 import { useRules } from "../../composables/rules";
 import { useProps } from "./props";
 import { useFunctions } from "./functions";
-
-const EDITOR_MODES = {
-  EDIT_CODE: "EDIT_CODE",
-  VIEW_CODE: "VIEW_CODE",
-  DIFF_CODE: "DIFF_CODE",
-};
+import { machineList, machines, EDITOR_MODES } from "./consts";
 
 const store = useStore();
 const { required } = useRules();
@@ -216,6 +211,40 @@ const setValues = async () => {
   ArchiverProps.value.show = data?.values.spec.admin.archiver.enable.toggle;
   ArchiverProps.value.archiverModel =
     data?.values.spec.admin.archiver.enable.default;
+
+  //Machines
+  const machinesFromPreset = data?.values.spec.admin.machineProfiles.Machines;
+  const available = data?.values.spec.admin.machineProfiles.available;
+  if (available.length) {
+    const array: Array<{ label: string; value: string }> = available.map(
+      (machine: string) => {
+        if (machine === "custom") return { label: machine, value: machine };
+        else {
+          let subText = "",
+            text = "";
+          const machineData = machinesFromPreset.find(
+            (val: { id: string }) => val.id === machine
+          );
+          if (machineData) {
+            subText = `CPU: ${machineData.limits.cpu}, Memory: ${machineData.limits.memory}`;
+            text = machineData.name ? machineData.name : machineData.id;
+          }
+          return { label: text, value: machine };
+        }
+      }
+    );
+    MachineProps.value.options = array;
+  } else {
+    const array: Array<{ label: string; value: string }> = machineList
+      .map((machine) => {
+        if (machine === "custom") return { label: machine, value: machine };
+        const subText = `CPU: ${machines[machine].resources.limits.cpu}, Memory: ${machines[machine].resources.limits.memory}`;
+        const text = machine;
+        return { label: text, value: machine };
+      })
+      .filter((val) => !!val);
+    MachineProps.value.options = array;
+  }
 };
 
 const setBundle = async () => {

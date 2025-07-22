@@ -1,6 +1,6 @@
 import $axios from "../../composables/axios";
 import { ref } from "vue";
-
+import { machines } from "./consts";
 export const dbObject = {
   kind: "Postgres",
   resource: "postgreses",
@@ -153,13 +153,6 @@ export const useFunctions = () => {
     modelApiValue.spec.admin.databases[dbObject.kind].default = values.version;
     modelApiValue.spec.replicas = values.replicas;
     modelApiValue.spec.remoteReplica = values.remoteReplica;
-    modelApiValue.spec.podResources.machine = values.machine;
-    modelApiValue.spec.podResources.resources.requests = {};
-    modelApiValue.spec.podResources.resources.requests.cpu = values.cpu;
-    modelApiValue.spec.podResources.resources.requests.memory = values.memory;
-    modelApiValue.spec.podResources.resources.limits = {};
-    modelApiValue.spec.podResources.resources.limits.cpu = values.cpu;
-    modelApiValue.spec.podResources.resources.limits.memory = values.memory;
     modelApiValue.spec.admin.storageClasses.default = values.storageClass;
     modelApiValue.spec.annotations = values.annotations;
     modelApiValue.spec.labels = values.labels;
@@ -204,6 +197,24 @@ export const useFunctions = () => {
 
     // PITR
     modelApiValue.spec.init.archiver.recoveryTimestamp = "";
+
+    //machines
+    modelApiValue.spec.podResources.machine = values.machine;
+    modelApiValue.spec.podResources.resources.requests = {};
+    modelApiValue.spec.podResources.resources.limits = {};
+    const cpu =
+      values.machine === "custom"
+        ? values.cpu
+        : machines[values.machine].resources.limits.cpu;
+    const memory =
+      values.machine === "custom"
+        ? values.cpu
+        : machines[values.machine].resources.limits.memory;
+
+    modelApiValue.spec.podResources.resources.limits.cpu = cpu;
+    modelApiValue.spec.podResources.resources.limits.memory = memory;
+    modelApiValue.spec.podResources.resources.requests.cpu = cpu;
+    modelApiValue.spec.podResources.resources.requests.memory = memory;
 
     return modelApiValue;
   };

@@ -35,7 +35,6 @@ import {
 } from "types/type";
 
 //Hard-coded options
-const databaseModes = ref<Array<{ value: string; label: string }>>([]);
 const alertsList = ref<Array<{ value: string; label: string }>>([
   { label: "Critical", value: "Critical" },
   { label: "Info", value: "Info" },
@@ -235,7 +234,7 @@ export const useProps = () => {
   const ModeProps = ref<ModeType>({
     show: true,
     label: "Database Mode",
-    options: databaseModes.value,
+    options: [],
     row: true,
     modeModel: mode,
   });
