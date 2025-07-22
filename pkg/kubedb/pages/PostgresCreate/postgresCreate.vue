@@ -12,6 +12,7 @@ import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
 import Tabbed from "@shell/components/Tabbed/index.vue";
 import Tab from "@shell/components/Tabbed/Tab.vue";
+import Dialog from "@shell/components/Dialog.vue";
 
 import { useUtils } from "../../composables/utils";
 import { useRules } from "../../composables/rules";
@@ -85,6 +86,7 @@ const step = ref(1);
 const clusterName = ref("");
 const modelApiPayload = ref({});
 const resourceSkipPayload = ref();
+const showDialog = ref(false);
 
 const previewTitle = computed(() => {
   return step.value === 1
@@ -370,6 +372,7 @@ const gotoNext = async () => {
       }
     );
     deployCall(clusterName.value, deployApiPayload);
+    showDialog.value = true;
   }
 };
 </script>
@@ -500,6 +503,17 @@ const gotoNext = async () => {
         }}</RcButton>
       </div>
     </div>
+    <Dialog
+      v-if="showDialog"
+      name="example-modal"
+      title="Postgres Create"
+      @okay="showDialog = false"
+      @closed="showDialog = false"
+    >
+      <template #default>
+        <p>Your db has been deployed</p>
+      </template>
+    </Dialog>
   </div>
 </template>
 
