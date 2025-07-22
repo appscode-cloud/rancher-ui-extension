@@ -114,6 +114,10 @@ export interface BackupType extends BaseCommon {
   backupModel: any;
 }
 
+export interface PitrType extends BaseCommon {
+  pitrModel: any;
+}
+
 export interface ArchiverType extends BaseCommon {
   archiverModel: any;
 }
@@ -125,6 +129,6 @@ export interface TLSType extends BaseCommon {
 export interface ExposeType extends BaseCommon {
   exposeModel: any;
 }
-export interface RemoteReplicaType extends BaseCommon{
+export interface RemoteReplicaType extends BaseCommon {
   remoteReplicaModel: any;
 }

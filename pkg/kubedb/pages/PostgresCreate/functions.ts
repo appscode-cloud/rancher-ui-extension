@@ -17,6 +17,7 @@ export const useFunctions = () => {
   const isDeploying = ref(false);
   const genericResourceLoading = ref(false);
   const resourceSummaryLoading = ref(false);
+  const getArchiverNameLoading = ref(false);
 
   const getBundle = async (cluster: string) => {
     isBundleLoading.value = true;
@@ -77,7 +78,7 @@ export const useFunctions = () => {
       const options: Array<{ label: string; value: string }> = [];
       Object.keys(projects).forEach((key) => {
         projects[key].forEach((item: string) => {
-          options?.push({ label: item, value: item });
+          options.push({ label: item, value: item });
         });
       });
       isNamespaceLoading.value = false;
@@ -151,7 +152,7 @@ export const useFunctions = () => {
     modelApiValue.metadata.release.namespace = values.namespace;
     modelApiValue.spec.admin.databases[dbObject.kind].default = values.version;
     modelApiValue.spec.replicas = values.replicas;
-    // modelApiValue.spec.RemoteReplica = values.RemoteReplica;
+    modelApiValue.spec.remoteReplica = values.remoteReplica;
     modelApiValue.spec.podResources.machine = values.machine;
     modelApiValue.spec.podResources.resources.requests = {};
     modelApiValue.spec.podResources.resources.requests.cpu = values.cpu;
@@ -184,10 +185,26 @@ export const useFunctions = () => {
     modelApiValue.spec.authSecret.name = values.AuthSecret;
     modelApiValue.spec.authSecret.password = values.AuthPassword;
 
-    // modelApiValue.spec.admin.archiver.enable.default = values.archiver;
-    // modelApiValue.spec.archiverName = values.archiver
-    //   ? dbObject.kind.toLocaleLowerCase()
-    //   : "";
+    //Archiver
+    modelApiValue.spec.admin.archiver.enable.default = values.archiver;
+    const stClass = modelApiValue.spec.admin.storageClasses.default;
+    const found = archiverMap.find((item) => item.storageClass === stClass);
+    const via = modelApiValue.spec.admin.archiver.via;
+    if (modelApiValue.spec.admin.archiver.enable.default) {
+      if (via === "VolumeSnapshotter")
+        modelApiValue.spec.archiverName = found?.annotation;
+      else {
+        modelApiValue.spec.archiverName = found?.annotation;
+        modelApiValue.spec.archiverName =
+          modelApiValue.metadata.resource.kind.toLocaleLowerCase();
+      }
+    } else {
+      modelApiValue.spec.archiverName = "";
+    }
+
+    // PITR
+    modelApiValue.spec.init.archiver.recoveryTimestamp = "";
+
     return modelApiValue;
   };
 
@@ -329,6 +346,50 @@ export const useFunctions = () => {
     resourceSummaryLoading.value = false;
   };
 
+  let archiverMap: Array<{ storageClass: string; annotation: string }> = [];
+  const getArchiverName = async (
+    cluster: string,
+    modelApiValue: Record<string, any>
+  ) => {
+    getArchiverNameLoading.value = true;
+    try {
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/storage.k8s.io/v1/storageclasses`,
+            verb: "GET",
+            query: "",
+            body: "",
+          },
+        }
+      );
+      const resource = modelApiValue.metadata.release.name;
+      const group = modelApiValue.metadata.release.group;
+      const data = await JSON.parse(response.data.response?.body);
+      data?.items?.forEach(
+        (item: {
+          metadata: { annotations: Record<string, string>; name: string };
+        }) => {
+          const annotations = item.metadata?.annotations;
+          const classname = item.metadata?.name;
+          const annotationKeyToFind = `${resource}.${group}/archiver`;
+          archiverMap.push({
+            storageClass: classname,
+            annotation: annotations[annotationKeyToFind],
+          });
+        }
+      );
+      getArchiverNameLoading.value = false;
+      return { values: data };
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+    getArchiverNameLoading.value = false;
+  };
+
   return {
     isBundleLoading,
     isNamespaceLoading,
@@ -339,6 +400,8 @@ export const useFunctions = () => {
     isDeploying,
     genericResourceLoading,
     resourceSummaryLoading,
+    getArchiverNameLoading,
+    getArchiverName,
     resourceSummaryCall,
     genericResourceCall,
     deployCall,

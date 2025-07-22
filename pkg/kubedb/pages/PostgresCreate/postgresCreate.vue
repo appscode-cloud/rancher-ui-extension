@@ -64,6 +64,7 @@ const {
   TLSProps,
   ExposeProps,
   RemoteReplicaProps,
+  PitrProps,
 } = useProps();
 
 const {
@@ -75,6 +76,8 @@ const {
   generateModelPayload,
   resourceSkipCRDApiCall,
   deployCall,
+  getArchiverName,
+  getArchiverNameLoading,
   isDeploying,
   isModelLoading,
   isResourceSkipLoading,
@@ -118,7 +121,7 @@ const setValues = async () => {
   const data = await getValues(clusterName.value, namespace.value);
 
   modelApiPayload.value = data?.values;
-
+  console.log({ model: modelApiPayload.value });
   //modes
   const availableModes =
     data?.values.spec.admin.databases.Postgres.mode.available || [];
@@ -210,8 +213,9 @@ const setValues = async () => {
   ExposeProps.value.exposeModel = data?.values.spec.admin.expose.default;
 
   //Archiver
-  // ArchiverProps.value.show = data?.values.spec.admin.enable.toggle;
-  // ArchiverProps.value.archiverModel = data?.values.spec.admin.enable.default;
+  ArchiverProps.value.show = data?.values.spec.admin.archiver.enable.toggle;
+  ArchiverProps.value.archiverModel =
+    data?.values.spec.admin.archiver.enable.default;
 };
 
 const setBundle = async () => {
@@ -225,21 +229,29 @@ const setBundle = async () => {
     availableClusterIssuer.forEach((ele: string) => {
       IssuerProps.value.options?.push({ label: ele, value: ele });
     });
-    console.log(IssuerProps.value);
   }
   const features = data?.bundle.features || [];
   if (features.includes("backup")) {
     ArchiverProps.value.show = ArchiverProps.value.show && true;
     BackupProps.value.show = BackupProps.value.show && true;
+  } else {
+    ArchiverProps.value.show = false;
+    BackupProps.value.show = false;
   }
   if (features.includes("tls")) {
     TLSProps.value.show = TLSProps.value.show && true;
+  } else {
+    TLSProps.value.show = false;
   }
   if (features.includes("monitoring")) {
     MonitoringProps.value.show = MonitoringProps.value.show && true;
+  } else {
+    MonitoringProps.value.show = false;
   }
   if (features.includes("binding")) {
     ExposeProps.value.show = ExposeProps.value.show && true;
+  } else {
+    ExposeProps.value.show = false;
   }
 
   const availableStorageClass = data?.bundle.storageclasses;
@@ -267,7 +279,8 @@ const disableNextBtn = computed(() => {
     isModelLoading.value ||
     isResourceSkipLoading.value ||
     isBundleLoading.value ||
-    isNamespaceLoading.value
+    isNamespaceLoading.value ||
+    getArchiverNameLoading.value
   );
 });
 
@@ -275,19 +288,20 @@ watch(values, async () => {
   await validate();
   if (namespace.value && modelApiPayload.value && name.value)
     modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
+  console.log({ model: modelApiPayload.value });
 });
 
 watch(namespace, async (n) => {
   const options = await getAuthSecrets(n, clusterName.value);
   AuthSecretProps.value.options = options?.values;
-  setValues();
+  await setValues();
+  await setBundle();
+  await getArchiverName(clusterName.value, modelApiPayload.value);
 });
 
 onMounted(async () => {
   await getClusters();
   setNamespaces();
-  setValues();
-  setBundle();
 });
 
 const previewFiles = ref<
@@ -370,7 +384,8 @@ const gotoNext = async () => {
           isBundleLoading ||
           isNamespaceLoading ||
           isModelLoading ||
-          isResourceSkipLoading
+          isResourceSkipLoading ||
+          getArchiverNameLoading
         "
       />
       <div v-if="step === 2">
@@ -404,6 +419,7 @@ const gotoNext = async () => {
               :PitrNamespaceProps="PitrNamespaceProps"
               :PitrNameProps="PitrNameProps"
               :StreamingModeProps="StreamingModeProps"
+              :PitrProps="PitrProps"
               :required="required"
             />
 

@@ -31,6 +31,7 @@ import {
   TLSType,
   ExposeType,
   RemoteReplicaType,
+  PitrType,
 } from "types/type";
 
 //Hard-coded options
@@ -101,7 +102,8 @@ export const useProps = () => {
     tls,
     archiver,
     expose,
-    RemoteReplica,
+    remoteReplica,
+    pitr,
   } = useCreateForm();
 
   const AdvancedToggleSwitch = ref({
@@ -265,6 +267,11 @@ export const useProps = () => {
     minHeight: 120,
   });
 
+  const PitrProps = ref<PitrType>({
+    show: true,
+    pitrModel: pitr,
+  });
+
   const AuthPasswordProps = ref<AuthPasswordType>({
     show: true,
     disabled: false,
@@ -300,6 +307,8 @@ export const useProps = () => {
     placeholder: "PITR Namespace",
     minHeight: 30,
     pitrNamespaceModel: pitrNamespace,
+    required: true,
+    rules: [required],
   });
 
   const PitrNameProps = ref<PitrNameType>({
@@ -308,6 +317,8 @@ export const useProps = () => {
     placeholder: "PITR Name",
     minHeight: 30,
     pitrNameModel: pitrName,
+    required: true,
+    rules: [required],
   });
 
   const StreamingModeProps = ref<StreamingModeType>({
@@ -373,7 +384,7 @@ export const useProps = () => {
     placeholder: "",
     required: true,
     rules: [required],
-    remoteReplicaModel: RemoteReplica,
+    remoteReplicaModel: remoteReplica,
   });
 
   return {
@@ -417,6 +428,7 @@ export const useProps = () => {
     LabelsProps,
     AnnotationsProps,
     DbConfigurationProps,
+    PitrProps,
     AuthPasswordProps,
     AuthSecretProps,
     StandbyModeProps,

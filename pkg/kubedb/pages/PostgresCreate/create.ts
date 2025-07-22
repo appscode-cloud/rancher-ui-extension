@@ -22,6 +22,9 @@ export const useCreateForm = () => {
   const clusterIssuerRule = computed(() => {
     return values.tls ? required : undefined;
   });
+  const pitrRule = computed(() => {
+    return values.pitr ? required : undefined;
+  });
 
   const { value: name } = useField<string>("name", required);
   const { value: namespace } = useField<string>("namespace", required);
@@ -50,8 +53,8 @@ export const useCreateForm = () => {
   const { value: dbConfiguration } = useField<string>("dbConfiguration");
   const { value: AuthPassword } = useField<string>("AuthPassword");
   const { value: AuthSecret } = useField<string>("AuthSecret");
-  const { value: pitrNamespace } = useField<string>("pitrNamespace");
-  const { value: pitrName } = useField<string>("pitrName");
+  const { value: pitrNamespace } = useField<string>("pitrNamespace", pitrRule);
+  const { value: pitrName } = useField<string>("pitrName", pitrRule);
   const { value: alert } = useField<string>("alert", alertRules);
   const { value: standbyMode } = useField<string>("standbyMode", required, {
     initialValue: "Hot",
@@ -71,11 +74,12 @@ export const useCreateForm = () => {
   });
   const { value: monitoring } = useField<boolean>("monitoring");
   const { value: backup } = useField<boolean>("backup");
+  const { value: pitr } = useField<boolean>("pitr");
   const { value: archiver } = useField<boolean>("archiver");
   const { value: tls } = useField<boolean>("tls");
   const { value: expose } = useField<boolean>("expose");
-  const { value: RemoteReplica } = useField<string>(
-    "RemoteReplica",
+  const { value: remoteReplica } = useField<string>(
+    "remoteReplica",
     remoteReplicaRules
   );
 
@@ -95,6 +99,7 @@ export const useCreateForm = () => {
     dbConfiguration,
     AuthPassword,
     AuthSecret,
+    pitr,
     pitrNamespace,
     pitrName,
     alert,
@@ -109,7 +114,7 @@ export const useCreateForm = () => {
     tls,
     archiver,
     expose,
-    RemoteReplica,
+    remoteReplica,
     validate,
   };
 };
