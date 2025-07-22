@@ -335,6 +335,7 @@ watch(namespace, async (n) => {
 });
 
 onMounted(async () => {
+  validate();
   await getClusters();
   setNamespaces();
 });

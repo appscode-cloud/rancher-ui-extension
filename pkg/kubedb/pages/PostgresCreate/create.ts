@@ -1,9 +1,13 @@
 import { useField, useForm } from "vee-validate";
 import { useRules } from "../../composables/rules";
 import { computed } from "vue";
-const { required } = useRules();
+import { useRoute } from "vue-router";
+const { required, checkDuplicate } = useRules();
 
 export const useCreateForm = () => {
+  const route = useRoute();
+  const clusterName = route.params.cluster as string;
+
   const { values, errors, validate } = useForm({});
 
   // conditional rules
@@ -26,8 +30,11 @@ export const useCreateForm = () => {
     return values.pitr ? required : undefined;
   });
 
-  const { value: name } = useField<string>("name", required);
   const { value: namespace } = useField<string>("namespace", required);
+  const { value: name } = useField<string>("name", [
+    required,
+    checkDuplicate(namespace, clusterName),
+  ]);
   const { value: version } = useField<string>("version", required);
   const { value: replicas } = useField<string>("replicas", replicaRules);
   const { value: machine } = useField<string>("machine", required, {
