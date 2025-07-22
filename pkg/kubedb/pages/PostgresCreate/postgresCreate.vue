@@ -318,7 +318,11 @@ const disableNextBtn = computed(() => {
 watch(values, async () => {
   await validate();
   if (namespace.value && modelApiPayload.value && name.value)
-    modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
+    modelApiPayload.value = generateModelPayload(
+      clusterName.value,
+      values,
+      modelApiPayload.value
+    );
   console.log({ model: modelApiPayload.value });
 });
 

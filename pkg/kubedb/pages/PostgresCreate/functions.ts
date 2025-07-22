@@ -145,6 +145,7 @@ export const useFunctions = () => {
   };
 
   const generateModelPayload = (
+    cluster: string,
     values: any,
     modelApiValue: Record<string, any>
   ) => {
@@ -195,9 +196,6 @@ export const useFunctions = () => {
       modelApiValue.spec.archiverName = "";
     }
 
-    // PITR
-    modelApiValue.spec.init.archiver.recoveryTimestamp = "";
-
     //machines
     modelApiValue.spec.podResources.machine = values.machine;
     modelApiValue.spec.podResources.resources.requests = {};
@@ -215,6 +213,11 @@ export const useFunctions = () => {
     modelApiValue.spec.podResources.resources.limits.memory = memory;
     modelApiValue.spec.podResources.resources.requests.cpu = cpu;
     modelApiValue.spec.podResources.resources.requests.memory = memory;
+
+    // PITR
+    // if (values.pitrName && values.pitrNamespace) {
+    //   modelApiValue = setPointInTimeRecovery(cluster, values, modelApiValue);
+    // }
 
     return modelApiValue;
   };
@@ -401,6 +404,109 @@ export const useFunctions = () => {
     getArchiverNameLoading.value = false;
   };
 
+  function getComponentLogStats(snapshot: any) {
+    if (!snapshot || !snapshot.status || !snapshot.status.components) {
+      return null;
+    }
+
+    const components: Record<string, any> = snapshot.status.components;
+    const appKind = snapshot.spec?.appRef?.kind;
+
+    if (appKind === "MongoDB") {
+      for (const [key, value] of Object.entries(components)) {
+        if (key.endsWith("0") && value.logStats) {
+          return value.logStats;
+        }
+      }
+    }
+
+    if (components["wal"] && components["wal"].logStats) {
+      return components["wal"].logStats;
+    }
+
+    return null;
+  }
+
+  function convertToLocal(input: any) {
+    const date = new Date(input);
+
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+
+    return date.toString();
+  }
+
+  const setPointInTimeRecovery = async (
+    cluster: string,
+    values: Record<string, any>,
+    modelApiValue: Record<string, any>
+  ) => {
+    const refNamespace = values.pitrNamespace;
+    const refDBName = values.pitrName;
+
+    try {
+      const repositoriesResp = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/storage.kubestash.com/v1alpha1/namespaces/${refNamespace}/repositories/${refDBName}-full`,
+            verb: "GET",
+            query: "",
+            body: "",
+          },
+        }
+      );
+
+      const snapshotsResp = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/storage.kubestash.com/v1alpha1/namespaces/${refNamespace}/snapshots/${refDBName}-incremental-snapshot`,
+            verb: "GET",
+            query: "",
+            body: "",
+          },
+        }
+      );
+
+      const repositoriesRespData = await JSON.parse(
+        repositoriesResp.data.response?.body
+      );
+      const snapshotsRespData = await JSON.parse(
+        snapshotsResp.data.response?.body
+      );
+
+      modelApiValue.spec.init.archiver.encryptionSecret.name =
+        repositoriesRespData?.spec.encryptionSecret.name;
+      modelApiValue.spec.init.archiver.encryptionSecret.namespace =
+        repositoriesRespData?.spec.encryptionSecret.namespace;
+      modelApiValue.spec.init.archiver.fullDBRepository.name = `${refDBName}-full`;
+      modelApiValue.spec.init.archiver.fullDBRepository.namespace =
+        refNamespace;
+      modelApiValue.spec.init.archiver.manifestRepository.name = `${refDBName}-manifest`;
+      modelApiValue.spec.init.archiver.manifestRepository.namespace =
+        refNamespace;
+
+      const resp = getComponentLogStats(snapshotsRespData);
+      modelApiValue.spec.init.archiver.recoveryTimestamp = convertToLocal(
+        resp?.end
+      );
+      modelApiValue.minDate = convertToLocal(resp?.start);
+      modelApiValue.maxDate = convertToLocal(resp?.end);
+      return { values: modelApiValue };
+    } catch (error) {
+      modelApiValue.spec.init.archiver.recoveryTimestamp = "";
+      modelApiValue.spec.init.archiver.minDate = "";
+      modelApiValue.spec.init.archiver.maxDate = "";
+      console.error("Error loading data:", error);
+    }
+  };
+
   return {
     isBundleLoading,
     isNamespaceLoading,
@@ -412,6 +518,7 @@ export const useFunctions = () => {
     genericResourceLoading,
     resourceSummaryLoading,
     getArchiverNameLoading,
+    setPointInTimeRecovery,
     getArchiverName,
     resourceSummaryCall,
     genericResourceCall,
