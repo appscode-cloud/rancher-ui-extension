@@ -17,6 +17,7 @@ import {
   PitrNameType,
   StreamingModeType,
   StandbyModeType,
+  PitrType,
 } from "../types/type";
 
 interface Props {
@@ -30,6 +31,7 @@ interface Props {
   PitrNamespaceProps: PitrNamespaceType;
   PitrNameProps: PitrNameType;
   StreamingModeProps: StreamingModeType;
+  PitrProps: PitrType;
   AdvancedToggleSwitch: {
     DbConfig: boolean;
     AuthCred: boolean;
@@ -43,7 +45,6 @@ const props = defineProps<Props>();
 const isDbConfig = ref(false);
 const isAuthCred = ref(false);
 const isReferAuthSecret = ref(false);
-const isPitr = ref(false);
 </script>
 
 <template>
@@ -144,13 +145,13 @@ const isPitr = ref(false);
     <div v-if="props.AdvancedToggleSwitch.Pitr">
       <ToggleSwitch
         class="mb-20"
-        :value="isPitr"
+        :value="props.PitrProps.pitrModel"
         off-label="Point in-time recovery"
-        @update:value="isPitr = !isPitr"
+        @update:value="props.PitrProps.pitrModel = !props.PitrProps.pitrModel"
       />
     </div>
 
-    <div v-if="isPitr">
+    <div v-if="props.PitrProps.pitrModel">
       <LabeledInput
         class="mb-20"
         v-if="props.PitrNamespaceProps.show"
@@ -158,7 +159,8 @@ const isPitr = ref(false);
         :label="props.PitrNamespaceProps.label"
         :min-height="props.PitrNamespaceProps.minHeight"
         :placeholder="props.PitrNamespaceProps.placeholder"
-        :required="isPitr ? true : false"
+        :required="props.PitrProps.pitrModel ? true : false"
+        :rules="props.PitrProps.pitrModel ? props.PitrNamespaceProps.rules : []"
       />
       <LabeledInput
         class="mb-20"
@@ -167,7 +169,8 @@ const isPitr = ref(false);
         :label="props.PitrNameProps.label"
         :min-height="props.PitrNameProps.minHeight"
         :placeholder="props.PitrNameProps.placeholder"
-        :required="isPitr ? true : false"
+        :required="props.PitrProps.pitrModel ? true : false"
+        :rules="props.PitrProps.pitrModel ? props.PitrNameProps.rules : []"
       />
     </div>
 

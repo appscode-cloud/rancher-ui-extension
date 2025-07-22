@@ -17,7 +17,7 @@ interface Props {
   MonitoringProps: MonitoringType;
   BackupProps: BackupType;
   ArchiverProps: ArchiverType;
-  TLSProps: TLSType; 
+  TLSProps: TLSType;
   ExposeProps: ExposeType;
   AlertProps: AlertType;
   IssuerProps: IssuerType;
@@ -62,10 +62,10 @@ const archiverModel = computed({
 });
 
 const tlsModel = computed({
-  get: () => props.TLSProps?.tlsModel, 
+  get: () => props.TLSProps?.tlsModel,
   set: (val) => {
-    if (props.TLSProps) { 
-      props.TLSProps.tlsModel = val; 
+    if (props.TLSProps) {
+      props.TLSProps.tlsModel = val;
     }
   },
 });
@@ -87,6 +87,14 @@ const exposeModel = computed({
     }
   },
 });
+
+const showAlert = computed(() => {
+  return props.MonitoringProps?.monitoringModel && props.AlertProps?.show;
+});
+
+const showClusterIssuer = computed(() => {
+  return props.TLSProps?.tlsModel && props.IssuerProps?.show;
+});
 </script>
 
 <template>
@@ -99,11 +107,13 @@ const exposeModel = computed({
     />
 
     <LabeledSelect
-      v-if="props.MonitoringProps?.monitoringModel && props.AlertProps?.show"
+      v-if="showAlert"
       class="mb-20"
       v-model:value="alertModel"
       :options="props.AlertProps.options"
       :label="props.AlertProps.label"
+      :required="showAlert"
+      :rules="props.AlertProps.rules"
     />
 
     <ToggleSwitch
@@ -128,11 +138,13 @@ const exposeModel = computed({
     />
 
     <LabeledSelect
-      v-if="props.TLSProps?.tlsModel && props.IssuerProps?.show"
+      v-if="showClusterIssuer"
       class="mb-20"
       v-model:value="issuerModel"
       :options="props.IssuerProps.options"
       :label="props.IssuerProps.label"
+      :required="showClusterIssuer"
+      :rules="props.IssuerProps.rules"
     />
 
     <ToggleSwitch

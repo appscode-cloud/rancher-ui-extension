@@ -39,7 +39,10 @@ const isCustom = computed(() => {
 });
 
 const showReplicas = computed(() => {
-  return props.ModeProps.modeModel === "Cluster";
+  return props.ModeProps.modeModel === "Cluster" && props.ReplicaProps.show;
+});
+const showRemoteReplica = computed(() => {
+  return props.ModeProps.modeModel === "RemoteReplica";
 });
 </script>
 
@@ -62,17 +65,6 @@ const showReplicas = computed(() => {
         />
       </div>
       <div class="col span-6">
-        <LabeledSelect
-          v-if="true"
-          v-model:value="props.RemoteReplicaProps.remoteReplicaModel"
-          :options="props.RemoteReplicaProps.options"
-          :disabled="props.RemoteReplicaProps.disabled"
-          :label="props.RemoteReplicaProps.label"
-          :placeholder="props.RemoteReplicaProps.placeholder"
-          :required="props.RemoteReplicaProps.required"
-        />
-      </div>
-      <div class="col span-6">
         <RadioGroup
           v-if="props.ModeProps.show"
           v-model:value="props.ModeProps.modeModel"
@@ -85,14 +77,24 @@ const showReplicas = computed(() => {
 
     <div class="mb-20">
       <LabeledInput
-        v-if="showReplicas && props.ReplicaProps.show"
+        v-if="showReplicas"
         v-model:value="props.ReplicaProps.replicaModel"
         type="number"
         :label="props.ReplicaProps.label"
         :placeholder="props.ReplicaProps.placeholder"
         :min-height="props.ReplicaProps.minHeight"
         :required="showReplicas"
-        :rules="props.StorageSizeProps.rules"
+        :rules="showReplicas ? props.ReplicaProps.rules : []"
+      />
+      <LabeledSelect
+        v-if="showRemoteReplica && props.RemoteReplicaProps.show"
+        v-model:value="props.RemoteReplicaProps.remoteReplicaModel"
+        :options="props.RemoteReplicaProps.options"
+        :disabled="props.RemoteReplicaProps.disabled"
+        :label="props.RemoteReplicaProps.label"
+        :placeholder="props.RemoteReplicaProps.placeholder"
+        :required="showRemoteReplica"
+        :rules="props.RemoteReplicaProps.rules"
       />
     </div>
 

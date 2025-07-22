@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
+import Loading from "@shell/components/Loading.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
 import BasicDbConfig from "../../components/BasicDbConfig.vue";
@@ -9,20 +10,18 @@ import AdvancedDbConfig from "../../components/AdvancedDbConfig.vue";
 import AdditionalOptions from "../../components/AdditionalOptions.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
+import Tabbed from "@shell/components/Tabbed/index.vue";
+import Tab from "@shell/components/Tabbed/Tab.vue";
+import Dialog from "@shell/components/Dialog.vue";
 
 import { useUtils } from "../../composables/utils";
 import { useRules } from "../../composables/rules";
 import { useProps } from "./props";
 import { useFunctions } from "./functions";
+import { machineList, machines, EDITOR_MODES } from "./consts";
 
-const EDITOR_MODES = {
-  EDIT_CODE: "EDIT_CODE",
-  VIEW_CODE: "VIEW_CODE",
-  DIFF_CODE: "DIFF_CODE",
-};
-
-const { required } = useRules();
 const store = useStore();
+const { required } = useRules();
 const { params } = useRoute();
 const { yamlToJs } = useUtils();
 
@@ -58,9 +57,10 @@ const {
   MonitoringProps,
   BackupProps,
   ArchiverProps,
-  TLSProps, // Corrected from TlSProps
+  TLSProps,
   ExposeProps,
   RemoteReplicaProps,
+  PitrProps,
 } = useProps();
 
 const {
@@ -72,6 +72,8 @@ const {
   generateModelPayload,
   resourceSkipCRDApiCall,
   deployCall,
+  getArchiverName,
+  getArchiverNameLoading,
   isDeploying,
   isModelLoading,
   isResourceSkipLoading,
@@ -84,7 +86,7 @@ const step = ref(1);
 const clusterName = ref("");
 const modelApiPayload = ref({});
 const resourceSkipPayload = ref();
-const disableNextBtn = ref(true);
+const showDialog = ref(false);
 
 const previewTitle = computed(() => {
   return step.value === 1
@@ -116,7 +118,26 @@ const setValues = async () => {
   const data = await getValues(clusterName.value, namespace.value);
 
   modelApiPayload.value = data?.values;
+  console.log({ model: modelApiPayload.value });
+  //modes
+  const availableModes =
+    data?.values.spec.admin.databases.Postgres.mode.available || [];
+  if (availableModes) {
+    ModeProps.value.options = [];
+    availableModes.forEach((ele: string) => {
+      ModeProps.value.options?.push({
+        label: ele,
+        value: ele,
+      });
+    });
+    ModeProps.value.modeModel =
+      data?.values.spec.admin.databases.Postgres.mode.default;
+  }
 
+  //replicas
+  ReplicaProps.value.replicaModel = data?.values.spec.replicas;
+
+  //versions
   const availableVersions =
     data?.values.spec.admin.databases.Postgres.versions.available || [];
   VersionsProps.value.versionModel =
@@ -130,6 +151,7 @@ const setValues = async () => {
     });
   }
 
+  //storage class
   const availableStorageClass =
     data?.values.spec.admin.storageClasses.available || [];
   if (availableStorageClass) {
@@ -141,6 +163,7 @@ const setValues = async () => {
     }
   }
 
+  //cluster issuer
   const availableClusterIssuer =
     data?.values.spec.admin.clusterIssuers.available || [];
   if (availableClusterIssuer) {
@@ -148,24 +171,118 @@ const setValues = async () => {
       IssuerProps.value.options?.push({ label: ele, value: ele });
     });
   }
+
+  //monitoring
+  const isMonitoring = data?.values.spec.admin.monitoring.toggle;
+  const monitoringAgent = !!data?.values.spec.admin.monitoring.agent;
+  MonitoringProps.value.show = isMonitoring;
+  MonitoringProps.value.monitoringModel = monitoringAgent;
+
+  //Alert
+  AlertProps.value.show =
+    data?.values.spec.admin.alert.toggle &&
+    MonitoringProps.value.monitoringModel;
+  AlertProps.value.alertModel = data?.values.form.alert.enabled;
+
+  //backup
+  BackupProps.value.show =
+    data?.values.spec.admin.backup.enable.toggle &&
+    data?.values.spec.backup.tool === "KubeStash";
+  BackupProps.value.backupModel = !!(
+    data?.values.spec.admin.backup.enable.toggle &&
+    data?.values.spec.backup.tool === "KubeStash"
+  );
+
+  //TLS
+  TLSProps.value.show = data?.values.spec.admin.tls.toggle;
+  TLSProps.value.tlsModel = data?.values.spec.admin.tls.default;
+
+  //Cluster Issuer
+  IssuerProps.value.show = data?.values.spec.admin.tls.toggle;
+  IssuerProps.value.options = IssuerProps.value.options
+    ? IssuerProps.value.options
+    : data?.values.spec.admin.clusterIssuers.available || [];
+  IssuerProps.value.issuerModel =
+    data?.values.spec.admin.clusterIssuers.default;
+
+  //Expose
+  ExposeProps.value.show = data?.values.spec.admin.expose.toggle;
+  ExposeProps.value.exposeModel = data?.values.spec.admin.expose.default;
+
+  //Archiver
+  ArchiverProps.value.show = data?.values.spec.admin.archiver.enable.toggle;
+  ArchiverProps.value.archiverModel =
+    data?.values.spec.admin.archiver.enable.default;
+
+  //Machines
+  const machinesFromPreset = data?.values.spec.admin.machineProfiles.Machines;
+  const available = data?.values.spec.admin.machineProfiles.available;
+  if (available.length) {
+    const array: Array<{ label: string; value: string }> = available.map(
+      (machine: string) => {
+        if (machine === "custom") return { label: machine, value: machine };
+        else {
+          let subText = "",
+            text = "";
+          const machineData = machinesFromPreset.find(
+            (val: { id: string }) => val.id === machine
+          );
+          if (machineData) {
+            subText = `CPU: ${machineData.limits.cpu}, Memory: ${machineData.limits.memory}`;
+            text = machineData.name ? machineData.name : machineData.id;
+          }
+          return { label: text, value: machine };
+        }
+      }
+    );
+    MachineProps.value.options = array;
+  } else {
+    const array: Array<{ label: string; value: string }> = machineList
+      .map((machine) => {
+        if (machine === "custom") return { label: machine, value: machine };
+        const subText = `CPU: ${machines[machine].resources.limits.cpu}, Memory: ${machines[machine].resources.limits.memory}`;
+        const text = machine;
+        return { label: text, value: machine };
+      })
+      .filter((val) => !!val);
+    MachineProps.value.options = array;
+  }
 };
 
 const setBundle = async () => {
   const data = await getBundle(clusterName.value);
 
   const availableClusterIssuer = data?.bundle.clusterissuers;
+  if (
+    availableClusterIssuer.length &&
+    IssuerProps.value.options?.length === 0
+  ) {
+    availableClusterIssuer.forEach((ele: string) => {
+      IssuerProps.value.options?.push({ label: ele, value: ele });
+    });
+  }
   const features = data?.bundle.features || [];
   if (features.includes("backup")) {
-    BackupProps.value.show = true;
+    ArchiverProps.value.show = ArchiverProps.value.show && true;
+    BackupProps.value.show = BackupProps.value.show && true;
+  } else {
+    ArchiverProps.value.show = false;
+    BackupProps.value.show = false;
   }
   if (features.includes("tls")) {
-    TLSProps.value.show = true;
+    TLSProps.value.show = TLSProps.value.show && true;
+  } else {
+    TLSProps.value.show = false;
   }
   if (features.includes("monitoring")) {
-    MonitoringProps.value.show = true;
+    MonitoringProps.value.show = MonitoringProps.value.show && true;
+  } else {
+    MonitoringProps.value.show = false;
   }
   if (features.includes("binding")) {
-    ExposeProps.value.show = true;
+    ExposeProps.value.show = ExposeProps.value.show && true;
+  } else {
+    ExposeProps.value.show = false;
   }
 
   const availableStorageClass = data?.bundle.storageclasses;
@@ -178,38 +295,58 @@ const setBundle = async () => {
       StorageClassProps.value.storageClassModel = availableStorageClass[0];
     }
   }
-
-  if (availableClusterIssuer) {
-    availableClusterIssuer.forEach((ele: string) => {
-      IssuerProps.value.options?.push({ label: ele, value: ele });
-    });
-  }
 };
 
-watch(values, async () => {
-  if (namespace.value && modelApiPayload.value && name.value)
-    modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
-  await validate();
+const disableNextBtn = computed(() => {
+  if (step.value === 1) {
+    if (!errors.value.name && !errors.value.namespace) return false;
+  }
+
   const validated = Object.values(errors.value).every((value) => value === "");
-  disableNextBtn.value = !validated;
+  return (
+    !validated ||
+    isValuesLoading.value ||
+    isDeploying.value ||
+    isModelLoading.value ||
+    isResourceSkipLoading.value ||
+    isBundleLoading.value ||
+    isNamespaceLoading.value ||
+    getArchiverNameLoading.value
+  );
 });
 
-watch(namespace, (n) => {
-  getAuthSecrets(n, clusterName.value);
-  setValues();
+watch(values, async () => {
+  await validate();
+  if (namespace.value && modelApiPayload.value && name.value)
+    modelApiPayload.value = generateModelPayload(
+      clusterName.value,
+      values,
+      modelApiPayload.value
+    );
+  console.log({ model: modelApiPayload.value });
+});
+
+watch(namespace, async (n) => {
+  const options = await getAuthSecrets(n, clusterName.value);
+  AuthSecretProps.value.options = options?.values;
+  await setValues();
+  await setBundle();
+  await getArchiverName(clusterName.value, modelApiPayload.value);
 });
 
 onMounted(async () => {
   await getClusters();
-  validate();
   setNamespaces();
-  setValues();
-  setBundle();
 });
 
 const previewFiles = ref<
   Array<{ key: string; filename: string; data: string }>
 >([]);
+
+const router = useRouter();
+const NavigateToOverview = () => {
+  router.push({ name: "c-cluster-Kubedb-overview" });
+};
 
 const gotoNext = async () => {
   if (step.value === 1) step.value = 2;
@@ -244,6 +381,7 @@ const gotoNext = async () => {
       }
     );
     deployCall(clusterName.value, deployApiPayload);
+    showDialog.value = true;
   }
 };
 </script>
@@ -267,7 +405,6 @@ const gotoNext = async () => {
           :rules="NameSpacesProps.rules"
         />
       </div>
-
       <div class="col span-6">
         <LabeledInput
           v-if="NameProps.show"
@@ -281,107 +418,111 @@ const gotoNext = async () => {
         />
       </div>
     </div>
-    <div v-if="step === 2">
-      <p
+    <div v-else>
+      <Loading
         v-if="
           isValuesLoading ||
           isBundleLoading ||
           isNamespaceLoading ||
           isModelLoading ||
-          isResourceSkipLoading
+          isResourceSkipLoading ||
+          getArchiverNameLoading
         "
-      >
-        loading...
-      </p>
-      <div v-else>
+      />
+      <div v-if="step === 2">
         <div>
-          <!-- Basic Configuration Component -->
-          <BasicDbConfig
-            :NameSpacesProps="NameSpacesProps"
-            :VersionsProps="VersionsProps"
-            :NameProps="NameProps"
-            :ModeProps="ModeProps"
-            :required="required"
-            :StorageSizeProps="StorageSizeProps"
-            :StorageClassProps="StorageClassProps"
-            :ReplicaProps="ReplicaProps"
-            :MachineProps="MachineProps"
-            :CPUProps="CPUProps"
-            :MemoryProps="MemoryProps"
-            :RemoteReplicaProps="RemoteReplicaProps"
-          />
+          <div>
+            <!-- Basic Configuration Component -->
+            <BasicDbConfig
+              :NameSpacesProps="NameSpacesProps"
+              :VersionsProps="VersionsProps"
+              :NameProps="NameProps"
+              :ModeProps="ModeProps"
+              :required="required"
+              :StorageSizeProps="StorageSizeProps"
+              :StorageClassProps="StorageClassProps"
+              :ReplicaProps="ReplicaProps"
+              :MachineProps="MachineProps"
+              :CPUProps="CPUProps"
+              :MemoryProps="MemoryProps"
+              :RemoteReplicaProps="RemoteReplicaProps"
+            />
 
-          <AdvancedDbConfig
-            :AdvancedToggleSwitch="AdvancedToggleSwitch"
-            :DeletionPolicyProps="DeletionPolicyProps"
-            :LabelsProps="LabelsProps"
-            :AnnotationsProps="AnnotationsProps"
-            :DbConfigurationProps="DbConfigurationProps"
-            :AuthPasswordProps="AuthPasswordProps"
-            :AuthSecretProps="AuthSecretProps"
-            :StandbyModeProps="StandbyModeProps"
-            :PitrNamespaceProps="PitrNamespaceProps"
-            :PitrNameProps="PitrNameProps"
-            :StreamingModeProps="StreamingModeProps"
-            :required="required"
-          />
+            <AdvancedDbConfig
+              :AdvancedToggleSwitch="AdvancedToggleSwitch"
+              :DeletionPolicyProps="DeletionPolicyProps"
+              :LabelsProps="LabelsProps"
+              :AnnotationsProps="AnnotationsProps"
+              :DbConfigurationProps="DbConfigurationProps"
+              :AuthPasswordProps="AuthPasswordProps"
+              :AuthSecretProps="AuthSecretProps"
+              :StandbyModeProps="StandbyModeProps"
+              :PitrNamespaceProps="PitrNamespaceProps"
+              :PitrNameProps="PitrNameProps"
+              :StreamingModeProps="StreamingModeProps"
+              :PitrProps="PitrProps"
+              :required="required"
+            />
 
-          <AdditionalOptions
-            :MonitoringProps="MonitoringProps"
-            :BackupProps="BackupProps"
-            :ArchiverProps="ArchiverProps"
-            :TLSProps="TLSProps"
-            :ExposeProps="ExposeProps"
-            :AlertProps="AlertProps"
-            :IssuerProps="IssuerProps"
-          />
+            <AdditionalOptions
+              :MonitoringProps="MonitoringProps"
+              :BackupProps="BackupProps"
+              :ArchiverProps="ArchiverProps"
+              :TLSProps="TLSProps"
+              :ExposeProps="ExposeProps"
+              :AlertProps="AlertProps"
+              :IssuerProps="IssuerProps"
+            />
+          </div>
         </div>
       </div>
-    </div>
-    <div v-if="step === 3">
-      <div v-for="file in previewFiles" :key="file.key">
-        <p>{{ file.filename }}</p>
-        <YamlEditor
-          ref="yamleditor"
-          v-model:value="file.data"
-          mode="create"
-          :asObject="false"
-          :initial-yaml-values="file.data"
-          class="yaml-editor flex-content"
-          :editor-mode="EDITOR_MODES.EDIT_CODE"
-          @update:value="console.log('write function to update ')"
-        />
+      <div v-if="step === 3">
+        <Tabbed class="mb-20" default-tab="overview" :use-hash="true">
+          <Tab
+            v-for="file in previewFiles"
+            :key="file.key"
+            :name="file.filename"
+            :label="file.filename"
+            :weight="2"
+            :badge="0"
+            :error="false"
+          >
+            <div class="tab-content">
+              <YamlEditor
+                ref="yamleditor"
+                :key="file.key"
+                v-model:value="file.data"
+                mode="create"
+                :asObject="false"
+                :initial-yaml-values="file.data"
+                class="yaml-editor flex-content"
+                :editor-mode="EDITOR_MODES.EDIT_CODE"
+              />
+            </div>
+          </Tab>
+        </Tabbed>
       </div>
     </div>
     <div class="button-container">
       <RcButton secondary>Cancel</RcButton>
       <div>
-        <RcButton
-          v-if="step > 1"
-          primary
-          @click="step--"
-          :disabled="disableNextBtn"
-          >Previous</RcButton
-        >
-        <RcButton
-          primary
-          @click="gotoNext"
-          :disabled="
-            disableNextBtn ||
-            isValuesLoading ||
-            isDeploying ||
-            isModelLoading ||
-            isResourceSkipLoading ||
-            isBundleLoading ||
-            isNamespaceLoading ||
-            isValuesLoading
-          "
-          >{{
-            step === 1 ? "Next" : step === 2 ? "Preview" : "Deploy"
-          }}</RcButton
-        >
+        <RcButton v-if="step > 1" primary @click="step--">Previous</RcButton>
+        <RcButton primary @click="gotoNext" :disabled="disableNextBtn">{{
+          step === 1 ? "Next" : step === 2 ? "Preview" : "Deploy"
+        }}</RcButton>
       </div>
     </div>
+    <Dialog
+      v-if="showDialog"
+      name="example-modal"
+      title="Postgres Create"
+      @okay="NavigateToOverview"
+      @closed="NavigateToOverview"
+    >
+      <template #default>
+        <p>Your db has been deployed</p>
+      </template>
+    </Dialog>
   </div>
 </template>
 

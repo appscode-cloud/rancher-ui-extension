@@ -31,14 +31,10 @@ import {
   TLSType,
   ExposeType,
   RemoteReplicaType,
+  PitrType,
 } from "types/type";
 
 //Hard-coded options
-const databaseModes = ref<Array<{ value: string; label: string }>>([
-  { label: "Standalone", value: "Standalone" },
-  { label: "HA Cluster", value: "Cluster" },
-  { label: "RemoteReplica", value: "RemoteReplica" },
-]);
 const alertsList = ref<Array<{ value: string; label: string }>>([
   { label: "Critical", value: "Critical" },
   { label: "Info", value: "Info" },
@@ -105,7 +101,8 @@ export const useProps = () => {
     tls,
     archiver,
     expose,
-    RemoteReplica,
+    remoteReplica,
+    pitr,
   } = useCreateForm();
 
   const AdvancedToggleSwitch = ref({
@@ -237,7 +234,7 @@ export const useProps = () => {
   const ModeProps = ref<ModeType>({
     show: true,
     label: "Database Mode",
-    options: databaseModes.value,
+    options: [],
     row: true,
     modeModel: mode,
   });
@@ -269,6 +266,11 @@ export const useProps = () => {
     minHeight: 120,
   });
 
+  const PitrProps = ref<PitrType>({
+    show: true,
+    pitrModel: pitr,
+  });
+
   const AuthPasswordProps = ref<AuthPasswordType>({
     show: true,
     disabled: false,
@@ -288,8 +290,8 @@ export const useProps = () => {
   const StandbyModeProps = ref<StandbyModeType>({
     show: true,
     options: [
-      { value: "Asynchronous", label: "Asynchronous" },
-      { value: "Synchronous", label: "Synchronous" },
+      { value: "Hot", label: "Hot" },
+      { value: "Warn", label: "Warm" },
     ],
     label: "Standby Mode",
     placeholder: "Select Standby Mode",
@@ -304,6 +306,8 @@ export const useProps = () => {
     placeholder: "PITR Namespace",
     minHeight: 30,
     pitrNamespaceModel: pitrNamespace,
+    required: true,
+    rules: [required],
   });
 
   const PitrNameProps = ref<PitrNameType>({
@@ -312,13 +316,15 @@ export const useProps = () => {
     placeholder: "PITR Name",
     minHeight: 30,
     pitrNameModel: pitrName,
+    required: true,
+    rules: [required],
   });
 
   const StreamingModeProps = ref<StreamingModeType>({
     show: true,
     options: [
-      { value: "Hot", label: "Hot" },
-      { value: "Warn", label: "Warm" },
+      { value: "Asynchronous", label: "Asynchronous" },
+      { value: "Synchronous", label: "Synchronous" },
     ],
     label: "Streaming Mode",
     placeholder: "Select Streaming Mode",
@@ -340,6 +346,8 @@ export const useProps = () => {
     options: [],
     label: "Cluster Issuers",
     issuerModel: clusterIssuer,
+    rules: [required],
+    required: true,
   });
 
   const MonitoringProps = ref<MonitoringType>({
@@ -357,7 +365,7 @@ export const useProps = () => {
     archiverModel: archiver,
   });
 
-  const TLSProps = ref<TLSType>({ // Corrected from TlsProps
+  const TLSProps = ref<TLSType>({
     show: false,
     tlsModel: tls,
   });
@@ -372,10 +380,10 @@ export const useProps = () => {
     disabled: false,
     options: [],
     label: "RemoteReplica",
-    placeholder: "Remote Replica",
+    placeholder: "",
     required: true,
     rules: [required],
-    remoteReplicaModel: RemoteReplica,
+    remoteReplicaModel: remoteReplica,
   });
 
   return {
@@ -419,6 +427,7 @@ export const useProps = () => {
     LabelsProps,
     AnnotationsProps,
     DbConfigurationProps,
+    PitrProps,
     AuthPasswordProps,
     AuthSecretProps,
     StandbyModeProps,

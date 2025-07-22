@@ -1,6 +1,6 @@
 import $axios from "../../composables/axios";
 import { ref } from "vue";
-
+import { machines } from "./consts";
 export const dbObject = {
   kind: "Postgres",
   resource: "postgreses",
@@ -17,6 +17,7 @@ export const useFunctions = () => {
   const isDeploying = ref(false);
   const genericResourceLoading = ref(false);
   const resourceSummaryLoading = ref(false);
+  const getArchiverNameLoading = ref(false);
 
   const getBundle = async (cluster: string) => {
     isBundleLoading.value = true;
@@ -77,7 +78,7 @@ export const useFunctions = () => {
       const options: Array<{ label: string; value: string }> = [];
       Object.keys(projects).forEach((key) => {
         projects[key].forEach((item: string) => {
-          options?.push({ label: item, value: item });
+          options.push({ label: item, value: item });
         });
       });
       isNamespaceLoading.value = false;
@@ -110,7 +111,7 @@ export const useFunctions = () => {
         return ele?.metadata.name;
       });
       isAuthSecretLoading.value = false;
-      return options;
+      return { values: options };
     } catch (e) {
       console.log(e);
     }
@@ -144,43 +145,79 @@ export const useFunctions = () => {
   };
 
   const generateModelPayload = (
+    cluster: string,
     values: any,
     modelApiValue: Record<string, any>
   ) => {
     modelApiValue.metadata.release.name = values.name;
     modelApiValue.metadata.release.namespace = values.namespace;
     modelApiValue.spec.admin.databases[dbObject.kind].default = values.version;
-    // modelApiValue.spec.admin.archiver.enable.default = values.archiver;
+    modelApiValue.spec.replicas = values.replicas;
+    modelApiValue.spec.remoteReplica = values.remoteReplica;
     modelApiValue.spec.admin.storageClasses.default = values.storageClass;
-    // modelApiValue.spec.admin.tls.default = values.tls;
-    // modelApiValue.spec.admin.expose.default = values.expose;
-    // modelApiValue.form.alert.enabled = values.alert;
-    modelApiValue.spec.deletionPolicy = values.deletionPolicy;
     modelApiValue.spec.annotations = values.annotations;
     modelApiValue.spec.labels = values.labels;
-    modelApiValue.spec.AuthSecret.name = values.secret;
-    modelApiValue.spec.AuthSecret.password = values.password;
+    modelApiValue.spec.deletionPolicy = values.deletionPolicy;
+    modelApiValue.spec.persistence.size = values.storageSize;
     modelApiValue.spec.configuration = values.dbConfiguration;
     modelApiValue.spec.mode = values.mode;
-    modelApiValue.spec.persistence.size = values.storageSize;
-    modelApiValue.spec.podResources.machine = values.machine;
-    modelApiValue.spec.podResources.resources.requests.cpu = values.cpu;
-    modelApiValue.spec.podResources.resources.requests.memory = values.memory;
-    modelApiValue.spec.podResources.resources.limits = {};
-    modelApiValue.spec.podResources.resources.limits.cpu = values.cpu;
-    modelApiValue.spec.podResources.resources.limits.memory = values.memory;
-    modelApiValue.spec.replicas = values.replicas;
     modelApiValue.spec.standbyMode = values.standbyMode;
     modelApiValue.spec.streamingMode = values.streamingMode;
-    modelApiValue.spec.admin.clusterIssuers = values.clusterIssuer;
-    // modelApiValue.spec.archiverName = values.archiver
-    //   ? dbObject.kind.toLocaleLowerCase()
-    //   : "";
+    modelApiValue.form.alert.enabled = values.monitoring
+      ? values.alert ?? "warning"
+      : "none";
+    modelApiValue.spec.admin.monitoring.agent = values.monitoring
+      ? "prometheus.io/operator"
+      : "";
 
-    // modelApiValue.spec.backup.tool = values.backup ? "KubeStash" : "";
-    // modelApiValue.spec.monitoring.agent = values.monitoring
-    //   ? "prometheus.io/operator"
-    //   : "";
+    modelApiValue.spec.backup.tool = values.backup ? "KubeStash" : "";
+    modelApiValue.spec.admin.tls.default = values.tls;
+    modelApiValue.spec.admin.clusterIssuers.default = values.clusterIssuer;
+    modelApiValue.spec.admin.expose.default = values.expose;
+
+    modelApiValue.spec.authSecret = {};
+    modelApiValue.spec.authSecret.name = values.AuthSecret;
+    modelApiValue.spec.authSecret.password = values.AuthPassword;
+
+    //Archiver
+    modelApiValue.spec.admin.archiver.enable.default = values.archiver;
+    const stClass = modelApiValue.spec.admin.storageClasses.default;
+    const found = archiverMap.find((item) => item.storageClass === stClass);
+    const via = modelApiValue.spec.admin.archiver.via;
+    if (modelApiValue.spec.admin.archiver.enable.default) {
+      if (via === "VolumeSnapshotter")
+        modelApiValue.spec.archiverName = found?.annotation;
+      else {
+        modelApiValue.spec.archiverName = found?.annotation;
+        modelApiValue.spec.archiverName =
+          modelApiValue.metadata.resource.kind.toLocaleLowerCase();
+      }
+    } else {
+      modelApiValue.spec.archiverName = "";
+    }
+
+    //machines
+    modelApiValue.spec.podResources.machine = values.machine;
+    modelApiValue.spec.podResources.resources.requests = {};
+    modelApiValue.spec.podResources.resources.limits = {};
+    const cpu =
+      values.machine === "custom"
+        ? values.cpu
+        : machines[values.machine].resources.limits.cpu;
+    const memory =
+      values.machine === "custom"
+        ? values.cpu
+        : machines[values.machine].resources.limits.memory;
+
+    modelApiValue.spec.podResources.resources.limits.cpu = cpu;
+    modelApiValue.spec.podResources.resources.limits.memory = memory;
+    modelApiValue.spec.podResources.resources.requests.cpu = cpu;
+    modelApiValue.spec.podResources.resources.requests.memory = memory;
+
+    // PITR
+    // if (values.pitrName && values.pitrNamespace) {
+    //   modelApiValue = setPointInTimeRecovery(cluster, values, modelApiValue);
+    // }
 
     return modelApiValue;
   };
@@ -323,6 +360,153 @@ export const useFunctions = () => {
     resourceSummaryLoading.value = false;
   };
 
+  let archiverMap: Array<{ storageClass: string; annotation: string }> = [];
+  const getArchiverName = async (
+    cluster: string,
+    modelApiValue: Record<string, any>
+  ) => {
+    getArchiverNameLoading.value = true;
+    try {
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/storage.k8s.io/v1/storageclasses`,
+            verb: "GET",
+            query: "",
+            body: "",
+          },
+        }
+      );
+      const resource = modelApiValue.metadata.release.name;
+      const group = modelApiValue.metadata.release.group;
+      const data = await JSON.parse(response.data.response?.body);
+      data?.items?.forEach(
+        (item: {
+          metadata: { annotations: Record<string, string>; name: string };
+        }) => {
+          const annotations = item.metadata?.annotations;
+          const classname = item.metadata?.name;
+          const annotationKeyToFind = `${resource}.${group}/archiver`;
+          archiverMap.push({
+            storageClass: classname,
+            annotation: annotations[annotationKeyToFind],
+          });
+        }
+      );
+      getArchiverNameLoading.value = false;
+      return { values: data };
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+    getArchiverNameLoading.value = false;
+  };
+
+  function getComponentLogStats(snapshot: any) {
+    if (!snapshot || !snapshot.status || !snapshot.status.components) {
+      return null;
+    }
+
+    const components: Record<string, any> = snapshot.status.components;
+    const appKind = snapshot.spec?.appRef?.kind;
+
+    if (appKind === "MongoDB") {
+      for (const [key, value] of Object.entries(components)) {
+        if (key.endsWith("0") && value.logStats) {
+          return value.logStats;
+        }
+      }
+    }
+
+    if (components["wal"] && components["wal"].logStats) {
+      return components["wal"].logStats;
+    }
+
+    return null;
+  }
+
+  function convertToLocal(input: any) {
+    const date = new Date(input);
+
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+
+    return date.toString();
+  }
+
+  const setPointInTimeRecovery = async (
+    cluster: string,
+    values: Record<string, any>,
+    modelApiValue: Record<string, any>
+  ) => {
+    const refNamespace = values.pitrNamespace;
+    const refDBName = values.pitrName;
+
+    try {
+      const repositoriesResp = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/storage.kubestash.com/v1alpha1/namespaces/${refNamespace}/repositories/${refDBName}-full`,
+            verb: "GET",
+            query: "",
+            body: "",
+          },
+        }
+      );
+
+      const snapshotsResp = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/storage.kubestash.com/v1alpha1/namespaces/${refNamespace}/snapshots/${refDBName}-incremental-snapshot`,
+            verb: "GET",
+            query: "",
+            body: "",
+          },
+        }
+      );
+
+      const repositoriesRespData = await JSON.parse(
+        repositoriesResp.data.response?.body
+      );
+      const snapshotsRespData = await JSON.parse(
+        snapshotsResp.data.response?.body
+      );
+
+      modelApiValue.spec.init.archiver.encryptionSecret.name =
+        repositoriesRespData?.spec.encryptionSecret.name;
+      modelApiValue.spec.init.archiver.encryptionSecret.namespace =
+        repositoriesRespData?.spec.encryptionSecret.namespace;
+      modelApiValue.spec.init.archiver.fullDBRepository.name = `${refDBName}-full`;
+      modelApiValue.spec.init.archiver.fullDBRepository.namespace =
+        refNamespace;
+      modelApiValue.spec.init.archiver.manifestRepository.name = `${refDBName}-manifest`;
+      modelApiValue.spec.init.archiver.manifestRepository.namespace =
+        refNamespace;
+
+      const resp = getComponentLogStats(snapshotsRespData);
+      modelApiValue.spec.init.archiver.recoveryTimestamp = convertToLocal(
+        resp?.end
+      );
+      modelApiValue.minDate = convertToLocal(resp?.start);
+      modelApiValue.maxDate = convertToLocal(resp?.end);
+      return { values: modelApiValue };
+    } catch (error) {
+      modelApiValue.spec.init.archiver.recoveryTimestamp = "";
+      modelApiValue.spec.init.archiver.minDate = "";
+      modelApiValue.spec.init.archiver.maxDate = "";
+      console.error("Error loading data:", error);
+    }
+  };
+
   return {
     isBundleLoading,
     isNamespaceLoading,
@@ -333,6 +517,9 @@ export const useFunctions = () => {
     isDeploying,
     genericResourceLoading,
     resourceSummaryLoading,
+    getArchiverNameLoading,
+    setPointInTimeRecovery,
+    getArchiverName,
     resourceSummaryCall,
     genericResourceCall,
     deployCall,
