@@ -275,7 +275,11 @@ export const useFunctions = () => {
     isResourceSkipLoading.value = false;
   };
 
-  const deployCall = async (cluster: string, payload: Record<string, any>) => {
+  const deployCall = async (
+    cluster: string,
+    payload: Record<string, any>,
+    responseId: string
+  ) => {
     isDeploying.value = true;
     try {
       const response = await $axios.post(
@@ -286,7 +290,7 @@ export const useFunctions = () => {
           request: {
             path: `/api/v1/clusters/rancher/${cluster}/helm/editor`,
             verb: "PUT",
-            query: "",
+            query: `response-id=${responseId}`,
             body: JSON.stringify(payload),
           },
         }

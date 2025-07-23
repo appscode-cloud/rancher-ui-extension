@@ -129,6 +129,29 @@ export interface TLSType extends BaseCommon {
 export interface ExposeType extends BaseCommon {
   exposeModel: any;
 }
+
 export interface RemoteReplicaType extends BaseCommon {
   remoteReplicaModel: any;
+}
+
+export type TaskStatus =
+  | "Pending"
+  | "Running"
+  | "Success"
+  | "Failed"
+  | "Started";
+
+export interface TaskLog {
+  status?: TaskStatus;
+  msg?: string;
+  step?: string;
+  error?: string;
+  id?: string;
+}
+export interface Task extends Omit<TaskLog, "message"> {
+  logs: Array<string>;
+}
+export interface LongRunningTasksCtx {
+  natsSubject: string;
+  tasks: Array<Task>;
 }

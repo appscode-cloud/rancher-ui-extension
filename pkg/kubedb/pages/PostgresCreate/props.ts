@@ -32,7 +32,7 @@ import {
   ExposeType,
   RemoteReplicaType,
   PitrType,
-} from "types/type";
+} from "types/types";
 
 //Hard-coded options
 const alertsList = ref<Array<{ value: string; label: string }>>([

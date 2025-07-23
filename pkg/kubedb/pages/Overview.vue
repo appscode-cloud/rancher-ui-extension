@@ -5,7 +5,7 @@ import ConsumptionGauge from "@rancher/shell/components/ConsumptionGauge.vue";
 import Loading from "@shell/components/Loading.vue";
 import SimpleBox from "@rancher/shell/components/SimpleBox.vue";
 import { useFunctions } from "./PostgresCreate/functions";
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 
@@ -13,12 +13,9 @@ const store = useStore();
 const clusterName = ref("");
 const { params } = useRoute();
 
-const {
-  genericResourceLoading,
-  resourceSummaryLoading,
-  resourceSummaryCall,
-  genericResourceCall,
-} = useFunctions();
+const { resourceSummaryCall, genericResourceCall } = useFunctions();
+
+const isLoading = ref(false);
 
 function getPercentage(a: number, b: number): string {
   if (b === 0) {
@@ -48,8 +45,11 @@ const getClusters = async () => {
   }
 };
 
-onMounted(async () => {
-  await getClusters();
+const fetchAndSetGenericResources = async (showLoading: boolean) => {
+  if (showLoading) isLoading.value = true;
+  const tempHeaders: Array<Record<string, any>> = [];
+  const tempRows: Array<Record<string, string>> = [];
+
   const genericResourceResponse = await genericResourceCall(clusterName.value);
   genericResourceResponse?.values.columns.forEach(
     (col: { name: string; sort: { enable: boolean }; link: boolean }) => {
@@ -64,9 +64,10 @@ onMounted(async () => {
         label: col.name,
       };
       if (col?.sort?.enable) obj.sort = [col.name];
-      headers.value.push(obj);
+      tempHeaders.push(obj);
     }
   );
+  headers.value = tempHeaders;
   genericResourceResponse?.values.rows.forEach(
     (row: {
       cells: Array<{
@@ -96,9 +97,10 @@ onMounted(async () => {
           }
         }
       );
-      rows.value.push(obj);
+      tempRows.push(obj);
     }
   );
+  rows.value = tempRows;
 
   const resourceSummaryResponse = await resourceSummaryCall(clusterName.value);
   resourceSummary.value = resourceSummaryResponse?.values.rows.filter(
@@ -106,12 +108,36 @@ onMounted(async () => {
       return ele.cells[1].data > 0;
     }
   );
+  isLoading.value = false;
+};
+
+function extractNumbers(input: string): [number, number] {
+  const matches = input.match(/\d+/g);
+
+  if (!matches || matches.length !== 2) {
+    throw new Error("Input string must contain exactly two numbers");
+  }
+
+  return [parseInt(matches[0], 10), parseInt(matches[1], 10)];
+}
+
+let intervalId: ReturnType<typeof setInterval>;
+onMounted(async () => {
+  await getClusters();
+  await fetchAndSetGenericResources(true);
+  intervalId = setInterval(() => {
+    fetchAndSetGenericResources(false);
+  }, 10000);
+});
+
+onUnmounted(() => {
+  clearInterval(intervalId);
 });
 </script>
 
 <template>
   <div>
-    <div v-if="genericResourceLoading || resourceSummaryLoading">
+    <div v-if="isLoading">
       <Loading />
     </div>
     <div v-else>
@@ -119,54 +145,81 @@ onMounted(async () => {
         <SimpleBox
           v-for="resource in resourceSummary"
           :key="resource.cells[0].data"
-          :title="resource.cells[0].data"
+          :title="`${resource.cells[0].data}: ${resource.cells[1].data} Instance`"
           class="simple-box"
         >
-          <!-- <ConsumptionGauge
+          <ConsumptionGauge
             class="mb-20"
-            :capacity="16"
-            :used="8"
+            :capacity="extractNumbers(resource.cells[2].data as string)[1]"
+            :used="extractNumbers(resource.cells[2].data as string)[0]"
             units="cores"
             :colorStops="{ 0: '--success', 30: '--warning', 70: '--error' }"
           >
             <template #title>
               <span>
                 CPU
-                <span class="values text-muted"> 8/16 cores </span>
+                <span class="values text-muted">
+                  {{ resource.cells[2].data }}
+                </span>
               </span>
-              <span> {{ getPercentage(8, 16) }} </span>
+              <span>
+                {{
+                  getPercentage(
+                    extractNumbers(resource.cells[2].data as string)[0],
+                    extractNumbers(resource.cells[2].data as string)[1]
+                  )
+                }}
+              </span>
             </template>
           </ConsumptionGauge>
           <ConsumptionGauge
             class="mb-20"
-            :capacity="4"
-            :used="1"
+            :capacity="extractNumbers(resource.cells[3].data as string)[1]"
+            :used="extractNumbers(resource.cells[3].data as string)[0]"
             units="Gi"
             :colorStops="{ 0: '--success', 30: '--warning', 70: '--error' }"
           >
             <template #title>
               <span>
                 Memory
-                <span class="values text-muted"> 1/4 Gi </span>
+                <span class="values text-muted"
+                  >{{ resource.cells[3].data }}
+                </span>
               </span>
-              <span> {{ getPercentage(1, 4) }} </span>
+              <span
+                >{{
+                  getPercentage(
+                    extractNumbers(resource.cells[3].data as string)[0],
+                    extractNumbers(resource.cells[3].data as string)[1]
+                  )
+                }}
+              </span>
             </template>
           </ConsumptionGauge>
           <ConsumptionGauge
-            :capacity="31"
-            :used="30"
+            :capacity="extractNumbers(resource.cells[4].data as string)[1]"
+            :used="extractNumbers(resource.cells[4].data as string)[0]"
             units="Gi"
             :colorStops="{ 0: '--success', 30: '--warning', 70: '--error' }"
           >
             <template #title>
               <span>
                 Storage
-                <span class="values text-muted"> 30/31 Gi </span>
+                <span class="values text-muted">
+                  {{ resource.cells[4].data }}
+                </span>
               </span>
-              <span> {{ getPercentage(30, 31) }} </span>
+              <span>
+                {{
+                  getPercentage(
+                    extractNumbers(resource.cells[4].data as string)[0],
+                    extractNumbers(resource.cells[4].data as string)[1]
+                  )
+                }}
+              </span>
             </template>
-          </ConsumptionGauge> -->
-          <div>
+          </ConsumptionGauge>
+          <!-- <div>
             <div>
               <p>{{ resource.cells[1].data }}</p>
             </div>
@@ -175,7 +228,7 @@ onMounted(async () => {
               <p>MEMORY: {{ resource.cells[3].data }}</p>
               <p>STORAGE: {{ resource.cells[4].data }}</p>
             </div>
-          </div>
+          </div> -->
         </SimpleBox>
       </div>
       <SortableTable
@@ -186,7 +239,7 @@ onMounted(async () => {
         :headers="headers"
         paging
         :rowsPerPage="5"
-        :loading="genericResourceLoading"
+        :loading="isLoading"
       >
         <template #col:Name="{ row }">
           <td>

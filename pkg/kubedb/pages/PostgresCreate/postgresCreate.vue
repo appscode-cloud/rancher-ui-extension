@@ -12,18 +12,18 @@ import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
 import Tabbed from "@shell/components/Tabbed/index.vue";
 import Tab from "@shell/components/Tabbed/Tab.vue";
-import Dialog from "@shell/components/Dialog.vue";
 
 import { useUtils } from "../../composables/utils";
 import { useRules } from "../../composables/rules";
 import { useProps } from "./props";
 import { useFunctions } from "./functions";
 import { machineList, machines, EDITOR_MODES } from "./consts";
+import LongRunningTask from "../../components/long-running-task/LongRunningTaskModal.vue";
 
 const store = useStore();
 const { required } = useRules();
 const { params } = useRoute();
-const { yamlToJs } = useUtils();
+const { yamlToJs, getRandomUUID } = useUtils();
 
 const {
   validate,
@@ -86,12 +86,29 @@ const step = ref(1);
 const clusterName = ref("");
 const modelApiPayload = ref({});
 const resourceSkipPayload = ref();
-const showDialog = ref(false);
 
 const previewTitle = computed(() => {
   return step.value === 1
     ? "Create Postgres"
     : `Create Postgres: ${namespace.value}/${name.value}`;
+});
+
+const disableNextBtn = computed(() => {
+  if (step.value === 1) {
+    if (!errors.value.name && !errors.value.namespace) return false;
+  }
+
+  const validated = Object.values(errors.value).every((value) => value === "");
+  return (
+    !validated ||
+    isValuesLoading.value ||
+    isDeploying.value ||
+    isModelLoading.value ||
+    isResourceSkipLoading.value ||
+    isBundleLoading.value ||
+    isNamespaceLoading.value ||
+    getArchiverNameLoading.value
+  );
 });
 
 const getClusters = async () => {
@@ -297,24 +314,6 @@ const setBundle = async () => {
   }
 };
 
-const disableNextBtn = computed(() => {
-  if (step.value === 1) {
-    if (!errors.value.name && !errors.value.namespace) return false;
-  }
-
-  const validated = Object.values(errors.value).every((value) => value === "");
-  return (
-    !validated ||
-    isValuesLoading.value ||
-    isDeploying.value ||
-    isModelLoading.value ||
-    isResourceSkipLoading.value ||
-    isBundleLoading.value ||
-    isNamespaceLoading.value ||
-    getArchiverNameLoading.value
-  );
-});
-
 watch(values, async () => {
   await validate();
   if (namespace.value && modelApiPayload.value && name.value)
@@ -344,11 +343,6 @@ const previewFiles = ref<
   Array<{ key: string; filename: string; data: string }>
 >([]);
 
-const router = useRouter();
-const NavigateToOverview = () => {
-  router.push({ name: "c-cluster-Kubedb-overview" });
-};
-
 const gotoNext = async () => {
   if (step.value === 1) step.value = 2;
   else if (step.value === 2) {
@@ -365,25 +359,36 @@ const gotoNext = async () => {
     previewFiles.value = resourceSkipCRDResponse?.values.resources;
     step.value = 3;
   } else if (step.value === 3) {
-    const deployApiPayload: {
-      form: Record<string, any>;
-      metadata: Record<string, any>;
-      resources: Record<string, any>;
-    } = {
-      form: {},
-      metadata: {},
-      resources: {},
-    };
-    deployApiPayload.form = resourceSkipPayload.value.values.form;
-    deployApiPayload.metadata = resourceSkipPayload.value.values.metadata;
-    previewFiles.value.forEach(
-      (file: { key: string; filename: string; data: string }) => {
-        deployApiPayload.resources[file.key] = yamlToJs(file.data);
-      }
-    );
-    deployCall(clusterName.value, deployApiPayload);
-    showDialog.value = true;
+    deployDatabase();
   }
+};
+
+//Long Running Task
+const showDialog = ref(false);
+const natsSubject = ref("");
+const isNatsConnectionLoading = ref(false);
+const uuid = getRandomUUID();
+natsSubject.value = `natjobs.resp.${uuid}`;
+
+const deployDatabase = () => {
+  const deployApiPayload: {
+    form: Record<string, any>;
+    metadata: Record<string, any>;
+    resources: Record<string, any>;
+  } = {
+    form: {},
+    metadata: {},
+    resources: {},
+  };
+  deployApiPayload.form = resourceSkipPayload.value.values.form;
+  deployApiPayload.metadata = resourceSkipPayload.value.values.metadata;
+  previewFiles.value.forEach(
+    (file: { key: string; filename: string; data: string }) => {
+      deployApiPayload.resources[file.key] = yamlToJs(file.data);
+    }
+  );
+  deployCall(clusterName.value, deployApiPayload, uuid);
+  showDialog.value = true;
 };
 </script>
 
@@ -513,17 +518,22 @@ const gotoNext = async () => {
         }}</RcButton>
       </div>
     </div>
-    <Dialog
-      v-if="showDialog"
-      name="example-modal"
-      title="Postgres Create"
-      @okay="NavigateToOverview"
-      @closed="NavigateToOverview"
-    >
-      <template #default>
-        <p>Your db has been deployed</p>
-      </template>
-    </Dialog>
+    <LongRunningTask
+      :open="showDialog"
+      :nats-subject="natsSubject"
+      :is-nats-connection-loading="isNatsConnectionLoading"
+      title="Deploying Postgres"
+      :onSuccess="
+        () => {
+          showDialog = false;
+        }
+      "
+      :onError="
+        () => {
+          showDialog = false;
+        }
+      "
+    />
   </div>
 </template>
 

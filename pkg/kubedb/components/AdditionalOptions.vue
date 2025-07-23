@@ -11,7 +11,7 @@ import {
   IssuerType,
   MonitoringType,
   TLSType,
-} from "../types/type";
+} from "../types/types";
 
 interface Props {
   MonitoringProps: MonitoringType;
