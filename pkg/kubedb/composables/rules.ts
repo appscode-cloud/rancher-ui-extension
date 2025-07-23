@@ -41,7 +41,7 @@ export function useRules() {
       if (!value) return "This field is required";
 
       try {
-        const response = await $axios.post(
+        await $axios.post(
           `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
           {
             apiVersion: "rproxy.ace.appscode.com/v1alpha1",
@@ -54,7 +54,7 @@ export function useRules() {
             },
           }
         );
-        return false;
+        return "This name is already taken";
       } catch (err) {
         return true;
       }

@@ -426,6 +426,7 @@ const deployDatabase = () => {
     </div>
     <div v-else>
       <Loading
+        :noDelay="true"
         v-if="
           isValuesLoading ||
           isBundleLoading ||

@@ -5,7 +5,7 @@ interface BaseCommon {
   multiple?: boolean;
   placeholder?: string;
   required?: boolean;
-  rules?: Array<(value: unknown) => string>;
+  rules?: Array<(value: unknown) => unknown>;
   clearable?: boolean;
   label?: string;
   options?: Array<{
