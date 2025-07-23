@@ -2,7 +2,7 @@ import $axios from "../composables/axios";
 import { Ref, ref } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
-import { dbObject } from "pages/PostgresCreate/consts";
+import { dbObject } from "../pages/PostgresCreate/consts";
 
 export function useRules() {
   const clusterName = ref<string>("");
