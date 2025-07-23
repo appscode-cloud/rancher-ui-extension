@@ -1,9 +1,10 @@
 import { useField, useForm } from "vee-validate";
 import { useRules } from "../../composables/rules";
 import { computed } from "vue";
-const { required } = useRules();
+import { useRoute } from "vue-router";
 
 export const useCreateForm = () => {
+  const { required, checkDuplicate } = useRules();
   const { values, errors, validate } = useForm({});
 
   // conditional rules
@@ -26,8 +27,8 @@ export const useCreateForm = () => {
     return values.pitr ? required : undefined;
   });
 
-  const { value: name } = useField<string>("name", required);
   const { value: namespace } = useField<string>("namespace", required);
+  const { value: name } = useField<string>("name", checkDuplicate(namespace));
   const { value: version } = useField<string>("version", required);
   const { value: replicas } = useField<string>("replicas", replicaRules);
   const { value: machine } = useField<string>("machine", required, {
