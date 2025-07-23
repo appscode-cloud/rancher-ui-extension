@@ -1,7 +1,6 @@
 import { useField, useForm } from "vee-validate";
 import { useRules } from "../../composables/rules";
 import { computed } from "vue";
-import { useRoute } from "vue-router";
 
 export const useCreateForm = () => {
   const { required, checkDuplicate } = useRules();

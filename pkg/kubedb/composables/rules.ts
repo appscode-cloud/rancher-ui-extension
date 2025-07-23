@@ -2,6 +2,7 @@ import $axios from "../composables/axios";
 import { Ref, ref } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
+import { dbObject } from "pages/PostgresCreate/consts";
 
 export function useRules() {
   const clusterName = ref<string>("");
@@ -47,7 +48,7 @@ export function useRules() {
             apiVersion: "rproxy.ace.appscode.com/v1alpha1",
             kind: "Proxy",
             request: {
-              path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/kubedb.com/v1alpha2/namespaces/${namespace.value}/postgreses/${value}`,
+              path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/kubedb.com/v1alpha2/namespaces/${namespace.value}/${dbObject.resource}/${value}`,
               verb: "GET",
               query: `convertToTable=true`,
               body: "",

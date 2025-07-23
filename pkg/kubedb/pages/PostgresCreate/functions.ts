@@ -13,6 +13,7 @@ export const useFunctions = () => {
   const genericResourceLoading = ref(false);
   const resourceSummaryLoading = ref(false);
   const getArchiverNameLoading = ref(false);
+  const isDbDeleting = ref(false);
 
   const getBundle = async (cluster: string) => {
     isBundleLoading.value = true;
@@ -506,6 +507,38 @@ export const useFunctions = () => {
     }
   };
 
+  const singleDbDelete = async (
+    cluster: string,
+    namespace: string,
+    releaseName: string,
+    responseId: string
+  ) => {
+    isDbDeleting.value = true;
+    try {
+      const repositoriesResp = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/helm/editor`,
+            verb: "DELETE",
+            query: `releaseName=${releaseName}&namespace=${namespace}&group=${dbObject.group}&version=${dbObject.version}&name=${dbObject.resource}&response-id=${responseId}`,
+            body: "",
+          },
+        }
+      );
+
+      const data = await JSON.parse(repositoriesResp.data.response?.body);
+      isDbDeleting.value = false;
+
+      return { values: data };
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+    isDbDeleting.value = false;
+  };
+
   return {
     isBundleLoading,
     isNamespaceLoading,
@@ -517,6 +550,8 @@ export const useFunctions = () => {
     genericResourceLoading,
     resourceSummaryLoading,
     getArchiverNameLoading,
+    isDbDeleting,
+    singleDbDelete,
     setPointInTimeRecovery,
     getArchiverName,
     resourceSummaryCall,
