@@ -1,3 +1,9 @@
+export const dbObject = {
+  kind: "Postgres",
+  resource: "postgreses",
+  chartName: "kubedbcom-postgres-editor-options",
+};
+
 export const machines: Record<
   string,
   {

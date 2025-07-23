@@ -2,12 +2,9 @@ import { useField, useForm } from "vee-validate";
 import { useRules } from "../../composables/rules";
 import { computed } from "vue";
 import { useRoute } from "vue-router";
-const { required, checkDuplicate } = useRules();
 
 export const useCreateForm = () => {
-  const route = useRoute();
-  const clusterName = route.params.cluster as string;
-
+  const { required, checkDuplicate } = useRules();
   const { values, errors, validate } = useForm({});
 
   // conditional rules
@@ -31,10 +28,7 @@ export const useCreateForm = () => {
   });
 
   const { value: namespace } = useField<string>("namespace", required);
-  const { value: name } = useField<string>("name", [
-    required,
-    checkDuplicate(namespace, clusterName),
-  ]);
+  const { value: name } = useField<string>("name", checkDuplicate(namespace));
   const { value: version } = useField<string>("version", required);
   const { value: replicas } = useField<string>("replicas", replicaRules);
   const { value: machine } = useField<string>("machine", required, {

@@ -1,7 +1,29 @@
 import $axios from "../composables/axios";
-import { Ref } from "vue";
+import { Ref, ref } from "vue";
+import { useStore } from "vuex";
+import { useRoute } from "vue-router";
 
 export function useRules() {
+  const clusterName = ref<string>("");
+
+  const getClusters = async () => {
+    const store = useStore();
+    const { params } = useRoute();
+
+    try {
+      const result = await store.dispatch("management/findAll", {
+        type: "management.cattle.io.cluster",
+      });
+      result.forEach((ele: { id: string; spec: { displayName: string } }) => {
+        if (ele.id === params.cluster) {
+          clusterName.value = ele.spec.displayName;
+        }
+      });
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const required = (value: unknown) => {
     if (!!value || value === 0) {
       if (Array.isArray(value) && value.length > 0) return "";
@@ -13,9 +35,10 @@ export function useRules() {
     return "This field is required";
   };
 
-  const checkDuplicate = (namespace: Ref<string>, cluster: string) => {
+  const checkDuplicate = (namespace: Ref<string>) => {
+    getClusters();
     return async (value: unknown) => {
-      if (typeof value !== "string") return "Invalid input";
+      if (!value) return "This field is required";
 
       try {
         const response = await $axios.post(
@@ -24,24 +47,16 @@ export function useRules() {
             apiVersion: "rproxy.ace.appscode.com/v1alpha1",
             kind: "Proxy",
             request: {
-              path: `/api/v1/clusters/rancher/${cluster}/proxy/kubedb.com/v1alpha2/namespaces/${namespace.value}/postgreses/${value}`,
+              path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/kubedb.com/v1alpha2/namespaces/${namespace.value}/postgreses/${value}`,
               verb: "GET",
               query: `convertToTable=true`,
               body: "",
             },
           }
         );
-
-        const data = JSON.parse(response.data.response?.body);
-        console.log({ deplicate: data });
-
-        // Add actual validation logic here
-        return true;
+        return false;
       } catch (err) {
-        // If 404 = name doesn't exist => OK
         return true;
-
-        return "Failed to check duplicate name";
       }
     };
   };

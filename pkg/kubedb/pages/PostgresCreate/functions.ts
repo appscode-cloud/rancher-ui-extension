@@ -1,11 +1,6 @@
 import $axios from "../../composables/axios";
 import { ref } from "vue";
-import { machines } from "./consts";
-export const dbObject = {
-  kind: "Postgres",
-  resource: "postgreses",
-  chartName: "kubedbcom-postgres-editor-options",
-};
+import { machines, dbObject } from "./consts";
 
 export const useFunctions = () => {
   const isValuesLoading = ref(false);
