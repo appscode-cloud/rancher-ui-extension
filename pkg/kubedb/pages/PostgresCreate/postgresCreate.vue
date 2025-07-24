@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, getCurrentInstance, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
-import { useRoute, useRouter } from "vue-router";
+import { useRoute } from "vue-router";
 import Loading from "@shell/components/Loading.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
@@ -22,7 +22,9 @@ import LongRunningTask from "../../components/long-running-task/LongRunningTaskM
 
 const store = useStore();
 const { required } = useRules();
-const { params } = useRoute();
+const route = getCurrentInstance()?.proxy?.$route;
+const params = route?.params;
+
 const { yamlToJs, getRandomUUID } = useUtils();
 
 const {
@@ -117,7 +119,7 @@ const getClusters = async () => {
       type: "management.cattle.io.cluster",
     });
     result.forEach((ele: { id: string; spec: { displayName: string } }) => {
-      if (ele.id === params.cluster) {
+      if (ele.id === params?.cluster) {
         clusterName.value = ele.spec.displayName;
       }
     });
@@ -512,7 +514,7 @@ const deployDatabase = () => {
     </div>
     <div class="button-container">
       <RcButton secondary>Cancel</RcButton>
-      <div>
+      <div class="button-group">
         <RcButton v-if="step > 1" primary @click="step--">Previous</RcButton>
         <RcButton primary @click="gotoNext" :disabled="disableNextBtn">{{
           step === 1 ? "Next" : step === 2 ? "Preview" : "Deploy"
@@ -542,5 +544,9 @@ const deployDatabase = () => {
 .button-container {
   display: flex;
   justify-content: space-between;
+}
+.button-group {
+  display: flex;
+  gap: 8px;
 }
 </style>

@@ -1,5 +1,5 @@
 import { connect, StringCodec, jwtAuthenticator } from "nats.ws";
-import { get as getCookie } from "tiny-cookie";
+import { get as getCookie, set as setCookie } from "tiny-cookie";
 import type { App } from "vue";
 
 export const useNats = () => {
@@ -30,9 +30,23 @@ export const useNats = () => {
   }
 
   const sc = StringCodec();
-
+  // const jwt =
+  //   "eyJ0eXAiOiJKV1QiLCJhbGciOiJlZDI1NTE5LW5rZXkifQ.eyJqdGkiOiJJNDNRTUdOS0xHUkdVS1dWRUNTUUJVSkEyWExKNTIyTUpSTzJHTTQ3QUFONURHM1RTUVJBIiwiaWF0IjoxNzUzMDY5Njk3LCJpc3MiOiJBRDczVFFaTFVOSUJSQVhZSFIzQldOSzdGN0VJUElZS1ZaVURWQVJQVDZZV1BNTVRTM1FWSEFYRiIsIm5hbWUiOiIxIiwic3ViIjoiVURYRk1FSFJBNzdSRldTWUJBRjZDSDJXSU1CVjdUS0k0S0dBUUtNVkdET05OU1dOUVFFUkZRVkMiLCJuYXRzIjp7InB1YiI6e30sInN1YiI6e30sInN1YnMiOi0xLCJkYXRhIjotMSwicGF5bG9hZCI6LTEsInR5cGUiOiJ1c2VyIiwidmVyc2lvbiI6Mn19.yLUj5E5gRqyrGAndqcj5SyYqtCNXh2frOXxqafs43j04btYypPBUwyXOYtIKgCfuu8kKXA17VyI-6kT1X-vaBg";
+  // const seed = "SUABUGJ5N6NABVTUFPAH3RHVJKUCXB2RRBHXBI53DBAWLPL4VH3JGBYWYI";
   async function natsConnect(app: App<Element>) {
     try {
+      // Set cookies before using them
+      // setCookie("_user_jwt", jwt, {
+      //   path: "/",
+      //   secure: false,
+      //   domain: "10.2.0.42",
+      // });
+      // setCookie("_user_seed", seed, {
+      //   path: "/",
+      //   secure: false,
+      //   domain: "10.2.0.42",
+      // });
+
       const natsConnection = await connect({
         servers: getWebSocketServer(),
         authenticator: jwtAuthenticator(

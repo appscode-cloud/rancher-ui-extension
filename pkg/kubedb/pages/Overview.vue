@@ -5,13 +5,14 @@ import ConsumptionGauge from "@rancher/shell/components/ConsumptionGauge.vue";
 import Loading from "@shell/components/Loading.vue";
 import SimpleBox from "@rancher/shell/components/SimpleBox.vue";
 import { useFunctions } from "./PostgresCreate/functions";
-import { onMounted, onUnmounted, ref } from "vue";
+import { getCurrentInstance, onMounted, onUnmounted, ref } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 
 const store = useStore();
 const clusterName = ref("");
-const { params } = useRoute();
+const route = getCurrentInstance()?.proxy?.$route;
+const params = route?.params;
 
 const { resourceSummaryCall, genericResourceCall } = useFunctions();
 
@@ -36,7 +37,7 @@ const getClusters = async () => {
       type: "management.cattle.io.cluster",
     });
     result.forEach((ele: { id: string; spec: { displayName: string } }) => {
-      if (ele.id === params.cluster) {
+      if (ele.id === params?.cluster) {
         clusterName.value = ele.spec.displayName;
       }
     });

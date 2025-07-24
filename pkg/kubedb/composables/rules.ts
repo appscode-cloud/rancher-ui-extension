@@ -1,5 +1,5 @@
 import $axios from "../composables/axios";
-import { Ref, ref } from "vue";
+import { getCurrentInstance, Ref, ref } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
 import { dbObject } from "../pages/PostgresCreate/consts";
@@ -9,14 +9,15 @@ export function useRules() {
 
   const getClusters = async () => {
     const store = useStore();
-    const { params } = useRoute();
+    const route = getCurrentInstance()?.proxy?.$route;
+    const params = route?.params;
 
     try {
       const result = await store.dispatch("management/findAll", {
         type: "management.cattle.io.cluster",
       });
       result.forEach((ele: { id: string; spec: { displayName: string } }) => {
-        if (ele.id === params.cluster) {
+        if (ele.id === params?.cluster) {
           clusterName.value = ele.spec.displayName;
         }
       });
