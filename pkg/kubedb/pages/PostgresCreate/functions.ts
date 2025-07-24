@@ -141,7 +141,6 @@ export const useFunctions = () => {
   };
 
   const generateModelPayload = (
-    cluster: string,
     values: any,
     modelApiValue: Record<string, any>
   ) => {

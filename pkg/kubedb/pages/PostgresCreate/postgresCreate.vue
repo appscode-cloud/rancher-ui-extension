@@ -319,11 +319,7 @@ const setBundle = async () => {
 watch(values, async () => {
   await validate();
   if (namespace.value && modelApiPayload.value && name.value)
-    modelApiPayload.value = generateModelPayload(
-      clusterName.value,
-      values,
-      modelApiPayload.value
-    );
+    modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
   console.log({ model: modelApiPayload.value });
 });
 
@@ -486,13 +482,12 @@ const deployDatabase = () => {
         </div>
       </div>
       <div v-if="step === 3">
-        <Tabbed class="mb-20" default-tab="overview" :use-hash="true">
+        <Tabbed class="mb-20" :use-hash="true">
           <Tab
             v-for="file in previewFiles"
             :key="file.key"
             :name="file.filename"
             :label="file.filename"
-            :weight="2"
             :badge="0"
             :error="false"
           >
@@ -504,7 +499,6 @@ const deployDatabase = () => {
                 mode="create"
                 :asObject="false"
                 :initial-yaml-values="file.data"
-                class="yaml-editor flex-content"
                 :editor-mode="EDITOR_MODES.EDIT_CODE"
               />
             </div>
