@@ -27,7 +27,7 @@ export const useCreateForm = () => {
   });
 
   const { value: namespace } = useField<string>("namespace", required);
-  const { value: name } = useField<string>("name", checkDuplicate(namespace));
+  const { value: name } = useField<string>("name", required);
   const { value: version } = useField<string>("version", required);
   const { value: replicas } = useField<string>("replicas", replicaRules);
   const { value: machine } = useField<string>("machine", required, {

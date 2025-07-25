@@ -140,7 +140,8 @@ export const useFunctions = () => {
     isValuesLoading.value = false;
   };
 
-  const generateModelPayload = (
+  const generateModelPayload = async (
+    cluster: string,
     values: any,
     modelApiValue: Record<string, any>
   ) => {
@@ -497,13 +498,14 @@ export const useFunctions = () => {
       );
       modelApiValue.minDate = convertToLocal(resp?.start);
       modelApiValue.maxDate = convertToLocal(resp?.end);
-      return { values: modelApiValue };
+      return modelApiValue;
     } catch (error) {
       modelApiValue.spec.init.archiver.recoveryTimestamp = "";
       modelApiValue.spec.init.archiver.minDate = "";
       modelApiValue.spec.init.archiver.maxDate = "";
       console.error("Error loading data:", error);
     }
+    return modelApiValue;
   };
 
   const singleDbDelete = async (

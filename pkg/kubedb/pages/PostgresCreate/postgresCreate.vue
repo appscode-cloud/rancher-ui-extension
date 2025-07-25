@@ -319,7 +319,11 @@ const setBundle = async () => {
 watch(values, async () => {
   await validate();
   if (namespace.value && modelApiPayload.value && name.value)
-    modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
+    modelApiPayload.value = generateModelPayload(
+      clusterName.value,
+      values,
+      modelApiPayload.value
+    );
   console.log({ model: modelApiPayload.value });
 });
 
@@ -482,7 +486,7 @@ const deployDatabase = () => {
         </div>
       </div>
       <div v-if="step === 3">
-        <Tabbed class="mb-20" :use-hash="true">
+        <Tabbed class="mb-20" :use-hash="true" sideTabs>
           <Tab
             v-for="file in previewFiles"
             :key="file.key"

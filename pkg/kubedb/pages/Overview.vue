@@ -7,7 +7,6 @@ import SimpleBox from "@rancher/shell/components/SimpleBox.vue";
 import { useFunctions } from "./PostgresCreate/functions";
 import { getCurrentInstance, onMounted, onUnmounted, ref } from "vue";
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
 
 const store = useStore();
 const clusterName = ref("");
@@ -234,8 +233,9 @@ onUnmounted(() => {
       </div>
       <SortableTable
         default-sort-by="error"
-        :table-actions="false"
-        :row-actions="false"
+        :table-actions="true"
+        :row-actions="true"
+        groupBy="Namespace"
         :rows="rows"
         :headers="headers"
         paging
