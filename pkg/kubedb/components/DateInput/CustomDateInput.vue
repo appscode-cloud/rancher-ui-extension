@@ -263,6 +263,7 @@ onUnmounted(() => {
 .date-input-wrapper {
   position: relative;
   margin-bottom: 20px;
+  max-height: 300px;
 }
 
 .control-label {
@@ -331,6 +332,8 @@ onUnmounted(() => {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
   z-index: 1000;
   margin-top: 2px;
+  max-width:400px;
+  height: auto;
 }
 
 .calendar-header {
@@ -391,6 +394,10 @@ onUnmounted(() => {
   font-size: 12px;
   color: #ccc;
   padding: 8px 4px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .calendar-grid {
@@ -409,7 +416,10 @@ onUnmounted(() => {
   border-radius: 4px;
   font-size: 14px;
   transition: all 0.2s ease;
-  min-height: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   color: #fff;
 }
 
