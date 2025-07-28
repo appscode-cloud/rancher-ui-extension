@@ -70,6 +70,7 @@ const {
   resourceSkipCRDApiCall,
   deployCall,
   getArchiverName,
+  setPointInTimeRecovery,
   getArchiverNameLoading,
   isDeploying,
   isModelLoading,
@@ -363,6 +364,16 @@ const gotoNext = async () => {
     deployDatabase();
   }
 };
+
+// Async Dependencies
+ //PITR
+watch([PitrNameProps.value.pitrNameModel, PitrNamespaceProps.value.pitrNamespaceModel],()=>{
+  if (PitrNameProps.value.pitrNameModel && PitrNamespaceProps.value.pitrNamespaceModel) {
+       modelApiPayload.value= setPointInTimeRecovery(clusterName.value, values, modelApiPayload.value)
+  } 
+})
+
+
 
 //Long Running Task
 const showDialog = ref(false);

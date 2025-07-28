@@ -443,6 +443,7 @@ export const useFunctions = () => {
   ) => {
     const refNamespace = values.pitrNamespace;
     const refDBName = values.pitrName;
+    window.console.log('test pitr ', refNamespace, refDBName);
 
     try {
       const repositoriesResp = await $axios.post(
@@ -497,13 +498,14 @@ export const useFunctions = () => {
       );
       modelApiValue.minDate = convertToLocal(resp?.start);
       modelApiValue.maxDate = convertToLocal(resp?.end);
-      return { values: modelApiValue };
+      return  modelApiValue ;
     } catch (error) {
       modelApiValue.spec.init.archiver.recoveryTimestamp = "";
       modelApiValue.spec.init.archiver.minDate = "";
       modelApiValue.spec.init.archiver.maxDate = "";
       console.error("Error loading data:", error);
     }
+    return modelApiValue
   };
 
   const singleDbDelete = async (

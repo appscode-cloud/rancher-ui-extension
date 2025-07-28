@@ -6,6 +6,7 @@ import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/To
 import TextAreaAutoGrow from "@rancher/shell/rancher-components/Form/TextArea/TextAreaAutoGrow.vue";
 import KeyValue from "@rancher/shell/components/form/KeyValue.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
+import DateInput from "../components/DateInput/CustomDateInput.vue";
 import {
   DeletionPolicyType,
   LabelsType,
@@ -45,6 +46,7 @@ const props = defineProps<Props>();
 const isDbConfig = ref(false);
 const isAuthCred = ref(false);
 const isReferAuthSecret = ref(false);
+const selectedDate = ref<Date | null>(null);
 </script>
 
 <template>
@@ -172,6 +174,11 @@ const isReferAuthSecret = ref(false);
         :required="props.PitrProps.pitrModel ? true : false"
         :rules="props.PitrProps.pitrModel ? props.PitrNameProps.rules : []"
       />
+      <DateInput
+        v-model="selectedDate"
+        placeholder="Choose a date"
+      />
+   
     </div>
 
     <LabeledSelect
