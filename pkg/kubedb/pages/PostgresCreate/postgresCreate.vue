@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, getCurrentInstance, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
 import Loading from "@shell/components/Loading.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
@@ -9,16 +8,14 @@ import BasicDbConfig from "../../components/BasicDbConfig.vue";
 import AdvancedDbConfig from "../../components/AdvancedDbConfig.vue";
 import AdditionalOptions from "../../components/AdditionalOptions.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
-import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
-import Tabbed from "@shell/components/Tabbed/index.vue";
-import Tab from "@shell/components/Tabbed/Tab.vue";
 
 import { useUtils } from "../../composables/utils";
 import { useRules } from "../../composables/rules";
 import { useProps } from "./props";
 import { useFunctions } from "./functions";
-import { machineList, machines, EDITOR_MODES } from "./consts";
+import { machineList, machines } from "./consts";
 import LongRunningTask from "../../components/long-running-task/LongRunningTaskModal.vue";
+import YamlPreview from "../../components/YamlPreview.vue";
 
 const store = useStore();
 const { required } = useRules();
@@ -88,6 +85,7 @@ const step = ref(1);
 const clusterName = ref("");
 const modelApiPayload = ref({});
 const resourceSkipPayload = ref();
+const isYamlValid = ref(true);
 
 const previewTitle = computed(() => {
   return step.value === 1
@@ -99,18 +97,24 @@ const disableNextBtn = computed(() => {
   if (step.value === 1) {
     if (!errors.value.name && !errors.value.namespace) return false;
   }
-
-  const validated = Object.values(errors.value).every((value) => value === "");
-  return (
-    !validated ||
-    isValuesLoading.value ||
-    isDeploying.value ||
-    isModelLoading.value ||
-    isResourceSkipLoading.value ||
-    isBundleLoading.value ||
-    isNamespaceLoading.value ||
-    getArchiverNameLoading.value
-  );
+  if (step.value === 2) {
+    const validated = Object.values(errors.value).every(
+      (value) => value === ""
+    );
+    return (
+      !validated ||
+      isValuesLoading.value ||
+      isDeploying.value ||
+      isModelLoading.value ||
+      isResourceSkipLoading.value ||
+      isBundleLoading.value ||
+      isNamespaceLoading.value ||
+      getArchiverNameLoading.value
+    );
+  }
+  if (step.value === 3) {
+    return !isYamlValid.value;
+  }
 });
 
 const getClusters = async () => {
@@ -355,7 +359,7 @@ const gotoNext = async () => {
     );
 
     previewFiles.value = resourceSkipCRDResponse?.values.resources;
-    step.value = 3;
+    if (previewFiles.value) step.value = 3;
   } else if (step.value === 3) {
     deployDatabase();
   }
@@ -393,7 +397,7 @@ const deployDatabase = () => {
 <template>
   <div class="m-24">
     <h1>{{ previewTitle }}</h1>
-    <div class="mb-20" v-if="step === 1">
+    <div v-if="step === 1" class="mb-20">
       <div class="col span-6 mb-20">
         <LabeledSelect
           v-if="NameSpacesProps.show"
@@ -436,74 +440,60 @@ const deployDatabase = () => {
       />
       <div v-if="step === 2">
         <div>
-          <div>
-            <!-- Basic Configuration Component -->
-            <BasicDbConfig
-              :NameSpacesProps="NameSpacesProps"
-              :VersionsProps="VersionsProps"
-              :NameProps="NameProps"
-              :ModeProps="ModeProps"
-              :required="required"
-              :StorageSizeProps="StorageSizeProps"
-              :StorageClassProps="StorageClassProps"
-              :ReplicaProps="ReplicaProps"
-              :MachineProps="MachineProps"
-              :CPUProps="CPUProps"
-              :MemoryProps="MemoryProps"
-              :RemoteReplicaProps="RemoteReplicaProps"
-            />
+          <!-- Basic Configuration Component -->
+          <BasicDbConfig
+            :NameSpacesProps="NameSpacesProps"
+            :VersionsProps="VersionsProps"
+            :NameProps="NameProps"
+            :ModeProps="ModeProps"
+            :required="required"
+            :StorageSizeProps="StorageSizeProps"
+            :StorageClassProps="StorageClassProps"
+            :ReplicaProps="ReplicaProps"
+            :MachineProps="MachineProps"
+            :CPUProps="CPUProps"
+            :MemoryProps="MemoryProps"
+            :RemoteReplicaProps="RemoteReplicaProps"
+          />
 
-            <AdvancedDbConfig
-              :AdvancedToggleSwitch="AdvancedToggleSwitch"
-              :DeletionPolicyProps="DeletionPolicyProps"
-              :LabelsProps="LabelsProps"
-              :AnnotationsProps="AnnotationsProps"
-              :DbConfigurationProps="DbConfigurationProps"
-              :AuthPasswordProps="AuthPasswordProps"
-              :AuthSecretProps="AuthSecretProps"
-              :StandbyModeProps="StandbyModeProps"
-              :PitrNamespaceProps="PitrNamespaceProps"
-              :PitrNameProps="PitrNameProps"
-              :StreamingModeProps="StreamingModeProps"
-              :PitrProps="PitrProps"
-              :required="required"
-            />
+          <AdvancedDbConfig
+            :AdvancedToggleSwitch="AdvancedToggleSwitch"
+            :DeletionPolicyProps="DeletionPolicyProps"
+            :LabelsProps="LabelsProps"
+            :AnnotationsProps="AnnotationsProps"
+            :DbConfigurationProps="DbConfigurationProps"
+            :AuthPasswordProps="AuthPasswordProps"
+            :AuthSecretProps="AuthSecretProps"
+            :StandbyModeProps="StandbyModeProps"
+            :PitrNamespaceProps="PitrNamespaceProps"
+            :PitrNameProps="PitrNameProps"
+            :StreamingModeProps="StreamingModeProps"
+            :PitrProps="PitrProps"
+            :required="required"
+          />
 
-            <AdditionalOptions
-              :MonitoringProps="MonitoringProps"
-              :BackupProps="BackupProps"
-              :ArchiverProps="ArchiverProps"
-              :TLSProps="TLSProps"
-              :ExposeProps="ExposeProps"
-              :AlertProps="AlertProps"
-              :IssuerProps="IssuerProps"
-            />
-          </div>
+          <AdditionalOptions
+            :MonitoringProps="MonitoringProps"
+            :BackupProps="BackupProps"
+            :ArchiverProps="ArchiverProps"
+            :TLSProps="TLSProps"
+            :ExposeProps="ExposeProps"
+            :AlertProps="AlertProps"
+            :IssuerProps="IssuerProps"
+          />
         </div>
       </div>
       <div v-if="step === 3">
-        <Tabbed class="mb-20" :use-hash="true">
-          <Tab
-            v-for="file in previewFiles"
-            :key="file.key"
-            :name="file.filename"
-            :label="file.filename"
-            :badge="0"
-            :error="false"
-          >
-            <div class="tab-content">
-              <YamlEditor
-                ref="yamleditor"
-                :key="file.key"
-                v-model:value="file.data"
-                mode="create"
-                :asObject="false"
-                :initial-yaml-values="file.data"
-                :editor-mode="EDITOR_MODES.EDIT_CODE"
-              />
-            </div>
-          </Tab>
-        </Tabbed>
+        <div class="mb-20">
+          <YamlPreview
+            :preview-files="previewFiles"
+            @validation-changed="
+              (val) => {
+                isYamlValid = val;
+              }
+            "
+          />
+        </div>
       </div>
     </div>
     <div class="button-container">

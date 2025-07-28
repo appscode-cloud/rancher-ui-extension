@@ -233,7 +233,6 @@ onUnmounted(() => {
         </SimpleBox>
       </div>
       <SortableTable
-        default-sort-by="error"
         :table-actions="false"
         :row-actions="false"
         :rows="rows"
