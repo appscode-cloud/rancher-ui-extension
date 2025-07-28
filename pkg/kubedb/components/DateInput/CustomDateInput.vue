@@ -416,7 +416,7 @@ onUnmounted(() => {
   border-radius: 4px;
   font-size: 14px;
   transition: all 0.2s ease;
-  height: 32px;
+  height: 32px; /* ✅ FIXED: match weekday height */
   display: flex;
   align-items: center;
   justify-content: center;

@@ -500,7 +500,7 @@ export const useFunctions = () => {
       modelApiValue.maxDate = convertToLocal(resp?.end);
       return  modelApiValue ;
     } catch (error) {
-      modelApiValue.spec.init.archiver.recoveryTimestamp = "";
+      modelApiValue.spec.init.archiver.recoveryTimestamp = values.selectedDate;
       modelApiValue.spec.init.archiver.minDate = "";
       modelApiValue.spec.init.archiver.maxDate = "";
       console.error("Error loading data:", error);

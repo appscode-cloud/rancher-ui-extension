@@ -28,6 +28,7 @@ const {
   errors,
   name,
   namespace,
+  selectedDate,
   AdvancedToggleSwitch,
   NameSpacesProps,
   VersionsProps,
@@ -58,6 +59,7 @@ const {
   ExposeProps,
   RemoteReplicaProps,
   PitrProps,
+  DateInputProps,
 } = useProps();
 
 const {
@@ -332,8 +334,19 @@ watch(namespace, async (n) => {
   await setValues();
   await setBundle();
   await getArchiverName(clusterName.value, modelApiPayload.value);
+  console.log('values', values);
 });
 
+watch(values.selectedDate, async (newDate) => {
+  if (newDate) {
+    modelApiPayload.value = setPointInTimeRecovery(
+      clusterName.value,
+      values,
+      modelApiPayload.value
+    );
+    console.log('modelApiPayload.value', modelApiPayload.value);
+  }
+});
 onMounted(async () => {
   validate();
   await getAllAvailableDbNames();
@@ -466,21 +479,22 @@ const deployDatabase = () => {
             :RemoteReplicaProps="RemoteReplicaProps"
           />
 
-          <AdvancedDbConfig
-            :AdvancedToggleSwitch="AdvancedToggleSwitch"
-            :DeletionPolicyProps="DeletionPolicyProps"
-            :LabelsProps="LabelsProps"
-            :AnnotationsProps="AnnotationsProps"
-            :DbConfigurationProps="DbConfigurationProps"
-            :AuthPasswordProps="AuthPasswordProps"
-            :AuthSecretProps="AuthSecretProps"
-            :StandbyModeProps="StandbyModeProps"
-            :PitrNamespaceProps="PitrNamespaceProps"
-            :PitrNameProps="PitrNameProps"
-            :StreamingModeProps="StreamingModeProps"
-            :PitrProps="PitrProps"
-            :required="required"
-          />
+            <AdvancedDbConfig
+              :AdvancedToggleSwitch="AdvancedToggleSwitch"
+              :DeletionPolicyProps="DeletionPolicyProps"
+              :LabelsProps="LabelsProps"
+              :DateInputProps="DateInputProps"
+              :AnnotationsProps="AnnotationsProps"
+              :DbConfigurationProps="DbConfigurationProps"
+              :AuthPasswordProps="AuthPasswordProps"
+              :AuthSecretProps="AuthSecretProps"
+              :StandbyModeProps="StandbyModeProps"
+              :PitrNamespaceProps="PitrNamespaceProps"
+              :PitrNameProps="PitrNameProps"
+              :StreamingModeProps="StreamingModeProps"
+              :PitrProps="PitrProps"
+              :required="required"
+            />
 
           <AdditionalOptions
             :MonitoringProps="MonitoringProps"

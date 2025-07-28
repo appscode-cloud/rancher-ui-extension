@@ -19,6 +19,7 @@ import {
   StreamingModeType,
   StandbyModeType,
   PitrType,
+  selectedDateType,
 } from "../types/types";
 
 interface Props {
@@ -33,6 +34,7 @@ interface Props {
   PitrNameProps: PitrNameType;
   StreamingModeProps: StreamingModeType;
   PitrProps: PitrType;
+  DateInputProps: selectedDateType;
   AdvancedToggleSwitch: {
     DbConfig: boolean;
     AuthCred: boolean;
@@ -175,7 +177,8 @@ const selectedDate = ref<Date | null>(null);
         :rules="props.PitrProps.pitrModel ? props.PitrNameProps.rules : []"
       />
       <DateInput
-        v-model="selectedDate"
+        v-if="props.DateInputProps.show"
+        v-model="props.DateInputProps.selectedDateModel"
         placeholder="Choose a date"
       />
    

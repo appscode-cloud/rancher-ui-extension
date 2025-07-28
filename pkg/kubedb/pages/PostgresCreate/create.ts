@@ -86,7 +86,7 @@ export const useCreateForm = () => {
     "remoteReplica",
     remoteReplicaRules
   );
-
+  const { value: selectedDate } = useField<Date | null>("selectedDate");
   return {
     values,
     errors,
@@ -119,6 +119,7 @@ export const useCreateForm = () => {
     archiver,
     expose,
     remoteReplica,
+    selectedDate,
     validate,
   };
 };
