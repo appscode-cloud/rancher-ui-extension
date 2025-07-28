@@ -337,16 +337,16 @@ watch(namespace, async (n) => {
   console.log('values', values);
 });
 
-watch(values.selectedDate, async (newDate) => {
+watch(() => values.selectedDate, async (newDate) => {
   if (newDate) {
     modelApiPayload.value = setPointInTimeRecovery(
       clusterName.value,
       values,
       modelApiPayload.value
     );
-    console.log('modelApiPayload.value', modelApiPayload.value);
+    console.log('modelApiPayload.value test', modelApiPayload.value);
   }
-});
+},{ deep: true });
 onMounted(async () => {
   validate();
   await getAllAvailableDbNames();

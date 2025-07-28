@@ -245,7 +245,7 @@ export const useProps = () => {
   // Advanced Config generics
   const DateInputProps = ref<selectedDateType>({
     show: true,
-    selectedDateModel: values.selectedDate,
+    selectedDateModel: selectedDate,
     placeholder: "Select Date",
   });
   const LabelsProps = ref<LabelsType>({
