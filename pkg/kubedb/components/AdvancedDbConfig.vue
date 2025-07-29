@@ -6,6 +6,7 @@ import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/To
 import TextAreaAutoGrow from "@rancher/shell/rancher-components/Form/TextArea/TextAreaAutoGrow.vue";
 import KeyValue from "@rancher/shell/components/form/KeyValue.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
+import DateInput from "../components/DateInput/CustomDateInput.vue";
 import {
   DeletionPolicyType,
   LabelsType,
@@ -18,6 +19,7 @@ import {
   StreamingModeType,
   StandbyModeType,
   PitrType,
+  PitrDateType,
 } from "../types/types";
 
 interface Props {
@@ -32,6 +34,7 @@ interface Props {
   PitrNameProps: PitrNameType;
   StreamingModeProps: StreamingModeType;
   PitrProps: PitrType;
+  PitrDateProps: PitrDateType;
   AdvancedToggleSwitch: {
     DbConfig: boolean;
     AuthCred: boolean;
@@ -41,7 +44,6 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
 const isDbConfig = ref(false);
 const isAuthCred = ref(false);
 const isReferAuthSecret = ref(false);
@@ -171,6 +173,16 @@ const isReferAuthSecret = ref(false);
         :placeholder="props.PitrNameProps.placeholder"
         :required="props.PitrProps.pitrModel ? true : false"
         :rules="props.PitrProps.pitrModel ? props.PitrNameProps.rules : []"
+      />
+      <DateInput
+        class="mb-20"
+        v-if="props.PitrDateProps.show"
+        v-model="props.PitrDateProps.pitrDateModel"
+        :label="props.PitrDateProps.label"
+        :placeholder="props.PitrDateProps.placeholder"
+        :min="props.PitrDateProps.min"
+        :max="props.PitrDateProps.max"
+        :required="props.PitrProps.pitrModel ? true : false"
       />
     </div>
 

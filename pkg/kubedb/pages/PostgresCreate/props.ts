@@ -33,6 +33,7 @@ import {
   ExposeType,
   RemoteReplicaType,
   PitrType,
+  PitrDateType,
 } from "types/types";
 
 //Hard-coded options
@@ -84,6 +85,7 @@ export const useProps = () => {
     memory,
     storageClass,
     storageSize,
+    pitrDate,
     deletionPolicy,
     dbConfiguration,
     AuthPassword,
@@ -272,6 +274,16 @@ export const useProps = () => {
     pitrModel: pitr,
   });
 
+  const PitrDateProps = ref<PitrDateType>({
+    show: true,
+    pitrDateModel: pitrDate,
+    placeholder: "Select Date",
+    min: "",
+    max: "",
+    required: true,
+    label: "Recovery Timestamp",
+  });
+
   const AuthPasswordProps = ref<AuthPasswordType>({
     show: true,
     disabled: false,
@@ -401,6 +413,7 @@ export const useProps = () => {
     storageClass,
     storageSize,
     deletionPolicy,
+    pitrDate,
     dbConfiguration,
     AuthPassword,
     AuthSecret,
@@ -443,5 +456,6 @@ export const useProps = () => {
     TLSProps,
     ExposeProps,
     RemoteReplicaProps,
+    PitrDateProps,
   };
 };

@@ -436,6 +436,16 @@ export const useFunctions = () => {
     return date.toString();
   }
 
+  function convertLocalToISO8601(input: string): string | null {
+    const date = new Date(input);
+
+    if (isNaN(date.getTime())) {
+      return null;
+    }
+
+    return date.toISOString();
+  }
+
   const setPointInTimeRecovery = async (
     cluster: string,
     values: Record<string, any>,
@@ -492,18 +502,18 @@ export const useFunctions = () => {
         refNamespace;
 
       const resp = getComponentLogStats(snapshotsRespData);
-      modelApiValue.spec.init.archiver.recoveryTimestamp = convertToLocal(
-        resp?.end
-      );
+      modelApiValue.spec.init.archiver.recoveryTimestamp = resp?.end;
+
       modelApiValue.minDate = convertToLocal(resp?.start);
       modelApiValue.maxDate = convertToLocal(resp?.end);
-      return { values: modelApiValue };
+      return modelApiValue;
     } catch (error) {
       modelApiValue.spec.init.archiver.recoveryTimestamp = "";
       modelApiValue.spec.init.archiver.minDate = "";
       modelApiValue.spec.init.archiver.maxDate = "";
       console.error("Error loading data:", error);
     }
+    return modelApiValue;
   };
 
   const singleDbDelete = async (
@@ -550,6 +560,8 @@ export const useFunctions = () => {
     resourceSummaryLoading,
     getArchiverNameLoading,
     isDbDeleting,
+    convertLocalToISO8601,
+    convertToLocal,
     singleDbDelete,
     setPointInTimeRecovery,
     getArchiverName,

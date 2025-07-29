@@ -73,7 +73,7 @@ export function useRules() {
 
       const existingNames = namespaceKindMap[ns]?.[dbKind] ?? [];
       if (existingNames.includes(name)) {
-        return `Database with name "${name}" already exists in namespace "${ns}" with kind "${dbKind}"`;
+        return `Database with name "${name}" already exists in namespace "${ns}""`;
       }
       return "";
     };

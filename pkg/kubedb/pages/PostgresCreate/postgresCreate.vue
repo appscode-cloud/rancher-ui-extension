@@ -20,6 +20,7 @@ const store = useStore();
 const { required, getAllAvailableDbNames } = useRules();
 const { yamlToJs, getRandomUUID } = useUtils();
 const route = getCurrentInstance()?.proxy?.$route;
+const router = getCurrentInstance()?.proxy?.$router;
 const params = route?.params;
 
 const {
@@ -58,6 +59,7 @@ const {
   ExposeProps,
   RemoteReplicaProps,
   PitrProps,
+  PitrDateProps,
 } = useProps();
 
 const {
@@ -70,6 +72,9 @@ const {
   resourceSkipCRDApiCall,
   deployCall,
   getArchiverName,
+  setPointInTimeRecovery,
+  convertToLocal,
+  convertLocalToISO8601,
   getArchiverNameLoading,
   isDeploying,
   isModelLoading,
@@ -81,7 +86,7 @@ const {
 
 const step = ref(1);
 const clusterName = ref("");
-const modelApiPayload = ref({});
+const modelApiPayload = ref<Record<string, any>>({});
 const resourceSkipPayload = ref();
 const isYamlValid = ref(true);
 
@@ -139,7 +144,6 @@ const setValues = async () => {
   const data = await getValues(clusterName.value, namespace.value);
 
   modelApiPayload.value = data?.values;
-  console.log({ model: modelApiPayload.value });
   //modes
   const availableModes =
     data?.values.spec.admin.databases.Postgres.mode.available || [];
@@ -333,6 +337,40 @@ watch(namespace, async (n) => {
   await getArchiverName(clusterName.value, modelApiPayload.value);
 });
 
+watch(
+  () => values.pitrDate,
+  (newDate) => {
+    if (newDate) {
+      modelApiPayload.value.spec.init.archiver.recoveryTimestamp =
+        convertLocalToISO8601(newDate);
+    }
+  }
+);
+
+// Async Dependencies
+//PITR
+watch(
+  [
+    PitrNameProps.value.pitrNameModel,
+    PitrNamespaceProps.value.pitrNamespaceModel,
+  ],
+  () => {
+    if (
+      PitrNameProps.value.pitrNameModel &&
+      PitrNamespaceProps.value.pitrNamespaceModel
+    ) {
+      modelApiPayload.value = setPointInTimeRecovery(
+        clusterName.value,
+        values,
+        modelApiPayload.value
+      );
+      PitrDateProps.value.pitrDateModel = convertToLocal(
+        modelApiPayload.value.spec.init.archiver.recoveryTimestamp
+      );
+    }
+  }
+);
+
 onMounted(async () => {
   validate();
   await getAllAvailableDbNames();
@@ -459,6 +497,7 @@ const deployDatabase = () => {
             :AdvancedToggleSwitch="AdvancedToggleSwitch"
             :DeletionPolicyProps="DeletionPolicyProps"
             :LabelsProps="LabelsProps"
+            :PitrDateProps="PitrDateProps"
             :AnnotationsProps="AnnotationsProps"
             :DbConfigurationProps="DbConfigurationProps"
             :AuthPasswordProps="AuthPasswordProps"
@@ -496,7 +535,7 @@ const deployDatabase = () => {
       </div>
     </div>
     <div class="button-container">
-      <RcButton secondary>Cancel</RcButton>
+      <RcButton secondary @click="router?.push('overview')">Cancel</RcButton>
       <div class="button-group">
         <RcButton v-if="step > 1" primary @click="step--">Previous</RcButton>
         <RcButton primary @click="gotoNext" :disabled="disableNextBtn">{{
