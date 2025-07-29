@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import { useRules } from "../../composables/rules";
 import { useCreateForm } from "./create";
+import { dbObject } from "./consts";
 
 import {
   StorageClassType,
@@ -67,7 +68,7 @@ const deletionPolicies = ref<Array<{ value: string; label: string }>>([
   },
 ]);
 
-const { required } = useRules();
+const { required, checkDuplicate } = useRules();
 
 export const useProps = () => {
   const {
@@ -146,7 +147,7 @@ export const useProps = () => {
     label: "Name",
     placeholder: "Database Name",
     required: true,
-    rules: [required],
+    rules: [checkDuplicate(namespace, dbObject.kind)],
     minHeight: 30,
     nameModel: name,
   });

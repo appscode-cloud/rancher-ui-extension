@@ -1,11 +1,11 @@
-import $axios from "../composables/axios";
 import { getCurrentInstance, Ref, ref } from "vue";
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
-import { dbObject } from "../pages/PostgresCreate/consts";
+import { useFunctions } from "../pages/PostgresCreate/functions";
 
+const namespaceKindMap: Record<string, Record<string, string[]>> = {};
+const clusterName = ref<string>("");
 export function useRules() {
-  const clusterName = ref<string>("");
+  const { genericResourceCall } = useFunctions();
 
   const getClusters = async () => {
     const store = useStore();
@@ -37,30 +37,46 @@ export function useRules() {
     return "This field is required";
   };
 
-  const checkDuplicate = (namespace: Ref<string>) => {
-    getClusters();
-    return async (value: unknown) => {
+  const getAllAvailableDbNames = async () => {
+    await getClusters();
+    const genericResourceResponse = await genericResourceCall(
+      clusterName.value
+    );
+
+    genericResourceResponse?.values.rows.forEach(
+      (ele: { cells: Array<Record<string, string>> }) => {
+        const dbName = ele.cells[0]?.data;
+        const ns = ele.cells[1]?.data;
+        const kind = ele.cells[2]?.data;
+
+        if (!ns || !kind || !dbName) return;
+
+        if (!namespaceKindMap[ns]) {
+          namespaceKindMap[ns] = {};
+        }
+
+        if (!namespaceKindMap[ns][kind]) {
+          namespaceKindMap[ns][kind] = [];
+        }
+
+        namespaceKindMap[ns][kind].push(dbName);
+      }
+    );
+  };
+
+  const checkDuplicate = (namespace: Ref<string>, dbKind: string) => {
+    return (value: unknown) => {
       if (!value) return "This field is required";
 
-      try {
-        await $axios.post(
-          `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
-          {
-            apiVersion: "rproxy.ace.appscode.com/v1alpha1",
-            kind: "Proxy",
-            request: {
-              path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/kubedb.com/v1alpha2/namespaces/${namespace.value}/${dbObject.resource}/${value}`,
-              verb: "GET",
-              query: `convertToTable=true`,
-              body: "",
-            },
-          }
-        );
-        return "This name is already taken";
-      } catch (err) {
-        return true;
+      const name = String(value);
+      const ns = namespace.value;
+
+      const existingNames = namespaceKindMap[ns]?.[dbKind] ?? [];
+      if (existingNames.includes(name)) {
+        return `Database with name "${name}" already exists in namespace "${ns}" with kind "${dbKind}"`;
       }
+      return "";
     };
   };
-  return { required, checkDuplicate };
+  return { required, checkDuplicate, getAllAvailableDbNames };
 }
