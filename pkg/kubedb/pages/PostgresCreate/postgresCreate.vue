@@ -20,6 +20,7 @@ const store = useStore();
 const { required, getAllAvailableDbNames } = useRules();
 const { yamlToJs, getRandomUUID } = useUtils();
 const route = getCurrentInstance()?.proxy?.$route;
+const router = getCurrentInstance()?.proxy?.$router;
 const params = route?.params;
 
 const {
@@ -534,7 +535,7 @@ const deployDatabase = () => {
       </div>
     </div>
     <div class="button-container">
-      <RcButton secondary>Cancel</RcButton>
+      <RcButton secondary @click="router?.push('overview')">Cancel</RcButton>
       <div class="button-group">
         <RcButton v-if="step > 1" primary @click="step--">Previous</RcButton>
         <RcButton primary @click="gotoNext" :disabled="disableNextBtn">{{
