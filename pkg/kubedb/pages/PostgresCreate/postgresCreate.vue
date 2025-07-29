@@ -95,7 +95,7 @@ const previewTitle = computed(() => {
 
 const disableNextBtn = computed(() => {
   if (step.value === 1) {
-    if (!errors.value.name && !errors.value.namespace) return false;
+    return !(!errors.value.name && !errors.value.namespace);
   }
   if (step.value === 2) {
     const validated = Object.values(errors.value).every(
