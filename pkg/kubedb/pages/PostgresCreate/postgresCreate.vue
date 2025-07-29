@@ -142,7 +142,6 @@ const setValues = async () => {
   const data = await getValues(clusterName.value, namespace.value);
 
   modelApiPayload.value = data?.values;
-  console.log({ model: modelApiPayload.value });
   //modes
   const availableModes =
     data?.values.spec.admin.databases.Postgres.mode.available || [];
@@ -325,7 +324,6 @@ watch(values, async () => {
   await validate();
   if (namespace.value && modelApiPayload.value && name.value)
     modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
-  console.log({ model: modelApiPayload.value });
 });
 
 watch(namespace, async (n) => {
@@ -334,7 +332,6 @@ watch(namespace, async (n) => {
   await setValues();
   await setBundle();
   await getArchiverName(clusterName.value, modelApiPayload.value);
-  console.log('values', values);
 });
 
 watch(() => values.selectedDate, async (newDate) => {
@@ -344,7 +341,6 @@ watch(() => values.selectedDate, async (newDate) => {
       values,
       modelApiPayload.value
     );
-    console.log('modelApiPayload.value test', modelApiPayload.value);
   }
 },{ deep: true });
 onMounted(async () => {

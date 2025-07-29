@@ -443,7 +443,6 @@ export const useFunctions = () => {
   ) => {
     const refNamespace = values.pitrNamespace;
     const refDBName = values.pitrName;
-    window.console.log('test pitr ', refNamespace, refDBName);
 
     try {
       const repositoriesResp = await $axios.post(
