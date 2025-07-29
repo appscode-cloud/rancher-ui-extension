@@ -367,6 +367,8 @@ watch(
       PitrDateProps.value.pitrDateModel = convertToLocal(
         modelApiPayload.value.spec.init.archiver.recoveryTimestamp
       );
+      PitrDateProps.value.min = modelApiPayload.value.minDate;
+      PitrDateProps.value.max = modelApiPayload.value.maxDate;
     }
   }
 );
