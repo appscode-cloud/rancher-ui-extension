@@ -34,7 +34,7 @@ interface Props {
   PitrNameProps: PitrNameType;
   StreamingModeProps: StreamingModeType;
   PitrProps: PitrType;
-  PitrDateType: PitrDateType;
+  PitrDateProps: PitrDateType;
   AdvancedToggleSwitch: {
     DbConfig: boolean;
     AuthCred: boolean;
@@ -175,9 +175,9 @@ const isReferAuthSecret = ref(false);
         :rules="props.PitrProps.pitrModel ? props.PitrNameProps.rules : []"
       />
       <DateInput
-        v-if="props.PitrDateType.show"
-        v-model="props.PitrDateType.pitrDateModel"
-        :placeholder="props.PitrDateType.placeholder"
+        v-if="props.PitrDateProps.show"
+        v-model="props.PitrDateProps.pitrDateModel"
+        :placeholder="props.PitrDateProps.placeholder"
       />
     </div>
 

@@ -59,7 +59,7 @@ const {
   ExposeProps,
   RemoteReplicaProps,
   PitrProps,
-  PitrDateType,
+  PitrDateProps,
 } = useProps();
 
 const {
@@ -493,7 +493,7 @@ const deployDatabase = () => {
             :AdvancedToggleSwitch="AdvancedToggleSwitch"
             :DeletionPolicyProps="DeletionPolicyProps"
             :LabelsProps="LabelsProps"
-            :PitrDateType="PitrDateType"
+            :PitrDateProps="PitrDateProps"
             :AnnotationsProps="AnnotationsProps"
             :DbConfigurationProps="DbConfigurationProps"
             :AuthPasswordProps="AuthPasswordProps"

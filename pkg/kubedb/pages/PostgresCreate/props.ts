@@ -243,7 +243,7 @@ export const useProps = () => {
   });
 
   // Advanced Config generics
-  const PitrDateType = ref<PitrDateType>({
+  const PitrDateProps = ref<PitrDateType>({
     show: true,
     pitrDateModel: pitrDate,
     placeholder: "Select Date",
@@ -451,6 +451,6 @@ export const useProps = () => {
     TLSProps,
     ExposeProps,
     RemoteReplicaProps,
-    PitrDateType,
+    PitrDateProps,
   };
 };
