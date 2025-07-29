@@ -31,7 +31,7 @@ const props = withDefaults(defineProps<Props>(), {
   placeholder: 'Select date',
   required: false,
   disabled: false,
-  label: 'Choose a time for your appointment:',
+  label: 'Choose a time',
   rules: () => [],
   min: '2018-06-07T00:00',
   max: '2018-06-14T00:00'
