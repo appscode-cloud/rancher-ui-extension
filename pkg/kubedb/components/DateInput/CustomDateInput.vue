@@ -9,8 +9,6 @@
     :min="min"
     :max="max"
     :placeholder="placeholder"
-    :required="required"
-    :disabled="disabled"
   />
 </template>
 
