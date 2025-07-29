@@ -33,7 +33,7 @@ import {
   ExposeType,
   RemoteReplicaType,
   PitrType,
-  selectedDateType,
+  PitrDateType,
 } from "types/types";
 
 //Hard-coded options
@@ -85,7 +85,7 @@ export const useProps = () => {
     memory,
     storageClass,
     storageSize,
-    selectedDate,
+    pitrDate,
     deletionPolicy,
     dbConfiguration,
     AuthPassword,
@@ -243,9 +243,9 @@ export const useProps = () => {
   });
 
   // Advanced Config generics
-  const DateInputProps = ref<selectedDateType>({
+  const PitrDateType = ref<PitrDateType>({
     show: true,
-    selectedDateModel: selectedDate,
+    pitrDateModel: pitrDate,
     placeholder: "Select Date",
   });
   const LabelsProps = ref<LabelsType>({
@@ -408,7 +408,7 @@ export const useProps = () => {
     storageClass,
     storageSize,
     deletionPolicy,
-    selectedDate,
+    pitrDate,
     dbConfiguration,
     AuthPassword,
     AuthSecret,
@@ -451,6 +451,6 @@ export const useProps = () => {
     TLSProps,
     ExposeProps,
     RemoteReplicaProps,
-    DateInputProps,
+    PitrDateType,
   };
 };

@@ -109,7 +109,7 @@ const emit = defineEmits<{
 const showCalendar = ref(false);
 const currentMonth = ref(new Date().getMonth());
 const currentYear = ref(new Date().getFullYear());
-const selectedDate = ref<Date | null>(null);
+const pitrDateModel = ref<Date | null>(null);
 
 const monthNames = [
   'January', 'February', 'March', 'April', 'May', 'June',
@@ -120,9 +120,9 @@ const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 
 const formattedDate = computed(() => {
-  if (!selectedDate.value) return '';
+  if (!pitrDateModel.value) return '';
   
-  const date = selectedDate.value;
+  const date = pitrDateModel.value;
   const day = date.getDate().toString().padStart(2, '0');
   const month = (date.getMonth() + 1).toString().padStart(2, '0');
   const year = date.getFullYear();
@@ -160,7 +160,7 @@ const error = computed(() => {
   if (!props.rules || props.rules.length === 0) return '';
   
   for (const rule of props.rules) {
-    const result = rule(selectedDate.value);
+    const result = rule(pitrDateModel.value);
     if (typeof result === 'string') {
       return result;
     }
@@ -195,30 +195,30 @@ const nextMonth = () => {
 };
 
 const selectDate = (calendarDate: CalendarDate) => {
-  selectedDate.value = new Date(calendarDate.date);
-  emit('update:modelValue', selectedDate.value);
+  pitrDateModel.value = new Date(calendarDate.date);
+  emit('update:modelValue', pitrDateModel.value);
   showCalendar.value = false;
 };
 
 const clearDate = () => {
-  selectedDate.value = null;
+  pitrDateModel.value = null;
   emit('update:modelValue', null);
   showCalendar.value = false;
 };
 
 const selectToday = () => {
-  selectedDate.value = new Date();
-  emit('update:modelValue', selectedDate.value);
+  pitrDateModel.value = new Date();
+  emit('update:modelValue', pitrDateModel.value);
   showCalendar.value = false;
 };
 
 const isSelected = (calendarDate: CalendarDate): boolean => {
-  if (!selectedDate.value) return false;
+  if (!pitrDateModel.value) return false;
   
   return (
-    selectedDate.value.getDate() === calendarDate.day &&
-    selectedDate.value.getMonth() === calendarDate.month &&
-    selectedDate.value.getFullYear() === calendarDate.year
+    pitrDateModel.value.getDate() === calendarDate.day &&
+    pitrDateModel.value.getMonth() === calendarDate.month &&
+    pitrDateModel.value.getFullYear() === calendarDate.year
   );
 };
 
@@ -241,11 +241,11 @@ const handleClickOutside = (event: MouseEvent) => {
 // Watchers
 watch(() => props.modelValue, (newValue) => {
   if (newValue) {
-    selectedDate.value = new Date(newValue);
-    currentMonth.value = selectedDate.value.getMonth();
-    currentYear.value = selectedDate.value.getFullYear();
+    pitrDateModel.value = new Date(newValue);
+    currentMonth.value = pitrDateModel.value.getMonth();
+    currentYear.value = pitrDateModel.value.getFullYear();
   } else {
-    selectedDate.value = null;
+    pitrDateModel.value = null;
   }
 }, { immediate: true });
 

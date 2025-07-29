@@ -19,7 +19,7 @@ import {
   StreamingModeType,
   StandbyModeType,
   PitrType,
-  selectedDateType,
+  PitrDateType,
 } from "../types/types";
 
 interface Props {
@@ -34,7 +34,7 @@ interface Props {
   PitrNameProps: PitrNameType;
   StreamingModeProps: StreamingModeType;
   PitrProps: PitrType;
-  DateInputProps: selectedDateType;
+  PitrDateType: PitrDateType;
   AdvancedToggleSwitch: {
     DbConfig: boolean;
     AuthCred: boolean;
@@ -44,11 +44,9 @@ interface Props {
 }
 
 const props = defineProps<Props>();
-
 const isDbConfig = ref(false);
 const isAuthCred = ref(false);
 const isReferAuthSecret = ref(false);
-const selectedDate = ref<Date | null>(null);
 </script>
 
 <template>
@@ -177,11 +175,10 @@ const selectedDate = ref<Date | null>(null);
         :rules="props.PitrProps.pitrModel ? props.PitrNameProps.rules : []"
       />
       <DateInput
-        v-if="props.DateInputProps.show"
-        v-model="props.DateInputProps.selectedDateModel"
-        placeholder="Choose a date"
+        v-if="props.PitrDateType.show"
+        v-model="props.PitrDateType.pitrDateModel"
+        :placeholder="props.PitrDateType.placeholder"
       />
-   
     </div>
 
     <LabeledSelect

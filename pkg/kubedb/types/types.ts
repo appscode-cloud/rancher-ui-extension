@@ -100,8 +100,8 @@ export interface StandbyModeType extends AdvancedBaseCommon {
   standbyModeModel: any;
 }
 
-export interface selectedDateType extends AdvancedBaseCommon{
-  selectedDateModel: any;
+export interface PitrDateType extends AdvancedBaseCommon{
+  pitrDateModel: any;
 }
 export interface AlertType extends BaseCommon {
   alertModel: any;

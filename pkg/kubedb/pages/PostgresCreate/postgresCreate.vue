@@ -28,7 +28,7 @@ const {
   errors,
   name,
   namespace,
-  selectedDate,
+  pitrDate,
   AdvancedToggleSwitch,
   NameSpacesProps,
   VersionsProps,
@@ -59,7 +59,7 @@ const {
   ExposeProps,
   RemoteReplicaProps,
   PitrProps,
-  DateInputProps,
+  PitrDateType,
 } = useProps();
 
 const {
@@ -324,6 +324,7 @@ watch(values, async () => {
   await validate();
   if (namespace.value && modelApiPayload.value && name.value)
     modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
+  console.log({ model: modelApiPayload.value });
 });
 
 watch(namespace, async (n) => {
@@ -334,15 +335,16 @@ watch(namespace, async (n) => {
   await getArchiverName(clusterName.value, modelApiPayload.value);
 });
 
-watch(() => values.selectedDate, async (newDate) => {
-  if (newDate) {
-    modelApiPayload.value = setPointInTimeRecovery(
-      clusterName.value,
-      values,
-      modelApiPayload.value
-    );
+watch(
+  () => values.pitrDate,
+  (newDate) => {
+    if (newDate) {
+      modelApiPayload.value.spec.init.archiver.recoveryTimestamp = newDate;
+    }
   }
-},{ deep: true });
+ 
+);
+
 onMounted(async () => {
   validate();
   await getAllAvailableDbNames();
@@ -375,14 +377,25 @@ const gotoNext = async () => {
 };
 
 // Async Dependencies
- //PITR
-watch([PitrNameProps.value.pitrNameModel, PitrNamespaceProps.value.pitrNamespaceModel],()=>{
-  if (PitrNameProps.value.pitrNameModel && PitrNamespaceProps.value.pitrNamespaceModel) {
-       modelApiPayload.value= setPointInTimeRecovery(clusterName.value, values, modelApiPayload.value)
-  } 
-})
-
-
+//PITR
+watch(
+  [
+    PitrNameProps.value.pitrNameModel,
+    PitrNamespaceProps.value.pitrNamespaceModel,
+  ],
+  () => {
+    if (
+      PitrNameProps.value.pitrNameModel &&
+      PitrNamespaceProps.value.pitrNamespaceModel
+    ) {
+      modelApiPayload.value = setPointInTimeRecovery(
+        clusterName.value,
+        values,
+        modelApiPayload.value
+      );
+    }
+  }
+);
 
 //Long Running Task
 const showDialog = ref(false);
@@ -475,22 +488,22 @@ const deployDatabase = () => {
             :RemoteReplicaProps="RemoteReplicaProps"
           />
 
-            <AdvancedDbConfig
-              :AdvancedToggleSwitch="AdvancedToggleSwitch"
-              :DeletionPolicyProps="DeletionPolicyProps"
-              :LabelsProps="LabelsProps"
-              :DateInputProps="DateInputProps"
-              :AnnotationsProps="AnnotationsProps"
-              :DbConfigurationProps="DbConfigurationProps"
-              :AuthPasswordProps="AuthPasswordProps"
-              :AuthSecretProps="AuthSecretProps"
-              :StandbyModeProps="StandbyModeProps"
-              :PitrNamespaceProps="PitrNamespaceProps"
-              :PitrNameProps="PitrNameProps"
-              :StreamingModeProps="StreamingModeProps"
-              :PitrProps="PitrProps"
-              :required="required"
-            />
+          <AdvancedDbConfig
+            :AdvancedToggleSwitch="AdvancedToggleSwitch"
+            :DeletionPolicyProps="DeletionPolicyProps"
+            :LabelsProps="LabelsProps"
+            :PitrDateType="PitrDateType"
+            :AnnotationsProps="AnnotationsProps"
+            :DbConfigurationProps="DbConfigurationProps"
+            :AuthPasswordProps="AuthPasswordProps"
+            :AuthSecretProps="AuthSecretProps"
+            :StandbyModeProps="StandbyModeProps"
+            :PitrNamespaceProps="PitrNamespaceProps"
+            :PitrNameProps="PitrNameProps"
+            :StreamingModeProps="StreamingModeProps"
+            :PitrProps="PitrProps"
+            :required="required"
+          />
 
           <AdditionalOptions
             :MonitoringProps="MonitoringProps"
