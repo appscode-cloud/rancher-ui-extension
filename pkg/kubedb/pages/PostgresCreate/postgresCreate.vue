@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, getCurrentInstance, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
-import { useRoute, useRouter } from "vue-router";
 import Loading from "@shell/components/Loading.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
@@ -9,21 +8,21 @@ import BasicDbConfig from "../../components/BasicDbConfig.vue";
 import AdvancedDbConfig from "../../components/AdvancedDbConfig.vue";
 import AdditionalOptions from "../../components/AdditionalOptions.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
-import YamlEditor from "@rancher/shell/components/YamlEditor.vue";
-import Tabbed from "@shell/components/Tabbed/index.vue";
-import Tab from "@shell/components/Tabbed/Tab.vue";
-import Dialog from "@shell/components/Dialog.vue";
 
 import { useUtils } from "../../composables/utils";
 import { useRules } from "../../composables/rules";
 import { useProps } from "./props";
 import { useFunctions } from "./functions";
-import { machineList, machines, EDITOR_MODES } from "./consts";
+import { machineList, machines } from "./consts";
+import LongRunningTask from "../../components/long-running-task/LongRunningTaskModal.vue";
+import YamlPreview from "../../components/YamlPreview.vue";
 
 const store = useStore();
 const { required } = useRules();
-const { params } = useRoute();
-const { yamlToJs } = useUtils();
+const route = getCurrentInstance()?.proxy?.$route;
+const params = route?.params;
+
+const { yamlToJs, getRandomUUID } = useUtils();
 
 const {
   validate,
@@ -86,12 +85,36 @@ const step = ref(1);
 const clusterName = ref("");
 const modelApiPayload = ref({});
 const resourceSkipPayload = ref();
-const showDialog = ref(false);
+const isYamlValid = ref(true);
 
 const previewTitle = computed(() => {
   return step.value === 1
     ? "Create Postgres"
     : `Create Postgres: ${namespace.value}/${name.value}`;
+});
+
+const disableNextBtn = computed(() => {
+  if (step.value === 1) {
+    return !(!errors.value.name && !errors.value.namespace);
+  }
+  if (step.value === 2) {
+    const validated = Object.values(errors.value).every(
+      (value) => value === ""
+    );
+    return (
+      !validated ||
+      isValuesLoading.value ||
+      isDeploying.value ||
+      isModelLoading.value ||
+      isResourceSkipLoading.value ||
+      isBundleLoading.value ||
+      isNamespaceLoading.value ||
+      getArchiverNameLoading.value
+    );
+  }
+  if (step.value === 3) {
+    return !isYamlValid.value;
+  }
 });
 
 const getClusters = async () => {
@@ -100,7 +123,7 @@ const getClusters = async () => {
       type: "management.cattle.io.cluster",
     });
     result.forEach((ele: { id: string; spec: { displayName: string } }) => {
-      if (ele.id === params.cluster) {
+      if (ele.id === params?.cluster) {
         clusterName.value = ele.spec.displayName;
       }
     });
@@ -297,32 +320,10 @@ const setBundle = async () => {
   }
 };
 
-const disableNextBtn = computed(() => {
-  if (step.value === 1) {
-    if (!errors.value.name && !errors.value.namespace) return false;
-  }
-
-  const validated = Object.values(errors.value).every((value) => value === "");
-  return (
-    !validated ||
-    isValuesLoading.value ||
-    isDeploying.value ||
-    isModelLoading.value ||
-    isResourceSkipLoading.value ||
-    isBundleLoading.value ||
-    isNamespaceLoading.value ||
-    getArchiverNameLoading.value
-  );
-});
-
 watch(values, async () => {
   await validate();
   if (namespace.value && modelApiPayload.value && name.value)
-    modelApiPayload.value = generateModelPayload(
-      clusterName.value,
-      values,
-      modelApiPayload.value
-    );
+    modelApiPayload.value = generateModelPayload(values, modelApiPayload.value);
   console.log({ model: modelApiPayload.value });
 });
 
@@ -344,11 +345,6 @@ const previewFiles = ref<
   Array<{ key: string; filename: string; data: string }>
 >([]);
 
-const router = useRouter();
-const NavigateToOverview = () => {
-  router.push({ name: "c-cluster-Kubedb-overview" });
-};
-
 const gotoNext = async () => {
   if (step.value === 1) step.value = 2;
   else if (step.value === 2) {
@@ -363,34 +359,45 @@ const gotoNext = async () => {
     );
 
     previewFiles.value = resourceSkipCRDResponse?.values.resources;
-    step.value = 3;
+    if (previewFiles.value) step.value = 3;
   } else if (step.value === 3) {
-    const deployApiPayload: {
-      form: Record<string, any>;
-      metadata: Record<string, any>;
-      resources: Record<string, any>;
-    } = {
-      form: {},
-      metadata: {},
-      resources: {},
-    };
-    deployApiPayload.form = resourceSkipPayload.value.values.form;
-    deployApiPayload.metadata = resourceSkipPayload.value.values.metadata;
-    previewFiles.value.forEach(
-      (file: { key: string; filename: string; data: string }) => {
-        deployApiPayload.resources[file.key] = yamlToJs(file.data);
-      }
-    );
-    deployCall(clusterName.value, deployApiPayload);
-    showDialog.value = true;
+    deployDatabase();
   }
+};
+
+//Long Running Task
+const showDialog = ref(false);
+const natsSubject = ref("");
+const isNatsConnectionLoading = ref(false);
+const uuid = getRandomUUID();
+natsSubject.value = `natjobs.resp.${uuid}`;
+
+const deployDatabase = () => {
+  const deployApiPayload: {
+    form: Record<string, any>;
+    metadata: Record<string, any>;
+    resources: Record<string, any>;
+  } = {
+    form: {},
+    metadata: {},
+    resources: {},
+  };
+  deployApiPayload.form = resourceSkipPayload.value.values.form;
+  deployApiPayload.metadata = resourceSkipPayload.value.values.metadata;
+  previewFiles.value.forEach(
+    (file: { key: string; filename: string; data: string }) => {
+      deployApiPayload.resources[file.key] = yamlToJs(file.data);
+    }
+  );
+  deployCall(clusterName.value, deployApiPayload, uuid);
+  showDialog.value = true;
 };
 </script>
 
 <template>
   <div class="m-24">
     <h1>{{ previewTitle }}</h1>
-    <div class="mb-20" v-if="step === 1">
+    <div v-if="step === 1" class="mb-20">
       <div class="col span-6 mb-20">
         <LabeledSelect
           v-if="NameSpacesProps.show"
@@ -421,6 +428,7 @@ const gotoNext = async () => {
     </div>
     <div v-else>
       <Loading
+        :noDelay="true"
         v-if="
           isValuesLoading ||
           isBundleLoading ||
@@ -432,98 +440,87 @@ const gotoNext = async () => {
       />
       <div v-if="step === 2">
         <div>
-          <div>
-            <!-- Basic Configuration Component -->
-            <BasicDbConfig
-              :NameSpacesProps="NameSpacesProps"
-              :VersionsProps="VersionsProps"
-              :NameProps="NameProps"
-              :ModeProps="ModeProps"
-              :required="required"
-              :StorageSizeProps="StorageSizeProps"
-              :StorageClassProps="StorageClassProps"
-              :ReplicaProps="ReplicaProps"
-              :MachineProps="MachineProps"
-              :CPUProps="CPUProps"
-              :MemoryProps="MemoryProps"
-              :RemoteReplicaProps="RemoteReplicaProps"
-            />
+          <!-- Basic Configuration Component -->
+          <BasicDbConfig
+            :NameSpacesProps="NameSpacesProps"
+            :VersionsProps="VersionsProps"
+            :NameProps="NameProps"
+            :ModeProps="ModeProps"
+            :required="required"
+            :StorageSizeProps="StorageSizeProps"
+            :StorageClassProps="StorageClassProps"
+            :ReplicaProps="ReplicaProps"
+            :MachineProps="MachineProps"
+            :CPUProps="CPUProps"
+            :MemoryProps="MemoryProps"
+            :RemoteReplicaProps="RemoteReplicaProps"
+          />
 
-            <AdvancedDbConfig
-              :AdvancedToggleSwitch="AdvancedToggleSwitch"
-              :DeletionPolicyProps="DeletionPolicyProps"
-              :LabelsProps="LabelsProps"
-              :AnnotationsProps="AnnotationsProps"
-              :DbConfigurationProps="DbConfigurationProps"
-              :AuthPasswordProps="AuthPasswordProps"
-              :AuthSecretProps="AuthSecretProps"
-              :StandbyModeProps="StandbyModeProps"
-              :PitrNamespaceProps="PitrNamespaceProps"
-              :PitrNameProps="PitrNameProps"
-              :StreamingModeProps="StreamingModeProps"
-              :PitrProps="PitrProps"
-              :required="required"
-            />
+          <AdvancedDbConfig
+            :AdvancedToggleSwitch="AdvancedToggleSwitch"
+            :DeletionPolicyProps="DeletionPolicyProps"
+            :LabelsProps="LabelsProps"
+            :AnnotationsProps="AnnotationsProps"
+            :DbConfigurationProps="DbConfigurationProps"
+            :AuthPasswordProps="AuthPasswordProps"
+            :AuthSecretProps="AuthSecretProps"
+            :StandbyModeProps="StandbyModeProps"
+            :PitrNamespaceProps="PitrNamespaceProps"
+            :PitrNameProps="PitrNameProps"
+            :StreamingModeProps="StreamingModeProps"
+            :PitrProps="PitrProps"
+            :required="required"
+          />
 
-            <AdditionalOptions
-              :MonitoringProps="MonitoringProps"
-              :BackupProps="BackupProps"
-              :ArchiverProps="ArchiverProps"
-              :TLSProps="TLSProps"
-              :ExposeProps="ExposeProps"
-              :AlertProps="AlertProps"
-              :IssuerProps="IssuerProps"
-            />
-          </div>
+          <AdditionalOptions
+            :MonitoringProps="MonitoringProps"
+            :BackupProps="BackupProps"
+            :ArchiverProps="ArchiverProps"
+            :TLSProps="TLSProps"
+            :ExposeProps="ExposeProps"
+            :AlertProps="AlertProps"
+            :IssuerProps="IssuerProps"
+          />
         </div>
       </div>
       <div v-if="step === 3">
-        <Tabbed class="mb-20" default-tab="overview" :use-hash="true">
-          <Tab
-            v-for="file in previewFiles"
-            :key="file.key"
-            :name="file.filename"
-            :label="file.filename"
-            :weight="2"
-            :badge="0"
-            :error="false"
-          >
-            <div class="tab-content">
-              <YamlEditor
-                ref="yamleditor"
-                :key="file.key"
-                v-model:value="file.data"
-                mode="create"
-                :asObject="false"
-                :initial-yaml-values="file.data"
-                class="yaml-editor flex-content"
-                :editor-mode="EDITOR_MODES.EDIT_CODE"
-              />
-            </div>
-          </Tab>
-        </Tabbed>
+        <div class="mb-20">
+          <YamlPreview
+            :preview-files="previewFiles"
+            @validation-changed="
+              (val) => {
+                isYamlValid = val;
+              }
+            "
+          />
+        </div>
       </div>
     </div>
     <div class="button-container">
       <RcButton secondary>Cancel</RcButton>
-      <div>
+      <div class="button-group">
         <RcButton v-if="step > 1" primary @click="step--">Previous</RcButton>
         <RcButton primary @click="gotoNext" :disabled="disableNextBtn">{{
           step === 1 ? "Next" : step === 2 ? "Preview" : "Deploy"
         }}</RcButton>
       </div>
     </div>
-    <Dialog
-      v-if="showDialog"
-      name="example-modal"
-      title="Postgres Create"
-      @okay="NavigateToOverview"
-      @closed="NavigateToOverview"
-    >
-      <template #default>
-        <p>Your db has been deployed</p>
-      </template>
-    </Dialog>
+    <LongRunningTask
+      :open="showDialog"
+      :nats-subject="natsSubject"
+      :is-nats-connection-loading="isNatsConnectionLoading"
+      title="Deploying Postgres"
+      :onSuccess="
+        () => {
+          showDialog = false;
+        }
+      "
+      :onError="
+        () => {
+          showDialog = false;
+        }
+      "
+    />
   </div>
 </template>
 
@@ -531,5 +528,9 @@ const gotoNext = async () => {
 .button-container {
   display: flex;
   justify-content: space-between;
+}
+.button-group {
+  display: flex;
+  gap: 8px;
 }
 </style>

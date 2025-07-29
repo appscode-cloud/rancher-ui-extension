@@ -5,7 +5,7 @@ interface BaseCommon {
   multiple?: boolean;
   placeholder?: string;
   required?: boolean;
-  rules?: Array<(value: unknown) => string>;
+  rules?: Array<(value: unknown) => unknown>;
   clearable?: boolean;
   label?: string;
   options?: Array<{
@@ -129,6 +129,80 @@ export interface TLSType extends BaseCommon {
 export interface ExposeType extends BaseCommon {
   exposeModel: any;
 }
+
 export interface RemoteReplicaType extends BaseCommon {
   remoteReplicaModel: any;
+}
+
+export type TaskStatus =
+  | "Pending"
+  | "Running"
+  | "Success"
+  | "Failed"
+  | "Started";
+
+export interface TaskLog {
+  status?: TaskStatus;
+  msg?: string;
+  step?: string;
+  error?: string;
+  id?: string;
+}
+export interface Task extends Omit<TaskLog, "message"> {
+  logs: Array<string>;
+}
+export interface LongRunningTasksCtx {
+  natsSubject: string;
+  tasks: Array<Task>;
+}
+
+export interface YamlEditorInstanceType {
+  editorMode: string;
+  mode: "create" | "edit" | string;
+  asObject: boolean;
+  initialYamlValues: string;
+  scrolling: boolean;
+  value: string;
+  hidePreviewButtons: boolean;
+  componentTestid: string;
+  isPreview: boolean;
+  diffMode: "unified" | "split" | string;
+  showCodeEditor: boolean;
+  curValue: string;
+  original: string;
+
+  state: {
+    pending: boolean;
+    error: unknown | null;
+    timestamp: number;
+  };
+
+  $fetchState: {
+    pending: boolean;
+    error: unknown | null;
+    timestamp: number;
+  };
+
+  codeMirrorOptions: {
+    readOnly: boolean;
+    gutters: string[];
+    mode: string;
+    lint: boolean;
+    lineNumbers: boolean;
+    styleActiveLine: boolean;
+    tabSize: number;
+    indentWithTabs: boolean;
+    cursorBlinkRate: number;
+    extraKeys: {
+      [key: string]: string;
+    };
+    screenReaderLabel: string;
+  };
+
+  focus: () => void;
+  refresh: () => void;
+  updateValue: (newValue: string) => void;
+  onInput: (val: string) => void;
+  onChanges: (cb: (newValue: string) => void) => void;
+  onReady: () => void;
 }

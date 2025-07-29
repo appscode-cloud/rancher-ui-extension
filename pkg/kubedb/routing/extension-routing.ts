@@ -3,7 +3,7 @@ import Overview from "../pages/Overview.vue";
 // to achieve naming consistency throughout the extension
 // we recommend this to be defined on a config file and exported
 // so that the developer can import it wherever it needs to be used
-const YOUR_PRODUCT_NAME = "Kubedb";
+const YOUR_PRODUCT_NAME = "kubedb";
 const CUSTOM_PAGE_NAME1 = "postgres";
 const CUSTOM_PAGE_NAME2 = "overview";
 

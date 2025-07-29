@@ -1,21 +1,23 @@
 import $axios from "../composables/axios";
-import { Ref, ref } from "vue";
+import { getCurrentInstance, Ref, ref } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
+import { dbObject } from "../pages/PostgresCreate/consts";
 
 export function useRules() {
   const clusterName = ref<string>("");
 
   const getClusters = async () => {
     const store = useStore();
-    const { params } = useRoute();
+    const route = getCurrentInstance()?.proxy?.$route;
+    const params = route?.params;
 
     try {
       const result = await store.dispatch("management/findAll", {
         type: "management.cattle.io.cluster",
       });
       result.forEach((ele: { id: string; spec: { displayName: string } }) => {
-        if (ele.id === params.cluster) {
+        if (ele.id === params?.cluster) {
           clusterName.value = ele.spec.displayName;
         }
       });
@@ -41,20 +43,20 @@ export function useRules() {
       if (!value) return "This field is required";
 
       try {
-        const response = await $axios.post(
+        await $axios.post(
           `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
           {
             apiVersion: "rproxy.ace.appscode.com/v1alpha1",
             kind: "Proxy",
             request: {
-              path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/kubedb.com/v1alpha2/namespaces/${namespace.value}/postgreses/${value}`,
+              path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/kubedb.com/v1alpha2/namespaces/${namespace.value}/${dbObject.resource}/${value}`,
               verb: "GET",
               query: `convertToTable=true`,
               body: "",
             },
           }
         );
-        return false;
+        return "This name is already taken";
       } catch (err) {
         return true;
       }

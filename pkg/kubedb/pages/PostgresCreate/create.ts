@@ -1,7 +1,6 @@
 import { useField, useForm } from "vee-validate";
 import { useRules } from "../../composables/rules";
 import { computed } from "vue";
-import { useRoute } from "vue-router";
 
 export const useCreateForm = () => {
   const { required, checkDuplicate } = useRules();
@@ -28,7 +27,7 @@ export const useCreateForm = () => {
   });
 
   const { value: namespace } = useField<string>("namespace", required);
-  const { value: name } = useField<string>("name", checkDuplicate(namespace));
+  const { value: name } = useField<string>("name", required);
   const { value: version } = useField<string>("version", required);
   const { value: replicas } = useField<string>("replicas", replicaRules);
   const { value: machine } = useField<string>("machine", required, {

@@ -18,7 +18,7 @@ import {
   StreamingModeType,
   StandbyModeType,
   PitrType,
-} from "../types/type";
+} from "../types/types";
 
 interface Props {
   DeletionPolicyProps: DeletionPolicyType;
