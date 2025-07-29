@@ -339,7 +339,7 @@ watch(
   () => values.pitrDate,
   (newDate) => {
     if (newDate) {
-      modelApiPayload.value.spec.init.archiver.recoveryTimestamp = newDate;
+      modelApiPayload.value.spec.init.archiver.recoveryTimestamp = newDate + 'Z';
     }
     console.log('test modelApiPayload', modelApiPayload.value);
   }

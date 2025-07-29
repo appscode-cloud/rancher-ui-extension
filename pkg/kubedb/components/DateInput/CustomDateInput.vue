@@ -27,13 +27,7 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: '2018-06-12T19:30',
-  required: false,
-  disabled: false,
-  label: 'Choose a time',
-  rules: () => [],
-  min: '2018-06-07T00:00',
-  max: '2018-06-14T00:00'
+  modelValue: '',
 });
 
 const emit = defineEmits(['update:modelValue']);

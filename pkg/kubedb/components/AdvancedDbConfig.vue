@@ -178,6 +178,8 @@ const isReferAuthSecret = ref(false);
         v-if="props.PitrDateProps.show"
         v-model="props.PitrDateProps.pitrDateModel"
         :placeholder="props.PitrDateProps.placeholder"
+        :min="props.PitrDateProps.min"
+        :max="props.PitrDateProps.max"
       />
     </div>
 

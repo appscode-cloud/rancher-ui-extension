@@ -247,6 +247,8 @@ export const useProps = () => {
     show: true,
     pitrDateModel: pitrDate,
     placeholder: "Select Date",
+    min: '',
+    max: '',
   });
   const LabelsProps = ref<LabelsType>({
     show: true,
