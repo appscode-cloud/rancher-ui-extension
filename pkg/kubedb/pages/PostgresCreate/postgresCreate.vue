@@ -8,7 +8,6 @@ import BasicDbConfig from "../../components/BasicDbConfig.vue";
 import AdvancedDbConfig from "../../components/AdvancedDbConfig.vue";
 import AdditionalOptions from "../../components/AdditionalOptions.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
-
 import { useUtils } from "../../composables/utils";
 import { useRules } from "../../composables/rules";
 import { useProps } from "./props";
@@ -18,11 +17,10 @@ import LongRunningTask from "../../components/long-running-task/LongRunningTaskM
 import YamlPreview from "../../components/YamlPreview.vue";
 
 const store = useStore();
-const { required } = useRules();
+const { required, getAllAvailableDbNames } = useRules();
+const { yamlToJs, getRandomUUID } = useUtils();
 const route = getCurrentInstance()?.proxy?.$route;
 const params = route?.params;
-
-const { yamlToJs, getRandomUUID } = useUtils();
 
 const {
   validate,
@@ -337,6 +335,7 @@ watch(namespace, async (n) => {
 
 onMounted(async () => {
   validate();
+  await getAllAvailableDbNames();
   await getClusters();
   setNamespaces();
 });

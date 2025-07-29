@@ -1,6 +1,7 @@
 import { useField, useForm } from "vee-validate";
 import { useRules } from "../../composables/rules";
 import { computed } from "vue";
+import { dbObject } from "../PostgresCreate/consts";
 
 export const useCreateForm = () => {
   const { required, checkDuplicate } = useRules();
@@ -27,7 +28,10 @@ export const useCreateForm = () => {
   });
 
   const { value: namespace } = useField<string>("namespace", required);
-  const { value: name } = useField<string>("name", required);
+  const { value: name } = useField<string>(
+    "name",
+    checkDuplicate(namespace, dbObject.kind)
+  );
   const { value: version } = useField<string>("version", required);
   const { value: replicas } = useField<string>("replicas", replicaRules);
   const { value: machine } = useField<string>("machine", required, {
