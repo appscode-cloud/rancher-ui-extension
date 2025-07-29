@@ -1,68 +1,50 @@
 <template>
   <label for="meeting-time">{{ label }}</label>
-
   <input
     type="datetime-local"
     id="meeting-time"
     name="meeting-time"
-    :value="formattedValue"
-    @input="handleInput"
-    min="2018-06-07T00:00"
-    max="2018-06-14T00:00" 
+    :value="modelValue"
+    @input="onInput"
+    :min="min"
+    :max="max"
+    :placeholder="placeholder"
+    :required="required"
+    :disabled="disabled"
   />
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { defineProps, withDefaults, defineEmits } from 'vue';
 
 interface Props {
-  modelValue?: Date | string | null;
+  modelValue?: string | null;
   label?: string;
   placeholder?: string;
   required?: boolean;
   disabled?: boolean;
   rules?: Array<(value: any) => string | boolean>;
+  min?: string;
+  max?: string;
 }
 
 const props = withDefaults(defineProps<Props>(), {
+  modelValue: '2018-06-12T19:30',
   placeholder: 'Select date',
   required: false,
   disabled: false,
   label: 'Choose a time for your appointment:',
-  rules: () => []
+  rules: () => [],
+  min: '2018-06-07T00:00',
+  max: '2018-06-14T00:00'
 });
 
-const emit = defineEmits<{
-  'update:modelValue': [value: string | Date | null]
-}>();
+const emit = defineEmits(['update:modelValue']);
 
-const formattedValue = computed(() => {
-  if (!props.modelValue) return '';
-  
-  if (props.modelValue instanceof Date) {
-    return props.modelValue.toISOString().slice(0, 16);
-  }
-  
-  if (typeof props.modelValue === 'string') {
-    const date = new Date(props.modelValue);
-    if (!isNaN(date.getTime())) {
-      return date.toISOString().slice(0, 16);
-    }
-    return props.modelValue;
-  }
-  return '';
-});
-
-const handleInput = (event: Event) => {
+function onInput(event: Event) {
   const target = event.target as HTMLInputElement;
-  const value = target.value;
-  
-  if (value) {
-    emit('update:modelValue', value);
-  } else {
-    emit('update:modelValue', null);
-  }
-};
+  emit('update:modelValue', target.value);
+}
 </script>
 
 <style scoped>
