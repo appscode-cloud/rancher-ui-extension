@@ -36,19 +36,18 @@ const activeTab = ref(props.previewFiles[0]?.filename || "");
 
 function onTabChanged(tabName: { selectedName: string }) {
   activeTab.value = tabName.selectedName;
+  const tab = activeTab.value;
 
-  nextTick(() => {
-    const tab = activeTab.value;
-
-    if (!refreshedTabs.value.has(tab)) {
+  if (!refreshedTabs.value.has(tab)) {
+    nextTick(() => {
       const editor = yamlEditorRefs.value[tab];
       setTimeout(() => {
         editor?.refresh?.();
         editor?.focus?.();
         refreshedTabs.value.add(tab);
       }, 50);
-    }
-  });
+    });
+  }
 }
 
 const isError = computed<Record<string, boolean>>(() => {
@@ -74,7 +73,7 @@ watch(isError, () => {
 
 <template>
   <div class="mb-20">
-    <Tabbed :use-hash="true" @changed="onTabChanged">
+    <Tabbed :use-hash="false" @changed="onTabChanged">
       <Tab
         v-for="file in previewFiles"
         :key="file.key"
@@ -82,7 +81,7 @@ watch(isError, () => {
         :label="file.filename"
         :error="isError[file.filename]"
       >
-        <div class="tab-content" v-show="file.filename === activeTab">
+        <div class="tab-content">
           <YamlEditor
             :ref="(el: YamlEditorInstanceType) => setYamlEditorRef(file.filename, el)"
             v-model:value="file.data"
