@@ -341,6 +341,7 @@ watch(
     if (newDate) {
       modelApiPayload.value.spec.init.archiver.recoveryTimestamp = newDate;
     }
+    console.log('test modelApiPayload', modelApiPayload.value);
   }
  
 );
