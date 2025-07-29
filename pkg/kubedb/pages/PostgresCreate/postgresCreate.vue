@@ -28,7 +28,6 @@ const {
   errors,
   name,
   namespace,
-  pitrDate,
   AdvancedToggleSwitch,
   NameSpacesProps,
   VersionsProps,
@@ -73,6 +72,8 @@ const {
   deployCall,
   getArchiverName,
   setPointInTimeRecovery,
+  convertToLocal,
+  convertLocalToISO8601,
   getArchiverNameLoading,
   isDeploying,
   isModelLoading,
@@ -84,7 +85,7 @@ const {
 
 const step = ref(1);
 const clusterName = ref("");
-const modelApiPayload = ref({});
+const modelApiPayload = ref<Record<string, any>>({});
 const resourceSkipPayload = ref();
 const isYamlValid = ref(true);
 
@@ -339,11 +340,34 @@ watch(
   () => values.pitrDate,
   (newDate) => {
     if (newDate) {
-      modelApiPayload.value.spec.init.archiver.recoveryTimestamp = newDate + 'Z';
+      modelApiPayload.value.spec.init.archiver.recoveryTimestamp =
+        convertLocalToISO8601(newDate);
     }
-    console.log('test modelApiPayload', modelApiPayload.value);
   }
- 
+);
+
+// Async Dependencies
+//PITR
+watch(
+  [
+    PitrNameProps.value.pitrNameModel,
+    PitrNamespaceProps.value.pitrNamespaceModel,
+  ],
+  () => {
+    if (
+      PitrNameProps.value.pitrNameModel &&
+      PitrNamespaceProps.value.pitrNamespaceModel
+    ) {
+      modelApiPayload.value = setPointInTimeRecovery(
+        clusterName.value,
+        values,
+        modelApiPayload.value
+      );
+      PitrDateProps.value.pitrDateModel = convertToLocal(
+        modelApiPayload.value.spec.init.archiver.recoveryTimestamp
+      );
+    }
+  }
 );
 
 onMounted(async () => {
@@ -376,27 +400,6 @@ const gotoNext = async () => {
     deployDatabase();
   }
 };
-
-// Async Dependencies
-//PITR
-watch(
-  [
-    PitrNameProps.value.pitrNameModel,
-    PitrNamespaceProps.value.pitrNamespaceModel,
-  ],
-  () => {
-    if (
-      PitrNameProps.value.pitrNameModel &&
-      PitrNamespaceProps.value.pitrNamespaceModel
-    ) {
-      modelApiPayload.value = setPointInTimeRecovery(
-        clusterName.value,
-        values,
-        modelApiPayload.value
-      );
-    }
-  }
-);
 
 //Long Running Task
 const showDialog = ref(false);

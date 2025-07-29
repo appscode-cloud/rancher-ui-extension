@@ -243,13 +243,6 @@ export const useProps = () => {
   });
 
   // Advanced Config generics
-  const PitrDateProps = ref<PitrDateType>({
-    show: true,
-    pitrDateModel: pitrDate,
-    placeholder: "Select Date",
-    min: '',
-    max: '',
-  });
   const LabelsProps = ref<LabelsType>({
     show: true,
     labelsModel: labels,
@@ -279,6 +272,16 @@ export const useProps = () => {
   const PitrProps = ref<PitrType>({
     show: true,
     pitrModel: pitr,
+  });
+
+  const PitrDateProps = ref<PitrDateType>({
+    show: true,
+    pitrDateModel: pitrDate,
+    placeholder: "Select Date",
+    min: "",
+    max: "",
+    required: true,
+    label: "Recovery Timestamp",
   });
 
   const AuthPasswordProps = ref<AuthPasswordType>({

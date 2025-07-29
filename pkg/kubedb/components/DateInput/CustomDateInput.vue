@@ -1,19 +1,22 @@
 <template>
-  <label for="meeting-time">{{ label }}</label>
-  <input
-    type="datetime-local"
-    id="meeting-time"
-    name="meeting-time"
-    :value="modelValue"
-    @input="onInput"
-    :min="min"
-    :max="max"
-    :placeholder="placeholder"
-  />
+  <div>
+    <label for="meeting-time">{{ label }}</label>
+    <input
+      type="datetime-local"
+      id="meeting-time"
+      name="meeting-time"
+      :value="modelValue"
+      @input="onInput"
+      :required="props.required"
+      :min="min"
+      :max="max"
+      :placeholder="placeholder"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { defineProps, withDefaults, defineEmits } from 'vue';
+import { defineProps, withDefaults, defineEmits } from "vue";
 
 interface Props {
   modelValue?: string | null;
@@ -27,21 +30,20 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  modelValue: '',
+  modelValue: "",
 });
 
-const emit = defineEmits(['update:modelValue']);
+const emit = defineEmits(["update:modelValue"]);
 
 function onInput(event: Event) {
   const target = event.target as HTMLInputElement;
-  emit('update:modelValue', target.value);
+  emit("update:modelValue", target.value);
 }
 </script>
 
 <style scoped>
 label {
   display: block;
-  font: 1rem "Fira Sans", sans-serif;
 }
 
 input,

@@ -86,7 +86,7 @@ export const useCreateForm = () => {
     "remoteReplica",
     remoteReplicaRules
   );
-  const { value: pitrDate } = useField<Date | null>("pitrDate");
+  const { value: pitrDate } = useField<Date | null>("pitrDate", pitrRule);
   return {
     values,
     errors,

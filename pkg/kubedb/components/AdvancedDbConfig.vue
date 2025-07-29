@@ -175,11 +175,14 @@ const isReferAuthSecret = ref(false);
         :rules="props.PitrProps.pitrModel ? props.PitrNameProps.rules : []"
       />
       <DateInput
+        class="mb-20"
         v-if="props.PitrDateProps.show"
         v-model="props.PitrDateProps.pitrDateModel"
+        :label="props.PitrDateProps.label"
         :placeholder="props.PitrDateProps.placeholder"
         :min="props.PitrDateProps.min"
         :max="props.PitrDateProps.max"
+        :required="props.PitrProps.pitrModel ? true : false"
       />
     </div>
 
