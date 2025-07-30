@@ -1,22 +1,24 @@
 <script setup lang="ts">
-import { computed, getCurrentInstance, onBeforeUnmount, watch } from "vue";
-import type { Ref } from "vue";
-import { ref } from "vue";
+import {
+  computed,
+  getCurrentInstance,
+  onBeforeUnmount,
+  watch,
+  ref,
+  Ref,
+} from "vue";
 import type { Task, TaskLog } from "../../types/types";
 import { StringCodec } from "nats.ws";
 import type { Subscription } from "nats.ws";
 import Dialog from "@shell/components/Dialog.vue";
-import Loading from "@shell/components/Loading.vue";
-// import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
+import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 
 defineEmits(["close"]);
 
 interface Props {
   open?: boolean;
-  theme?: string;
   title?: string;
   simple?: boolean;
-  showCloseButton?: boolean;
   operationsAfterSuccess?: boolean;
   natsSubject?: string;
   isNatsConnectionLoading?: boolean;
@@ -34,10 +36,8 @@ interface Props {
 
 const props = withDefaults(defineProps<Props>(), {
   open: true,
-  theme: "light",
   simple: true,
-  title: "Sample title",
-  showCloseButton: false,
+  title: "Nats title",
   natsSubject: "",
   isNatsConnectionLoading: false,
   errorCtx: undefined,
@@ -181,77 +181,21 @@ const longRunningTaskStatus = computed(() => {
   } else return "Pending";
 });
 
-// modal close / footer feature
-const enableModalClose = computed(() => {
-  return (
-    props.showCloseButton ||
-    connectionError.value ||
-    longRunningTaskStatus.value === "Failed" ||
-    longRunningTaskStatus.value === "Success"
-  );
-});
-const enableModalFooter = computed(() => {
-  return showReportButton.value || showSuccessButton.value;
-});
-
-// generate report issue title with error step title
-const getReportIssueInfo = (): { title: string; body: string } => {
-  const stepTitlesFromErrorTasks: Array<string> = [];
-  const stepLogsFromErrorTasks: Array<string> = [];
-  tasks.value.forEach((task) => {
-    // if this taskLog is error task, push it to array
-    if (task.error) {
-      stepTitlesFromErrorTasks.push(task?.step || "");
-      stepLogsFromErrorTasks.push(task?.logs[task?.logs?.length - 1] || "");
-    }
-  });
-  // return final object
-  return {
-    title: stepTitlesFromErrorTasks.join(", "),
-    body: stepLogsFromErrorTasks.join(", "),
-  };
-};
-
-// report button
-const showReportButton = computed(
-  () => longRunningTaskStatus.value === "Failed"
-);
-function onReportIssueClick() {
-  const url = `https://github.com/bytebuilders/community/issues/new?title=Chart Install: ${
-    getReportIssueInfo().title
-  }&labels[]=bug&body=${window.location.href} %0A%0A %60%60%60 %0A  ${
-    getReportIssueInfo().body
-  } %0A %60%60%60`;
-  window.open(url, "_blank");
-}
-
-// success button
-const showSuccessButton = computed(
-  () =>
-    longRunningTaskStatus.value === "Success" && !!props.successCtx?.btnTitle
-);
-
 // execute on success and on error functions
 watch(longRunningTaskStatus, (n) => {
   if (n === "Success") {
-    props.successCtx?.onSuccess();
+    // props.successCtx?.onSuccess();
+    console.log("Success");
   } else if (n === "Failed") {
-    props.errorCtx?.onError("Operation Failed");
+    console.log("Failed");
+    // props.errorCtx?.onError("Operation Failed");
   }
 });
 </script>
 
 <template>
-  <Dialog
-    v-if="open"
-    :name="title"
-    @okay="$emit('close')"
-    @closed="$emit('close')"
-    :open="open"
-    :title="title"
-  >
+  <Dialog v-if="open" :name="title" :open="open" :title="title">
     <template #default>
-      <slot name="longRunningInfo"></slot>
       <div v-if="connectionError" class="task-simple-wrapper">
         <div class="task-cogs-icon">
           <i class="fa fa-times-circle has-text-danger fa-5x fa-fw"></i>
@@ -269,7 +213,7 @@ watch(longRunningTaskStatus, (n) => {
         class="is-justify-content-center"
         :class="simple ? 'task-simple-wrapper' : 'task-complex-wrapper'"
       >
-        <Loading :style="{ height: '100%' }" class="is-fullheight" />
+        <div :style="{ height: '100%' }" class="is-fullheight">Loading...</div>
       </div>
       <div v-else-if="simple" class="task-simple-wrapper">
         <div class="task-cogs-icon">
@@ -300,27 +244,15 @@ watch(longRunningTaskStatus, (n) => {
           <span>{{ activeTask?.logs[activeTask?.logs.length - 1] }}</span>
         </div>
       </div>
-      <!-- <div>
-        <RcButton secondary @click.stop="$emit('close')">Close </RcButton>
-        <RcButton
-          v-if="showSuccessButton"
-          :is-loader-active="successCtx?.isLoaderActive"
-          modifier-classes="is-primary"
-          icon-class="step-forward"
-          @click="successCtx?.onSuccessBtnClick"
-          >{{ successCtx?.btnTitle }}</RcButton
-        >
-        <RcButton
-          v-if="showReportButton"
-          title="Report Issue"
-          modifier-classes="is-danger"
-          icon-class="external-link"
-          @click="onReportIssueClick"
-        >
-          Report Issue
-        </RcButton>
-      </div> -->
     </template>
+    <!-- <template #buttons>
+      <RcButton v-if="longRunningTaskStatus === 'Success'" @click=""
+        >ok</RcButton
+      >
+      <RcButton v-if="longRunningTaskStatus === 'Failed'" @click=""
+        >cancel</RcButton
+      >
+    </template> -->
   </Dialog>
 </template>
 

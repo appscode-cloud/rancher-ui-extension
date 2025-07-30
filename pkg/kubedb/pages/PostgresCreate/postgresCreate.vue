@@ -412,11 +412,14 @@ const gotoNext = async () => {
 //Long Running Task
 const showDialog = ref(false);
 const natsSubject = ref("");
+const connectionError = ref("");
 const isNatsConnectionLoading = ref(false);
 const uuid = getRandomUUID();
 natsSubject.value = `natjobs.resp.${uuid}`;
 
-const deployDatabase = () => {
+const deployDatabase = async () => {
+  showDialog.value = true;
+  isNatsConnectionLoading.value = true;
   const deployApiPayload: {
     form: Record<string, any>;
     metadata: Record<string, any>;
@@ -433,8 +436,12 @@ const deployDatabase = () => {
       deployApiPayload.resources[file.key] = yamlToJs(file.data);
     }
   );
-  deployCall(clusterName.value, deployApiPayload, uuid);
-  showDialog.value = true;
+
+  const { error } = await deployCall(clusterName.value, deployApiPayload, uuid);
+  if (error) {
+    connectionError.value = error;
+  }
+  isNatsConnectionLoading.value = false;
 };
 </script>
 
@@ -551,20 +558,21 @@ const deployDatabase = () => {
       </div>
     </div>
     <LongRunningTask
-      :open="showDialog"
+      :open="true"
       :nats-subject="natsSubject"
       :is-nats-connection-loading="isNatsConnectionLoading"
       title="Deploying Postgres"
-      :onSuccess="
-        () => {
-          showDialog = false;
-        }
-      "
-      :onError="
-        () => {
-          showDialog = false;
-        }
-      "
+      :error-ctx="{
+        connectionError: connectionError,
+        onError: () => {
+          console.log('x');
+        },
+      }"
+      :success-ctx="{
+        onSuccess: () => {
+          console.log('success');
+        },
+      }"
     />
   </div>
 </template>

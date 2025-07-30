@@ -25,7 +25,7 @@ export const useNats = () => {
     //self host
     const protocol = window.location.protocol;
     return protocol === "https:"
-      ? `wss://10.2.0.42/nats`
+      ? `https://dbaas.demo.kubedb.cloud/nats`
       : `ws://10.2.0.42/nats`;
   }
 
