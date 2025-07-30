@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, getCurrentInstance, onMounted, ref, watch } from "vue";
+import { App, computed, getCurrentInstance, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
 import Loading from "@shell/components/Loading.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
@@ -15,6 +15,11 @@ import { useFunctions } from "./functions";
 import { machineList, machines } from "./consts";
 import LongRunningTask from "../../components/long-running-task/LongRunningTaskModal.vue";
 import YamlPreview from "../../components/YamlPreview.vue";
+import { useNats } from "../../composables/nats";
+
+// need to call this on every component.
+const { natsConnect } = useNats();
+natsConnect(getCurrentInstance()?.appContext.app as App<Element>);
 
 const store = useStore();
 const { required, getAllAvailableDbNames } = useRules();
