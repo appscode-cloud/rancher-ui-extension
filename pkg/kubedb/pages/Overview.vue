@@ -98,7 +98,12 @@ const fetchAndSetGenericResources = async (showLoading: boolean) => {
           const value = cell.data;
           obj[key] = value;
           if (cell.link) {
-            obj["link"] = cell.link;
+            const routePath = route?.path;
+            const path = routePath?.replace(/\/overview$/, "");
+            obj["link"] = `${path}/${row.cells[2].data.toLowerCase()}/${
+              row.cells[1].data
+            }/${row.cells[0].data}/details`;
+            console.log(obj["link"]);
           }
         }
       );
@@ -106,7 +111,7 @@ const fetchAndSetGenericResources = async (showLoading: boolean) => {
     }
   );
   rows.value = tempRows;
-
+  console.log({ genericResourceResponse });
   const resourceSummaryResponse = await resourceSummaryCall(clusterName.value);
   resourceSummary.value = resourceSummaryResponse?.values.rows.filter(
     (ele: { cells: Array<{ data: number }> }) => {
