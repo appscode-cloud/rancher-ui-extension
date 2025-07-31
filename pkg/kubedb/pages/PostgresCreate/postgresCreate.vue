@@ -558,19 +558,19 @@ const deployDatabase = async () => {
       </div>
     </div>
     <LongRunningTask
-      :open="true"
+      :open="showDialog"
       :nats-subject="natsSubject"
       :is-nats-connection-loading="isNatsConnectionLoading"
       title="Deploying Postgres"
       :error-ctx="{
         connectionError: connectionError,
         onError: () => {
-          console.log('x');
+          showDialog = false;
         },
       }"
       :success-ctx="{
         onSuccess: () => {
-          console.log('success');
+          router?.push('overview');
         },
       }"
     />

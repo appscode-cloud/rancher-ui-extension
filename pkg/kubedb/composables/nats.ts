@@ -1,4 +1,5 @@
 import { connect, StringCodec, jwtAuthenticator } from "nats.ws";
+import { get as getCookie, set as setCookie } from "tiny-cookie";
 import type { App } from "vue";
 import $axios from "./axios";
 
@@ -25,36 +26,43 @@ export const useNats = () => {
     //self host
     const protocol = window.location.protocol;
     return protocol === "https:"
-      ? `https://dbaas.demo.kubedb.cloud/nats`
+      ? `https://10.2.0.42/nats`
       : `ws://10.2.0.42/nats`;
   }
 
   const sc = StringCodec();
+  let _user_jwt: string | null = "";
+  let _user_seed: string | null = "";
   async function natsConnect(app: App<Element>) {
-    try {
-      const resp = await $axios.post(
-        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
-        {
-          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
-          kind: "Proxy",
-          request: {
-            path: `/api/v1/rancher/nats-cred`,
-            verb: "GET",
-            query: ``,
-            body: "",
-          },
-        }
-      );
+    _user_jwt = getCookie("_user_jwt");
+    _user_seed = getCookie("_user_seed");
 
-      const data = await JSON.parse(resp.data.response?.body);
-      const _user_jwt = data["user-jwt"];
-      const _user_seed = data["user-seed"];
+    try {
+      if (!_user_jwt || !_user_seed) {
+        const resp = await $axios.post(
+          `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+          {
+            apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+            kind: "Proxy",
+            request: {
+              path: `/api/v1/rancher/nats-cred`,
+              verb: "GET",
+              query: ``,
+              body: "",
+            },
+          }
+        );
+
+        const data = await JSON.parse(resp.data.response?.body);
+        setCookie("_user_jwt", data["user-jwt"]);
+        setCookie("_user_seed", data["user-seed"]);
+      }
 
       const natsConnection = await connect({
         servers: getWebSocketServer(),
         authenticator: jwtAuthenticator(
-          _user_jwt as string,
-          bytes(_user_seed as string) as unknown as Uint8Array
+          getCookie("_user_jwt") as string,
+          bytes(getCookie("_user_seed") as string) as unknown as Uint8Array
         ),
       });
       app.config.globalProperties.$nc = natsConnection;
