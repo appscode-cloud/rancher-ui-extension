@@ -298,11 +298,12 @@ export const useFunctions = () => {
 
       const data = await JSON.parse(response.data.response?.body);
       isDeploying.value = false;
-      return { values: data };
+      return { values: data, error: "" };
     } catch (error) {
+      isDeploying.value = false;
       console.error("Error loading data:", error);
+      return { values: {}, error: "" };
     }
-    isDeploying.value = false;
   };
 
   const genericResourceCall = async (cluster: string) => {

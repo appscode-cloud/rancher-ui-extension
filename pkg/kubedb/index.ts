@@ -10,10 +10,6 @@ import type { App } from "vue";
 
 // Init the package
 export default function (plugin: IPlugin): void {
-  const { natsConnect } = useNats();
-  const app = getCurrentInstance()?.appContext.app as App<Element>;
-
-  natsConnect(app);
   // Auto-import model, detail, edit from the folders
   importTypes(plugin);
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, getCurrentInstance, onMounted, ref, watch } from "vue";
+import { App, computed, getCurrentInstance, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
 import Loading from "@shell/components/Loading.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
@@ -15,6 +15,11 @@ import { useFunctions } from "./functions";
 import { machineList, machines } from "./consts";
 import LongRunningTask from "../../components/long-running-task/LongRunningTaskModal.vue";
 import YamlPreview from "../../components/YamlPreview.vue";
+import { useNats } from "../../composables/nats";
+
+// need to call this on every component.
+const { natsConnect } = useNats();
+natsConnect(getCurrentInstance()?.appContext.app as App<Element>);
 
 const store = useStore();
 const { required, getAllAvailableDbNames } = useRules();
@@ -407,11 +412,14 @@ const gotoNext = async () => {
 //Long Running Task
 const showDialog = ref(false);
 const natsSubject = ref("");
+const connectionError = ref("");
 const isNatsConnectionLoading = ref(false);
 const uuid = getRandomUUID();
 natsSubject.value = `natjobs.resp.${uuid}`;
 
-const deployDatabase = () => {
+const deployDatabase = async () => {
+  showDialog.value = true;
+  isNatsConnectionLoading.value = true;
   const deployApiPayload: {
     form: Record<string, any>;
     metadata: Record<string, any>;
@@ -428,8 +436,12 @@ const deployDatabase = () => {
       deployApiPayload.resources[file.key] = yamlToJs(file.data);
     }
   );
-  deployCall(clusterName.value, deployApiPayload, uuid);
-  showDialog.value = true;
+
+  const { error } = await deployCall(clusterName.value, deployApiPayload, uuid);
+  if (error) {
+    connectionError.value = error;
+  }
+  isNatsConnectionLoading.value = false;
 };
 </script>
 
@@ -550,16 +562,17 @@ const deployDatabase = () => {
       :nats-subject="natsSubject"
       :is-nats-connection-loading="isNatsConnectionLoading"
       title="Deploying Postgres"
-      :onSuccess="
-        () => {
+      :error-ctx="{
+        connectionError: connectionError,
+        onError: () => {
           showDialog = false;
-        }
-      "
-      :onError="
-        () => {
-          showDialog = false;
-        }
-      "
+        },
+      }"
+      :success-ctx="{
+        onSuccess: () => {
+          router?.push('overview');
+        },
+      }"
     />
   </div>
 </template>

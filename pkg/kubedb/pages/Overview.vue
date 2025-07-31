@@ -5,9 +5,13 @@ import ConsumptionGauge from "@rancher/shell/components/ConsumptionGauge.vue";
 import Loading from "@shell/components/Loading.vue";
 import SimpleBox from "@rancher/shell/components/SimpleBox.vue";
 import { useFunctions } from "./PostgresCreate/functions";
-import { getCurrentInstance, onMounted, onUnmounted, ref } from "vue";
+import { App, getCurrentInstance, onMounted, onUnmounted, ref } from "vue";
 import { useStore } from "vuex";
-import { useRoute } from "vue-router";
+import { useNats } from "../composables/nats";
+
+// need to call this on every component.
+const { natsConnect } = useNats();
+natsConnect(getCurrentInstance()?.appContext.app as App<Element>);
 
 const store = useStore();
 const clusterName = ref("");
@@ -220,16 +224,6 @@ onUnmounted(() => {
               </span>
             </template>
           </ConsumptionGauge>
-          <!-- <div>
-            <div>
-              <p>{{ resource.cells[1].data }}</p>
-            </div>
-            <div>
-              <p>CPU: {{ resource.cells[2].data }}</p>
-              <p>MEMORY: {{ resource.cells[3].data }}</p>
-              <p>STORAGE: {{ resource.cells[4].data }}</p>
-            </div>
-          </div> -->
         </SimpleBox>
       </div>
       <SortableTable
