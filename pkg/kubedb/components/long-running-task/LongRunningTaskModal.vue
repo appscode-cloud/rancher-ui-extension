@@ -13,8 +13,6 @@ import type { Subscription } from "nats.ws";
 import Dialog from "@shell/components/Dialog.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 
-defineEmits(["close"]);
-
 interface Props {
   open?: boolean;
   title?: string;
@@ -24,7 +22,7 @@ interface Props {
   isNatsConnectionLoading?: boolean;
   errorCtx?: {
     connectionError: string;
-    onError: (msg: string) => void;
+    onError: (msg?: string) => void;
   };
   successCtx?: {
     btnTitle?: string;
@@ -35,14 +33,14 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  open: true,
+  open: false,
   simple: true,
   title: "Nats title",
   natsSubject: "",
   isNatsConnectionLoading: false,
   errorCtx: undefined,
   successCtx: undefined,
-  operationsAfterSuccess: false,
+  operationsAfterSuccess: true,
 });
 
 const connectionError = computed(() => props.errorCtx?.connectionError);
@@ -55,7 +53,7 @@ const tasks: Ref<Array<Task>> = ref([
     status: "Running",
     step: "Starting tasks",
     id: "starting-tasks",
-    logs: ["..."],
+    logs: ["Establishing connection. Please wait..."],
   },
 ]);
 const activeStepId: Ref<string> = ref("starting-tasks");
@@ -196,142 +194,255 @@ watch(longRunningTaskStatus, (n) => {
 <template>
   <Dialog v-if="open" :name="title" :open="open" :title="title">
     <template #default>
-      <div v-if="connectionError" class="task-simple-wrapper">
-        <div class="task-cogs-icon">
-          <i class="fa fa-times-circle has-text-danger fa-5x fa-fw"></i>
-        </div>
-        <div class="task-log">
-          <span class="task-title">
-            <i class="fa fa-times-circle mr-5 is-failed" />
-            <span> Connection error </span>
-          </span>
-          <span>{{ connectionError }}</span>
-        </div>
-      </div>
       <div
-        v-else-if="isNatsConnectionLoading"
-        class="is-justify-content-center"
-        :class="simple ? 'task-simple-wrapper' : 'task-complex-wrapper'"
+        style="
+          min-height: 250px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        "
       >
-        <div :style="{ height: '100%' }" class="is-fullheight">Loading...</div>
-      </div>
-      <div v-else-if="simple" class="task-simple-wrapper">
-        <div class="task-cogs-icon">
-          <i class="fa fa-cog fa-spin fa-5x fa-fw"></i>
-          <span class="is-flex is-flex-direction-column">
-            <i class="fa fa-cog fa-spin fa-3x fa-bw"></i>
-            <i class="fa fa-cog fa-spin fa-3x fa-bw"></i>
-          </span>
+        <div v-if="connectionError">
+          <div class="task-cogs-icon">
+            <i class="fa fa-times-circle has-text-danger fa-5x fa-fw"></i>
+          </div>
+          <div
+            class="task-log"
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+            "
+          >
+            <div class="task-title">
+              <span>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="m15.75 15l-6-6m0 6l6-6m7 3c0-5.523-4.477-10-10-10s-10 4.477-10 10s4.477 10 10 10s10-4.477 10-10"
+                    color="currentColor"
+                  />
+                </svg>
+              </span>
+            </div>
+            <h3 style="margin-top: 8px">Connection failed</h3>
+            <p>{{ connectionError }}</p>
+          </div>
         </div>
-        <div class="task-log">
-          <span class="task-title">
-            <i
-              v-if="activeTask?.status === 'Running'"
-              class="fa fa-circle-o-notch fa-spin mr-5"
-            />
-            <i
-              v-else-if="activeTask?.status === 'Success'"
-              class="fa fa-check-circle mr-5 is-success"
-            />
-            <i
-              v-else-if="activeTask?.status === 'Failed'"
-              class="fa fa-times-circle mr-5 is-failed"
-            />
+        <div
+          v-else-if="isNatsConnectionLoading"
+          class="is-justify-content-center"
+        >
+          <div
+            :style="{ height: '100%' }"
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+            "
+            class="is-fullheight"
+          >
             <span>
-              {{ activeTask?.step }}
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+              >
+                <g
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-dasharray="16"
+                    stroke-dashoffset="16"
+                    d="M12 3c4.97 0 9 4.03 9 9"
+                  >
+                    <animate
+                      fill="freeze"
+                      attributeName="stroke-dashoffset"
+                      dur="0.3s"
+                      values="16;0"
+                    />
+                    <animateTransform
+                      attributeName="transform"
+                      dur="1.5s"
+                      repeatCount="indefinite"
+                      type="rotate"
+                      values="0 12 12;360 12 12"
+                    />
+                  </path>
+                  <path
+                    stroke-dasharray="64"
+                    stroke-dashoffset="64"
+                    stroke-opacity=".3"
+                    d="M12 3c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9c0 -4.97 4.03 -9 9 -9Z"
+                  >
+                    <animate
+                      fill="freeze"
+                      attributeName="stroke-dashoffset"
+                      dur="1.2s"
+                      values="64;0"
+                    />
+                  </path>
+                </g>
+              </svg>
             </span>
-          </span>
-          <span>{{ activeTask?.logs[activeTask?.logs.length - 1] }}</span>
+            <h3 style="margin-top: 8px">Loading your data...</h3>
+            <p>Please hang on — this won’t take long.</p>
+          </div>
+        </div>
+        <div v-else-if="simple">
+          <div class="task-cogs-icon">
+            <i class="fa fa-cog fa-spin fa-5x fa-fw"></i>
+            <span class="is-flex is-flex-direction-column">
+              <i class="fa fa-cog fa-spin fa-3x fa-bw"></i>
+              <i class="fa fa-cog fa-spin fa-3x fa-bw"></i>
+            </span>
+          </div>
+          <div
+            class="task-log"
+            style="
+              display: flex;
+              flex-direction: column;
+              justify-content: center;
+              align-items: center;
+            "
+          >
+            <p class="task-title">
+              <span
+                style="display: flex"
+                v-if="activeTask?.status === 'Running'"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                >
+                  <!-- Icon from Material Line Icons by Vjacheslav Trushkin - https://github.com/cyberalien/line-md/blob/master/license.txt -->
+                  <g
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                  >
+                    <path
+                      stroke-dasharray="16"
+                      stroke-dashoffset="16"
+                      d="M12 3c4.97 0 9 4.03 9 9"
+                    >
+                      <animate
+                        fill="freeze"
+                        attributeName="stroke-dashoffset"
+                        dur="0.3s"
+                        values="16;0"
+                      />
+                      <animateTransform
+                        attributeName="transform"
+                        dur="1.5s"
+                        repeatCount="indefinite"
+                        type="rotate"
+                        values="0 12 12;360 12 12"
+                      />
+                    </path>
+                    <path
+                      stroke-dasharray="64"
+                      stroke-dashoffset="64"
+                      stroke-opacity=".3"
+                      d="M12 3c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9c0 -4.97 4.03 -9 9 -9Z"
+                    >
+                      <animate
+                        fill="freeze"
+                        attributeName="stroke-dashoffset"
+                        dur="1.2s"
+                        values="64;0"
+                      />
+                    </path>
+                  </g>
+                </svg>
+              </span>
+
+              <span v-else-if="activeTask?.status === 'Success'">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                >
+                  <g
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    color="currentColor"
+                  >
+                    <path
+                      d="M17 3.338A9.95 9.95 0 0 0 12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10q-.002-1.03-.2-2"
+                    />
+                    <path d="M8 12.5s1.5 0 3.5 3.5c0 0 5.559-9.167 10.5-11" />
+                  </g>
+                </svg>
+              </span>
+
+              <span v-else-if="activeTask?.status === 'Failed'">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="1.5"
+                    d="m15.75 15l-6-6m0 6l6-6m7 3c0-5.523-4.477-10-10-10s-10 4.477-10 10s4.477 10 10 10s10-4.477 10-10"
+                    color="currentColor"
+                  />
+                </svg>
+              </span>
+            </p>
+            <h3 style="margin-top: 8px">
+              {{ activeTask?.step }}
+            </h3>
+            <p>{{ activeTask?.logs[activeTask?.logs.length - 1] }}</p>
+          </div>
         </div>
       </div>
     </template>
     <template #buttons>
       <RcButton
-        @click="successCtx?.onSuccess"
-        :disabled="!longRunningTaskStatus"
-        >{{
-          longRunningTaskStatus === "Success"
-            ? "Ok"
-            : longRunningTaskStatus === "Failed"
-            ? "Close"
-            : "Loading..."
-        }}</RcButton
+        @click="
+          () => {
+            longRunningTaskStatus === 'Success'
+              ? successCtx?.onSuccess()
+              : errorCtx.onError();
+          }
+        "
+        :disabled="
+          longRunningTaskStatus === 'NotStarted' ||
+          longRunningTaskStatus === 'Pending'
+        "
+        >{{ longRunningTaskStatus === "Success" ? "Ok" : "Close" }}</RcButton
       >
     </template>
   </Dialog>
 </template>
-
-<style scoped lang="scss">
-.task-simple-wrapper {
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  width: 40vw;
-  height: 40vh;
-
-  .task-cogs-icon {
-    width: 100%;
-    height: 70%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    // color: $ac-primary;
-  }
-
-  .task-log {
-    width: 100%;
-    height: 30%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    .task-title {
-      span,
-      i {
-        font-size: 16px;
-      }
-
-      i {
-        // color: $ac-primary;
-
-        &.is-success {
-          // color: $success;
-        }
-
-        &.is-failed {
-          // color: $danger;
-        }
-      }
-
-      font-weight: 500;
-    }
-
-    span {
-      font-size: 14px;
-    }
-  }
-}
-
-.task-complex-wrapper {
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-  width: 60vw;
-  height: 60vh;
-
-  .task-list {
-    width: 25%;
-    max-height: calc(100vh - 260px);
-    overflow-y: auto;
-  }
-
-  .task-log {
-    width: 70%;
-    height: 100%;
-    border-radius: 0px;
-    font-size: 13px;
-  }
-}
-</style>
