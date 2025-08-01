@@ -112,7 +112,6 @@ const fetchAndSetGenericResources = async (showLoading: boolean) => {
     }
   );
   rows.value = tempRows;
-  console.log({ genericResourceResponse });
   const resourceSummaryResponse = await resourceSummaryCall(clusterName.value);
   resourceSummary.value = resourceSummaryResponse?.values.rows.filter(
     (ele: { cells: Array<{ data: number }> }) => {
