@@ -8,6 +8,7 @@ import { useFunctions } from "./PostgresCreate/functions";
 import { App, getCurrentInstance, onMounted, onUnmounted, ref } from "vue";
 import { useStore } from "vuex";
 import { useNats } from "../composables/nats";
+import RcButton from "@shell/rancher-components/RcButton/RcButton.vue";
 
 // need to call this on every component.
 const { natsConnect } = useNats();
@@ -138,6 +139,15 @@ onMounted(async () => {
 onUnmounted(() => {
   clearInterval(intervalId);
 });
+
+const connectionError = ref("");
+const isNatsConnectionLoading = ref(false);
+const simple = true;
+const activeTask = ref({
+  status: "Success",
+  step: "Database created successfully",
+  logs: ["Successfully deployed database"],
+});
 </script>
 
 <template>
@@ -146,7 +156,7 @@ onUnmounted(() => {
       <Loading />
     </div>
     <div v-else>
-      <div class="simple-box-container">
+      <!-- <div class="simple-box-container">
         <SimpleBox
           v-for="resource in resourceSummary"
           :key="resource.cells[0].data"
@@ -255,7 +265,84 @@ onUnmounted(() => {
         <template #header-left>
           <h1>Overview</h1>
         </template>
-      </SortableTable>
+      </SortableTable> -->
+      <RcButton
+        @click="
+          () => {
+            connectionError = 'something went wrong while connecting';
+          }
+        "
+        >set error</RcButton
+      >
+      <RcButton
+        @click="
+          () => {
+            isNatsConnectionLoading = true;
+          }
+        "
+        >set setLoading</RcButton
+      >
+      <RcButton
+        @click="
+          () => {
+            isNatsConnectionLoading = false;
+            connectionError = '';
+          }
+        "
+        >show Data</RcButton
+      >
+      <div>
+        <div v-if="connectionError" class="task-simple-wrapper">
+          <div class="task-cogs-icon">
+            <i class="fa fa-times-circle has-text-danger fa-5x fa-fw"></i>
+          </div>
+          <div class="task-log">
+            <span class="task-title">
+              <i class="fa fa-times-circle mr-5 is-failed" />
+              <span> Connection error </span>
+            </span>
+            <span>{{ connectionError }}</span>
+          </div>
+        </div>
+        <div
+          v-else-if="isNatsConnectionLoading"
+          class="is-justify-content-center"
+          :class="simple ? 'task-simple-wrapper' : 'task-complex-wrapper'"
+        >
+          <div :style="{ height: '100%' }" class="is-fullheight">
+            Loading...
+          </div>
+        </div>
+        <div v-else-if="simple" class="task-simple-wrapper">
+          <div class="task-cogs-icon">
+            <i class="fa fa-cog fa-spin fa-5x fa-fw"></i>
+            <span class="is-flex is-flex-direction-column">
+              <i class="fa fa-cog fa-spin fa-3x fa-bw"></i>
+              <i class="fa fa-cog fa-spin fa-3x fa-bw"></i>
+            </span>
+          </div>
+          <div class="task-log">
+            <span class="task-title">
+              <i
+                v-if="activeTask?.status === 'Running'"
+                class="fa fa-circle-o-notch fa-spin mr-5"
+              />
+              <i
+                v-else-if="activeTask?.status === 'Success'"
+                class="fa fa-check-circle mr-5 is-success"
+              />
+              <i
+                v-else-if="activeTask?.status === 'Failed'"
+                class="fa fa-times-circle mr-5 is-failed"
+              />
+              <span>
+                {{ activeTask?.step }}
+              </span>
+            </span>
+            <span>{{ activeTask?.logs[activeTask?.logs.length - 1] }}</span>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </template>
