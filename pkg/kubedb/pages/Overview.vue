@@ -151,7 +151,7 @@ const simple = true;
 const activeTask = ref({
   status: "Success",
   step: "Database created successfully",
-  logs: ["Successfully deployed database"],
+  logs: ["The database is ready and live. Everything was set up successfully!"],
 });
 </script>
 
@@ -274,7 +274,7 @@ const activeTask = ref({
       <RcButton
         @click="
           () => {
-            connectionError = 'something went wrong while connecting';
+            connectionError = 'We weren’t able to establish a connection. Please check your network settings and try again.';
           }
         "
         >set error</RcButton
@@ -301,12 +301,14 @@ const activeTask = ref({
           <div class="task-cogs-icon">
             <i class="fa fa-times-circle has-text-danger fa-5x fa-fw"></i>
           </div>
-          <div class="task-log">
-            <span class="task-title">
-              <i class="fa fa-times-circle mr-5 is-failed" />
-              <span> Connection error </span>
-            </span>
-            <span>{{ connectionError }}</span>
+          <div class="task-log" style="display: flex; flex-direction: column; justify-content: center; align-items: center;">
+            <div class="task-title">
+             <span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m15.75 15l-6-6m0 6l6-6m7 3c0-5.523-4.477-10-10-10s-10 4.477-10 10s4.477 10 10 10s10-4.477 10-10" color="currentColor"/></svg>
+             </span>
+            </div>
+            <h3 style="margin-top: 8px;"> Connection failed </h3>
+            <p>{{ connectionError }}</p>
           </div>
         </div>
         <div
@@ -314,8 +316,12 @@ const activeTask = ref({
           class="is-justify-content-center"
           :class="simple ? 'task-simple-wrapper' : 'task-complex-wrapper'"
         >
-          <div :style="{ height: '100%' }" class="is-fullheight">
-            Loading...
+          <div :style="{ height: '100%' }" style="display: flex; flex-direction: column; justify-content: center; align-items: center;" class="is-fullheight">
+            <span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="16" stroke-dashoffset="16" d="M12 3c4.97 0 9 4.03 9 9"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="16;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path><path stroke-dasharray="64" stroke-dashoffset="64" stroke-opacity=".3" d="M12 3c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9c0 -4.97 4.03 -9 9 -9Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.2s" values="64;0"/></path></g></svg>
+            </span>
+            <h3 style="margin-top: 8px;">Loading your data...</h3>
+            <p>Please hang on — this won’t take long.</p>
           </div>
         </div>
         <div v-else-if="simple" class="task-simple-wrapper">
@@ -326,25 +332,25 @@ const activeTask = ref({
               <i class="fa fa-cog fa-spin fa-3x fa-bw"></i>
             </span>
           </div>
-          <div class="task-log">
-            <span class="task-title">
-              <i
-                v-if="activeTask?.status === 'Running'"
-                class="fa fa-circle-o-notch fa-spin mr-5"
-              />
-              <i
-                v-else-if="activeTask?.status === 'Success'"
-                class="fa fa-check-circle mr-5 is-success"
-              />
-              <i
-                v-else-if="activeTask?.status === 'Failed'"
-                class="fa fa-times-circle mr-5 is-failed"
-              />
-              <span>
-                {{ activeTask?.step }}
+          <div class="task-log" style="display: flex; flex-direction: column;justify-content: center; align-items: center;">
+            <p class="task-title">
+              <span style="display: flex;" v-if="activeTask?.status === 'Running'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><!-- Icon from Material Line Icons by Vjacheslav Trushkin - https://github.com/cyberalien/line-md/blob/master/license.txt --><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"><path stroke-dasharray="16" stroke-dashoffset="16" d="M12 3c4.97 0 9 4.03 9 9"><animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="16;0"/><animateTransform attributeName="transform" dur="1.5s" repeatCount="indefinite" type="rotate" values="0 12 12;360 12 12"/></path><path stroke-dasharray="64" stroke-dashoffset="64" stroke-opacity=".3" d="M12 3c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9c0 -4.97 4.03 -9 9 -9Z"><animate fill="freeze" attributeName="stroke-dashoffset" dur="1.2s" values="64;0"/></path></g></svg>
               </span>
-            </span>
-            <span>{{ activeTask?.logs[activeTask?.logs.length - 1] }}</span>
+          
+              <span v-else-if="activeTask?.status === 'Success'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" color="currentColor"><path d="M17 3.338A9.95 9.95 0 0 0 12 2C6.477 2 2 6.477 2 12s4.477 10 10 10s10-4.477 10-10q-.002-1.03-.2-2"/><path d="M8 12.5s1.5 0 3.5 3.5c0 0 5.559-9.167 10.5-11"/></g></svg>
+              </span>
+           
+              <span   v-else-if="activeTask?.status === 'Failed'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="m15.75 15l-6-6m0 6l6-6m7 3c0-5.523-4.477-10-10-10s-10 4.477-10 10s4.477 10 10 10s10-4.477 10-10" color="currentColor"/></svg>
+              </span>
+             
+            </p>
+             <h3 style="margin-top: 8px;">
+                {{ activeTask?.step }}
+              </h3>
+            <p>{{ activeTask?.logs[activeTask?.logs.length - 1] }}</p>
           </div>
         </div>
       </div>
