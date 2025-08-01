@@ -8,6 +8,7 @@ import { useFunctions } from "./PostgresCreate/functions";
 import { App, getCurrentInstance, onMounted, onUnmounted, ref } from "vue";
 import { useStore } from "vuex";
 import { useNats } from "../composables/nats";
+import RcButton from "@shell/rancher-components/RcButton/RcButton.vue";
 
 // need to call this on every component.
 const { natsConnect } = useNats();

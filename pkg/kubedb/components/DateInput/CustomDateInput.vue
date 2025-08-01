@@ -1,6 +1,6 @@
 <template>
-  <div>
-    <label for="meeting-time">{{ label }}</label>
+  <div class="labeled-input edit mb-20">
+    <label for="meeting-time">{{ label }} <span class="required">*</span></label>
     <input
       type="datetime-local"
       id="meeting-time"
@@ -41,7 +41,7 @@ function onInput(event: Event) {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
 label {
   display: block;
 }
@@ -50,4 +50,33 @@ input,
 label {
   margin: 0.4rem 0;
 }
+.labeled-input {
+  position: relative;
+  display: inline-block;
+  input[type="datetime-local"]{    
+    color: var(--input-text);
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 36px; /* space for icon */
+    font-size: 16px;
+    border-radius: 4px;
+    &::-webkit-calendar-picker-indicator {
+      opacity: 0;
+      cursor: pointer;
+      position: absolute;
+      right: 0;
+    }
+  }
+  &::after {
+    content: "📅"; 
+    position: absolute;
+    right: 10px;
+    top: 38px; 
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 18px;
+    color: crimson; 
+  }
+}
+
 </style>
