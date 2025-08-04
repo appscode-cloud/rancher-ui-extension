@@ -72,8 +72,8 @@ const sortableRows = computed(() =>
   })
 );
 
-const renderApi = async () => {
-  isLoading.value = true;
+const renderApi = async (showLoader: boolean) => {
+  if (showLoader) isLoading.value = true;
   try {
     const response = await $axios.post(
       `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
@@ -95,18 +95,24 @@ const renderApi = async () => {
     // info table
     const infoCols = blocks.info.table.columns;
     const infoCells = blocks.info.table.rows[0].cells;
-    infoBlock.value = infoCols.map((col: any, idx: number) => ({
+
+    const tempInfoBlock = infoCols.map((col: any, idx: number) => ({
       label: col.name,
       value: infoCells[idx].data,
     }));
 
+    infoBlock.value = tempInfoBlock;
+
     // insight table
     const insightCols = blocks.insight.table.columns;
     const insightCells = blocks.insight.table.rows[0].cells;
-    insightBlock.value = insightCols.map((col: any, idx: number) => ({
+
+    const tempInsightBlock = insightCols.map((col: any, idx: number) => ({
       label: col.name,
       value: insightCells[idx].data,
     }));
+
+    insightBlock.value = tempInsightBlock;
 
     // nodes table
     const nodeBlock = blocks.blocks.find((b: any) => b.name === "Nodes");
@@ -156,7 +162,7 @@ const singleDbDelete = async () => {
         apiVersion: "rproxy.ace.appscode.com/v1alpha1",
         kind: "Proxy",
         request: {
-          path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/helm/editor`,
+          path: `/api/v1/clusters/rancher/${clusterName.value}/helm/editor`,
           verb: "DELETE",
           query: `releaseName=${dbName}&namespace=${namespace}&group=${group}&version=${version}&name=${resource}&response-id=${uuid}`,
           body: "",
@@ -189,9 +195,9 @@ const getClusters = async () => {
 let intervalId: ReturnType<typeof setInterval>;
 onMounted(async () => {
   await getClusters();
-  renderApi();
+  renderApi(true);
   intervalId = setInterval(() => {
-    renderApi();
+    renderApi(false);
   }, 10000);
 });
 onUnmounted(() => {
