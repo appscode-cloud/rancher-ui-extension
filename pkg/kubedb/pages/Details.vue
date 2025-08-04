@@ -33,12 +33,17 @@ const resource = route?.params.kind;
 const namespace = route?.params.namespace;
 const dbName = route?.params.dbName;
 
-// const infoBlock = ref<any[]>([]);
-// const insightBlock = ref<any[]>([]);
-// const nodeTable = ref<{ columns: any[]; rows: any[] }>({
-//   columns: [],
-//   rows: [],
-// });
+const { getRandomUUID } = useUtils();
+const store = useStore();
+const route = getCurrentInstance()?.proxy?.$route;
+const router = getCurrentInstance()?.proxy?.$router;
+const clusterName = ref("");
+const isLoading = ref(false);
+const group = route?.params.group;
+const version = route?.params.version;
+const resource = route?.params.kind;
+const namespace = route?.params.namespace;
+const dbName = route?.params.dbName;
 
 const query = {
   apiVersion: "meta.k8s.appscode.com/v1alpha1",
@@ -54,24 +59,28 @@ const query = {
   },
 };
 
-// const sortableHeaders = computed(() =>
-//   nodeTable.value.columns.map((col) => ({
-//     name: col.name,
-//     label: col.name,
-//     value: col.name,
-//     sort: col.name === "Name" || col.name === "Age" ? [col.name] : [],
-//   }))
-// );
+const query = {
+  apiVersion: "meta.k8s.appscode.com/v1alpha1",
+  kind: "Render",
+  request: {
+    convertToTable: true,
+    layoutName: `${group}-${version}-${resource}-kubedb`,
+    renderBlocks: ["Connection"], // this includes info & insight
+    source: {
+      ref: { name: dbName, namespace: namespace },
+      resource: { group: group, name: resource, version: version },
+    },
+  },
+};
 
-// const sortableRows = computed(() =>
-//   nodeTable.value.rows.map((row) => {
-//     const obj: Record<string, string> = {};
-//     row.cells.forEach((cell: any, i: number) => {
-//       obj[nodeTable.value.columns[i].name] = cell.data;
-//     });
-//     return obj;
-//   })
-// );
+const sortableHeaders = computed(() =>
+  nodeTable.value.columns.map((col) => ({
+    name: col.name,
+    label: col.name,
+    value: col.name,
+    sort: col.name === "Name" || col.name === "Age" ? [col.name] : [],
+  }))
+);
 
 const renderApi = async (showLoader: boolean) => {
   if (showLoader) isLoading.value = true;
@@ -204,44 +213,64 @@ const singleDbDelete = async () => {
   isNatsConnectionLoading.value = false;
 };
 
-// const singleDbDelete = async (responseId: string) => {
-//   try {
-//     const repositoriesResp = await $axios.post(
-//       `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
-//       {
-//         apiVersion: "rproxy.ace.appscode.com/v1alpha1",
-//         kind: "Proxy",
-//         request: {
-//           path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/helm/editor`,
-//           verb: "DELETE",
-//           query: `releaseName=${dbName}&namespace=${namespace}&group=kubedb.com&version=v1&name=postgreses&response-id=${responseId}`,
-//           body: "",
-//         },
-//       }
-//     );
+      nodeTable.value = {
+        columns: filteredColumns,
+        rows: filteredRows,
+      };
+    }
+  } catch (error) {
+    console.error(error);
+  }
+  isLoading.value = false;
+};
 
-//     const data = await JSON.parse(repositoriesResp.data.response?.body);
+//Long Running Task
+const showDialog = ref(false);
+const natsSubject = ref("");
+const connectionError = ref("");
+const isNatsConnectionLoading = ref(false);
+const uuid = getRandomUUID();
+natsSubject.value = `natjobs.resp.${uuid}`;
 
-//     return { values: data };
-//   } catch (error) {
-//     console.error("Error loading data:", error);
-//   }
-// };
+const singleDbDelete = async () => {
+  isNatsConnectionLoading.value = true;
+  showDialog.value = true;
+  try {
+    await $axios.post(
+      `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+      {
+        apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+        kind: "Proxy",
+        request: {
+          path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/helm/editor`,
+          verb: "DELETE",
+          query: `releaseName=${dbName}&namespace=${namespace}&group=${group}&version=${version}&name=${resource}&response-id=${uuid}`,
+          body: "",
+        },
+      }
+    );
+  } catch (error: unknown) {
+    connectionError.value = error as string;
+    console.error("Error loading data:", error);
+  }
+  showDialog.value = true;
+  isNatsConnectionLoading.value = false;
+};
 
-// const getClusters = async () => {
-//   try {
-//     const result = await store.dispatch("management/findAll", {
-//       type: "management.cattle.io.cluster",
-//     });
-//     result.forEach((ele: { id: string; spec: { displayName: string } }) => {
-//       if (ele.id === route?.params?.cluster) {
-//         clusterName.value = ele.spec.displayName;
-//       }
-//     });
-//   } catch (e) {
-//     console.log(e);
-//   }
-// };
+const getClusters = async () => {
+  try {
+    const result = await store.dispatch("management/findAll", {
+      type: "management.cattle.io.cluster",
+    });
+    result.forEach((ele: { id: string; spec: { displayName: string } }) => {
+      if (ele.id === route?.params?.cluster) {
+        clusterName.value = ele.spec.displayName;
+      }
+    });
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 let intervalId: ReturnType<typeof setInterval>;
 onMounted(async () => {
