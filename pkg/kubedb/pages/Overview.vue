@@ -99,11 +99,27 @@ const fetchAndSetGenericResources = async (showLoading: boolean) => {
           const value = cell.data;
           obj[key] = value;
           if (cell.link) {
+            // const routePath = route?.path;
+            // const path = routePath?.replace(/\/overview$/, "");
+            // obj["link"] = `${path}/${row.cells[2].data.toLowerCase()}/${
+            //   row.cells[1].data
+            // }/${row.cells[0].data}/details`;
+            // console.log(obj["link"]);
+
+            const pathOnly = cell.link.split("?")[0];
+            const segments = pathOnly.split("/").filter(Boolean);
+            const resourceNameIndex = segments.length - 1;
+            const resourceIndex = resourceNameIndex - 1;
+            const versionIndex = resourceNameIndex - 2;
+            const groupIndex = resourceNameIndex - 3;
+            const group = segments[groupIndex];
+            const version = segments[versionIndex];
+            const resource = segments[resourceIndex];
             const routePath = route?.path;
             const path = routePath?.replace(/\/overview$/, "");
-            obj["link"] = `${path}/${row.cells[2].data.toLowerCase()}/${
-              row.cells[1].data
-            }/${row.cells[0].data}/details`;
+            obj[
+              "link"
+            ] = `${path}/${group}/${version}/${resource}/${row.cells[1].data}/${row.cells[0].data}/details`;
             console.log(obj["link"]);
           }
         }

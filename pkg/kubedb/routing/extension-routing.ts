@@ -23,8 +23,8 @@ const routes = [
     meta: { product: YOUR_PRODUCT_NAME },
   },
   {
-    name: `c-cluster-${YOUR_PRODUCT_NAME}-kind-namespace-db-details`,
-    path: `/c/:cluster/${YOUR_PRODUCT_NAME}/:kind/:namespace/:dbName/details`,
+    name: `c-cluster-${YOUR_PRODUCT_NAME}-db-details`,
+    path: `/c/:cluster/${YOUR_PRODUCT_NAME}/:group/:version/:resource/:namespace/:dbName/details`,
     component: Details,
     meta: { product: YOUR_PRODUCT_NAME },
   },
