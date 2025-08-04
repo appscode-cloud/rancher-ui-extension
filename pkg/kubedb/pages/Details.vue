@@ -139,6 +139,8 @@ const renderApi = async (showLoader: boolean) => {
 
     infoBlock.value = tempInfoBlock;
 
+    infoBlock.value = tempInfoBlock;
+
     // insight table
     const insightCols = blocks.insight.table.columns;
     const insightCells = blocks.insight.table.rows[0].cells;
@@ -242,7 +244,7 @@ const singleDbDelete = async () => {
         apiVersion: "rproxy.ace.appscode.com/v1alpha1",
         kind: "Proxy",
         request: {
-          path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/helm/editor`,
+          path: `/api/v1/clusters/rancher/${clusterName.value}/helm/editor`,
           verb: "DELETE",
           query: `releaseName=${dbName}&namespace=${namespace}&group=${group}&version=${version}&name=${resource}&response-id=${uuid}`,
           body: "",
