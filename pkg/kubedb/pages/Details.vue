@@ -3,6 +3,7 @@ import $axios from "../composables/axios";
 import { computed, getCurrentInstance, onMounted, onUnmounted, ref } from "vue";
 import { useStore } from "vuex";
 import SortableTable from "@rancher/shell/components/SortableTable/index.vue";
+import RcButton from "@shell/rancher-components/RcButton/RcButton.vue";
 
 const store = useStore();
 const route = getCurrentInstance()?.proxy?.$route;
@@ -115,6 +116,30 @@ const renderApi = async () => {
   }
 };
 
+const singleDbDelete = async (responseId: string) => {
+  try {
+    const repositoriesResp = await $axios.post(
+      `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+      {
+        apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+        kind: "Proxy",
+        request: {
+          path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/helm/editor`,
+          verb: "DELETE",
+          query: `releaseName=${dbName}&namespace=${namespace}&group=kubedb.com&version=v1&name=postgreses&response-id=${responseId}`,
+          body: "",
+        },
+      }
+    );
+
+    const data = await JSON.parse(repositoriesResp.data.response?.body);
+
+    return { values: data };
+  } catch (error) {
+    console.error("Error loading data:", error);
+  }
+};
+
 const getClusters = async () => {
   try {
     const result = await store.dispatch("management/findAll", {
@@ -145,6 +170,7 @@ onUnmounted(() => {
 
 <template>
   <div>
+    <RcButton>Delete</RcButton>
     <h2>Database Info</h2>
     <div>
       <div v-for="(item, i) in infoBlock" :key="'info-' + i">
@@ -161,7 +187,6 @@ onUnmounted(() => {
       </div>
     </div>
 
-    <h2>Node Information</h2>
     <SortableTable
       v-if="nodeTable.columns.length > 0"
       :rows="sortableRows"
@@ -177,6 +202,9 @@ onUnmounted(() => {
         #[`col:${header.name}`]="{ row }"
       >
         <td>{{ row[header.name] }}</td>
+      </template>
+      <template #header-left>
+        <h1>Nodes</h1>
       </template>
     </SortableTable>
   </div>
