@@ -204,6 +204,30 @@ const singleDbDelete = async () => {
   isNatsConnectionLoading.value = false;
 };
 
+const singleDbDelete = async (responseId: string) => {
+  try {
+    const repositoriesResp = await $axios.post(
+      `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+      {
+        apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+        kind: "Proxy",
+        request: {
+          path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/helm/editor`,
+          verb: "DELETE",
+          query: `releaseName=${dbName}&namespace=${namespace}&group=kubedb.com&version=v1&name=postgreses&response-id=${responseId}`,
+          body: "",
+        },
+      }
+    );
+
+    const data = await JSON.parse(repositoriesResp.data.response?.body);
+
+    return { values: data };
+  } catch (error) {
+    console.error("Error loading data:", error);
+  }
+};
+
 const getClusters = async () => {
   try {
     const result = await store.dispatch("management/findAll", {
