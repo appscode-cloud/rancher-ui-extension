@@ -33,12 +33,12 @@ const resource = route?.params.kind;
 const namespace = route?.params.namespace;
 const dbName = route?.params.dbName;
 
-const infoBlock = ref<any[]>([]);
-const insightBlock = ref<any[]>([]);
-const nodeTable = ref<{ columns: any[]; rows: any[] }>({
-  columns: [],
-  rows: [],
-});
+// const infoBlock = ref<any[]>([]);
+// const insightBlock = ref<any[]>([]);
+// const nodeTable = ref<{ columns: any[]; rows: any[] }>({
+//   columns: [],
+//   rows: [],
+// });
 
 const query = {
   apiVersion: "meta.k8s.appscode.com/v1alpha1",
@@ -54,24 +54,24 @@ const query = {
   },
 };
 
-const sortableHeaders = computed(() =>
-  nodeTable.value.columns.map((col) => ({
-    name: col.name,
-    label: col.name,
-    value: col.name,
-    sort: col.name === "Name" || col.name === "Age" ? [col.name] : [],
-  }))
-);
+// const sortableHeaders = computed(() =>
+//   nodeTable.value.columns.map((col) => ({
+//     name: col.name,
+//     label: col.name,
+//     value: col.name,
+//     sort: col.name === "Name" || col.name === "Age" ? [col.name] : [],
+//   }))
+// );
 
-const sortableRows = computed(() =>
-  nodeTable.value.rows.map((row) => {
-    const obj: Record<string, string> = {};
-    row.cells.forEach((cell: any, i: number) => {
-      obj[nodeTable.value.columns[i].name] = cell.data;
-    });
-    return obj;
-  })
-);
+// const sortableRows = computed(() =>
+//   nodeTable.value.rows.map((row) => {
+//     const obj: Record<string, string> = {};
+//     row.cells.forEach((cell: any, i: number) => {
+//       obj[nodeTable.value.columns[i].name] = cell.data;
+//     });
+//     return obj;
+//   })
+// );
 
 const renderApi = async (showLoader: boolean) => {
   if (showLoader) isLoading.value = true;
@@ -90,8 +90,8 @@ const renderApi = async (showLoader: boolean) => {
       }
     );
 
-    const data = await JSON.parse(response.data.response?.body);
-    const blocks = data.response.view.pages[0].sections[0];
+    //     const data = await JSON.parse(response.data.response?.body);
+    //     const blocks = data.response.view.pages[0].sections[0];
 
     // info table
     const infoCols = blocks.info.table.columns;
@@ -147,18 +147,18 @@ const renderApi = async (showLoader: boolean) => {
       // Filter out "dashboard" and "connect" columns
       const excludedColumns = ["dashboard", "connect"];
 
-      const filteredColumns = nodeBlock.table.columns.filter(
-        (col: any) => !excludedColumns.includes(col.name.toLowerCase())
-      );
+      //       const filteredColumns = nodeBlock.table.columns.filter(
+      //         (col: any) => !excludedColumns.includes(col.name.toLowerCase())
+      //       );
 
-      const includedIndexes = filteredColumns.map((col: any) =>
-        nodeBlock.table.columns.findIndex((c: any) => c.name === col.name)
-      );
+      //       const includedIndexes = filteredColumns.map((col: any) =>
+      //         nodeBlock.table.columns.findIndex((c: any) => c.name === col.name)
+      //       );
 
-      const filteredRows = nodeBlock.table.rows.map((row: any) => ({
-        ...row,
-        cells: includedIndexes.map((idx: number) => row.cells[idx]),
-      }));
+      //       const filteredRows = nodeBlock.table.rows.map((row: any) => ({
+      //         ...row,
+      //         cells: includedIndexes.map((idx: number) => row.cells[idx]),
+      //       }));
 
       nodeTable.value = {
         columns: filteredColumns,
@@ -204,44 +204,44 @@ const singleDbDelete = async () => {
   isNatsConnectionLoading.value = false;
 };
 
-const singleDbDelete = async (responseId: string) => {
-  try {
-    const repositoriesResp = await $axios.post(
-      `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
-      {
-        apiVersion: "rproxy.ace.appscode.com/v1alpha1",
-        kind: "Proxy",
-        request: {
-          path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/helm/editor`,
-          verb: "DELETE",
-          query: `releaseName=${dbName}&namespace=${namespace}&group=kubedb.com&version=v1&name=postgreses&response-id=${responseId}`,
-          body: "",
-        },
-      }
-    );
+// const singleDbDelete = async (responseId: string) => {
+//   try {
+//     const repositoriesResp = await $axios.post(
+//       `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+//       {
+//         apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+//         kind: "Proxy",
+//         request: {
+//           path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/helm/editor`,
+//           verb: "DELETE",
+//           query: `releaseName=${dbName}&namespace=${namespace}&group=kubedb.com&version=v1&name=postgreses&response-id=${responseId}`,
+//           body: "",
+//         },
+//       }
+//     );
 
-    const data = await JSON.parse(repositoriesResp.data.response?.body);
+//     const data = await JSON.parse(repositoriesResp.data.response?.body);
 
-    return { values: data };
-  } catch (error) {
-    console.error("Error loading data:", error);
-  }
-};
+//     return { values: data };
+//   } catch (error) {
+//     console.error("Error loading data:", error);
+//   }
+// };
 
-const getClusters = async () => {
-  try {
-    const result = await store.dispatch("management/findAll", {
-      type: "management.cattle.io.cluster",
-    });
-    result.forEach((ele: { id: string; spec: { displayName: string } }) => {
-      if (ele.id === route?.params?.cluster) {
-        clusterName.value = ele.spec.displayName;
-      }
-    });
-  } catch (e) {
-    console.log(e);
-  }
-};
+// const getClusters = async () => {
+//   try {
+//     const result = await store.dispatch("management/findAll", {
+//       type: "management.cattle.io.cluster",
+//     });
+//     result.forEach((ele: { id: string; spec: { displayName: string } }) => {
+//       if (ele.id === route?.params?.cluster) {
+//         clusterName.value = ele.spec.displayName;
+//       }
+//     });
+//   } catch (e) {
+//     console.log(e);
+//   }
+// };
 
 let intervalId: ReturnType<typeof setInterval>;
 onMounted(async () => {
