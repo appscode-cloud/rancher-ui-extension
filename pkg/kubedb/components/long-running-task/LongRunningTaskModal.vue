@@ -430,6 +430,7 @@ watch(longRunningTaskStatus, (n) => {
     </template>
     <template #buttons>
       <RcButton
+        v-if="longRunningTaskStatus === `Success`"
         @click="
           () => {
             longRunningTaskStatus === 'Success'
@@ -437,11 +438,18 @@ watch(longRunningTaskStatus, (n) => {
               : errorCtx.onError();
           }
         "
-        :disabled="
-          longRunningTaskStatus === 'NotStarted' ||
-          longRunningTaskStatus === 'Pending'
+        >Ok</RcButton
+      >
+      <RcButton
+        v-else
+        @click="
+          () => {
+            longRunningTaskStatus === 'Success'
+              ? successCtx?.onSuccess()
+              : errorCtx.onError();
+          }
         "
-        >{{ longRunningTaskStatus === "Success" ? "Ok" : "Close" }}</RcButton
+        >Close</RcButton
       >
     </template>
   </Dialog>

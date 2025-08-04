@@ -24,7 +24,7 @@ const routes = [
   },
   {
     name: `c-cluster-${YOUR_PRODUCT_NAME}-db-details`,
-    path: `/c/:cluster/${YOUR_PRODUCT_NAME}/:group/:version/:resource/:namespace/:dbName/details`,
+    path: `/c/:cluster/${YOUR_PRODUCT_NAME}/:group/:version/:kind/:namespace/:dbName/details`,
     component: Details,
     meta: { product: YOUR_PRODUCT_NAME },
   },

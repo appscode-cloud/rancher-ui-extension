@@ -37,14 +37,6 @@ export function init($plugin: IPlugin, store: any) {
       params: { product: YOUR_PRODUCT_NAME },
     },
   });
-  // virtualType({
-  //   labelKey: "db-details",
-  //   name: "db-details",
-  //   route: {
-  //     name: `c-cluster-${YOUR_PRODUCT_NAME}-db-details`,
-  //     params: { product: YOUR_PRODUCT_NAME },
-  //   },
-  // });
 
   // registering the defined pages as side-menu entries
   basicType([CUSTOM_PAGE_NAME1, CUSTOM_PAGE_NAME2]);
