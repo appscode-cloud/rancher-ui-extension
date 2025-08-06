@@ -86,6 +86,16 @@ export const useUtils = (store?: any) => {
     return date.toISOString();
   }
 
+  function formatJson(value: any): string {
+    try {
+      return typeof value === "string"
+        ? JSON.stringify(JSON.parse(value), null, 2)
+        : JSON.stringify(value, null, 2);
+    } catch {
+      return value;
+    }
+  }
+
   return {
     convertToLocal,
     convertLocalToISO8601,
@@ -94,5 +104,6 @@ export const useUtils = (store?: any) => {
     getPercentage,
     getClusters,
     extractNumbers,
+    formatJson,
   };
 };

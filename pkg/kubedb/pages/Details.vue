@@ -21,7 +21,7 @@ import { useNats } from "../composables/nats";
 const { natsConnect } = useNats();
 natsConnect(getCurrentInstance()?.appContext.app as App<Element>);
 
-const { getRandomUUID } = useUtils();
+const { getRandomUUID, formatJson } = useUtils();
 const store = useStore();
 const route = getCurrentInstance()?.proxy?.$route;
 const router = getCurrentInstance()?.proxy?.$router;
@@ -97,10 +97,36 @@ const renderApi = async (showLoader: boolean) => {
     const infoCols = blocks.info.table.columns;
     const infoCells = blocks.info.table.rows[0].cells;
 
-    const tempInfoBlock = infoCols.map((col: any, idx: number) => ({
-      label: col.name,
-      value: infoCells[idx].data,
-    }));
+    const tempInfoBlock = infoCols.map((col: any, idx: number) => {
+      if (col.name === "Annotations") {
+        const output: Record<string, any> = {};
+
+        for (const key in infoCells[idx].data) {
+          const value = infoCells[idx].data[key];
+
+          if (
+            typeof value === "string" &&
+            (value.trim().startsWith("{") || value.trim().startsWith("["))
+          ) {
+            try {
+              output[key] = JSON.parse(value);
+            } catch {
+              output[key] = value;
+            }
+          } else {
+            output[key] = value;
+          }
+        }
+        return {
+          label: col.name,
+          value: output,
+        };
+      }
+      return {
+        label: col.name,
+        value: infoCells[idx].data,
+      };
+    });
 
     infoBlock.value = tempInfoBlock;
 
@@ -212,32 +238,64 @@ onUnmounted(() => {
       <Loading />
     </div>
     <div v-else>
-        <div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h2>Database Info</h2>
-                <RcButton danger @click="singleDbDelete">Delete</RcButton>
-              </div>
-              <div v-for="(item, i) in infoBlock" :key="'info-' + i">
-                <p style="display: flex; align-items: start; gap: 8px; margin-bottom: 16px;"><strong style="min-width: 150px;">{{ item.label }}:</strong> <span>{{ item.value }}</span></p>
-                  <!-- <pre style="white-space: pre-wrap; word-break: break-word;">
-                  <span>{{ item.label }}: {{ item.value }}</span>
-                  </pre> -->
-              </div>
+      <div>
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+          "
+        >
+          <h2>Database Info</h2>
+          <RcButton danger @click="singleDbDelete">Delete</RcButton>
         </div>
+        <div v-for="(item, i) in infoBlock" :key="'info-' + i">
+          <div
+            style="
+              display: flex;
+              align-items: start;
+              gap: 8px;
+              margin-bottom: 16px;
+            "
+          >
+            <strong style="min-width: 150px">{{ item.label }}:</strong>
 
-      <div style="margin-top: 24px;;">
-        <h2 style="margin-bottom: 16px; display: flex;">Database Insights</h2>
-        <div style="display: flex; flex-wrap: wrap; gap: 16px;">
+            <pre
+              v-if="item.label === 'Annotations' || item.label === 'Labels'"
+              style="
+                max-width: 100%;
+                max-height: 200px;
+                overflow: auto;
+                white-space: pre-wrap;
+              "
+            >
+               {{ formatJson(item.value) }}
+            </pre>
+            <span v-else>{{ item.value }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top: 24px">
+        <h2 style="margin-bottom: 16px; display: flex">Database Insights</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px">
           <div
             class="simple-box-container"
             v-for="(item, i) in insightBlock"
             :key="'insight-' + i"
           >
             <SimpleBox class="simple-box">
-            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  gap: 8px;
+                "
+              >
                 <span>{{ item.label }}: </span>
-                 <strong style="font-size: 16px;">{{ item.value }}</strong>
-            </div>
+                <strong style="font-size: 16px">{{ item.value }}</strong>
+              </div>
             </SimpleBox>
           </div>
         </div>
@@ -276,7 +334,6 @@ onUnmounted(() => {
         :success-ctx="{
           onSuccess: () => {
             const path = `/dashboard/c/${route?.params.cluster}/kubedb/overview`;
-            console.log({ path });
             router?.push(path);
           },
         }"
