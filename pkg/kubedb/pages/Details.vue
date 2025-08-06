@@ -212,28 +212,32 @@ onUnmounted(() => {
       <Loading />
     </div>
     <div v-else>
-      <RcButton primary @click="singleDbDelete">Delete</RcButton>
-      <div>
-        <h2>Database Info</h2>
         <div>
-          <div v-for="(item, i) in infoBlock" :key="'info-' + i">
-            <pre>
-            <span>{{ item.label }}: {{ item.value }}</span>
-            </pre>
-          </div>
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                <h2>Database Info</h2>
+                <RcButton danger @click="singleDbDelete">Delete</RcButton>
+              </div>
+              <div v-for="(item, i) in infoBlock" :key="'info-' + i">
+                <p style="display: flex; align-items: start; gap: 8px; margin-bottom: 16px;"><strong style="min-width: 150px;">{{ item.label }}:</strong> <span>{{ item.value }}</span></p>
+                  <!-- <pre style="white-space: pre-wrap; word-break: break-word;">
+                  <span>{{ item.label }}: {{ item.value }}</span>
+                  </pre> -->
+              </div>
         </div>
-      </div>
 
-      <div>
-        <h2>Database Insights</h2>
-        <div>
+      <div style="margin-top: 24px;;">
+        <h2 style="margin-bottom: 16px; display: flex;">Database Insights</h2>
+        <div style="display: flex; flex-wrap: wrap; gap: 16px;">
           <div
             class="simple-box-container"
             v-for="(item, i) in insightBlock"
             :key="'insight-' + i"
           >
             <SimpleBox class="simple-box">
-              <span>{{ item.label }}: {{ item.value }}</span>
+            <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px;">
+                <span>{{ item.label }}: </span>
+                 <strong style="font-size: 16px;">{{ item.value }}</strong>
+            </div>
             </SimpleBox>
           </div>
         </div>
