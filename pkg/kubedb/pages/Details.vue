@@ -10,6 +10,7 @@ import {
 } from "vue";
 import { useStore } from "vuex";
 import SortableTable from "@rancher/shell/components/SortableTable/index.vue";
+import SimpleBox from "@rancher/shell/components/SimpleBox.vue";
 import RcButton from "@shell/rancher-components/RcButton/RcButton.vue";
 import Loading from "@shell/components/Loading.vue";
 import { useUtils } from "../composables/utils";
@@ -90,6 +91,7 @@ const renderApi = async (showLoader: boolean) => {
     );
 
     const data = await JSON.parse(response.data.response?.body);
+    console.log({ data });
     const blocks = data.response.view.pages[0].sections[0];
 
     // info table
@@ -212,19 +214,29 @@ onUnmounted(() => {
     </div>
     <div v-else>
       <RcButton primary @click="singleDbDelete">Delete</RcButton>
-      <h2>Database Info</h2>
       <div>
-        <div v-for="(item, i) in infoBlock" :key="'info-' + i">
-          <span>{{ item.label }}</span>
-          <span>{{ item.value }}</span>
+        <h2>Database Info</h2>
+        <div>
+          <div v-for="(item, i) in infoBlock" :key="'info-' + i">
+            <pre>
+            <span>{{ item.label }}: {{ item.value }}</span>
+            </pre>
+          </div>
         </div>
       </div>
 
-      <h2>Database Insights</h2>
       <div>
-        <div v-for="(item, i) in insightBlock" :key="'insight-' + i">
-          <span>{{ item.label }}</span>
-          <span>{{ item.value }}</span>
+        <h2>Database Insights</h2>
+        <div>
+          <div
+            class="simple-box-container"
+            v-for="(item, i) in insightBlock"
+            :key="'insight-' + i"
+          >
+            <SimpleBox class="simple-box">
+              <span>{{ item.label }}: {{ item.value }}</span>
+            </SimpleBox>
+          </div>
         </div>
       </div>
 
@@ -267,3 +279,16 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+.simple-box-container {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.simple-box {
+  width: 300px;
+}
+</style>
