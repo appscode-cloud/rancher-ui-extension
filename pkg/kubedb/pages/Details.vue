@@ -91,7 +91,6 @@ const renderApi = async (showLoader: boolean) => {
     );
 
     const data = await JSON.parse(response.data.response?.body);
-    console.log({ data });
     const blocks = data.response.view.pages[0].sections[0];
 
     // info table
@@ -272,7 +271,9 @@ onUnmounted(() => {
         }"
         :success-ctx="{
           onSuccess: () => {
-            router?.push('overview');
+            const path = `/dashboard/c/${route?.params.cluster}/kubedb/overview`;
+            console.log({ path });
+            router?.push(path);
           },
         }"
       />
