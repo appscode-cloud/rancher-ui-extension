@@ -430,7 +430,6 @@ watch(longRunningTaskStatus, (n) => {
     </template>
     <template #buttons>
       <RcButton
-        v-if="longRunningTaskStatus === `Success`"
         @click="
           () => {
             longRunningTaskStatus === 'Success'
