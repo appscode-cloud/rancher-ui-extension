@@ -329,7 +329,6 @@ onUnmounted(() => {
             <span v-else>{{ item.value }}</span>
           </div>
         </div>
-      </div>
 
       <div style="margin-top: 24px">
         <h2 style="margin-bottom: 16px; display: flex">Database Insights</h2>
