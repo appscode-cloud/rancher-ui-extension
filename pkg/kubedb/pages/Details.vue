@@ -329,6 +329,16 @@ onUnmounted(() => {
             <span v-else>{{ item.value }}</span>
           </div>
         </div>
+        <div v-for="(item, i) in infoBlock" :key="'info-' + i">
+          <div
+            style="
+              display: flex;
+              align-items: start;
+              gap: 8px;
+              margin-bottom: 16px;
+            "
+          >
+            <strong style="min-width: 150px">{{ item.label }}:</strong>
 
       <div style="margin-top: 24px">
         <h2 style="margin-bottom: 16px; display: flex">Database Insights</h2>
