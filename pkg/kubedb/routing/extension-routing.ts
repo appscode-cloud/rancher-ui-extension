@@ -1,12 +1,14 @@
 import pgCreate from "../pages/PostgresCreate/postgresCreate.vue";
 import Overview from "../pages/Overview.vue";
 import Details from "../pages/Details.vue";
+import {
+  YOUR_PRODUCT_NAME,
+  overviewPage,
+  postgresPage,
+} from "../extension-info";
 // to achieve naming consistency throughout the extension
 // we recommend this to be defined on a config file and exported
 // so that the developer can import it wherever it needs to be used
-const YOUR_PRODUCT_NAME = "kubedb";
-const postgresPage = "postgres";
-const overviewPage = "overview";
 
 const routes = [
   // this covers the "custom page"

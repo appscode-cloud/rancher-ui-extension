@@ -1,44 +1,22 @@
-import $axios from "../../composables/axios";
 import { ref } from "vue";
+import $axios from "../../composables/axios";
 import { machines, dbObject } from "./consts";
+import { useUtils } from "../../composables/utils";
 
 export const useFunctions = () => {
+  const { convertLocalToISO8601, convertToLocal } = useUtils();
+
+  const isDeploying = ref(false);
+  const isDbDeleting = ref(false);
+  const isModelLoading = ref(false);
   const isValuesLoading = ref(false);
+  const isBundleLoading = ref(false);
   const isNamespaceLoading = ref(false);
   const isAuthSecretLoading = ref(false);
-  const isBundleLoading = ref(false);
-  const isModelLoading = ref(false);
   const isResourceSkipLoading = ref(false);
-  const isDeploying = ref(false);
+  const getArchiverNameLoading = ref(false);
   const genericResourceLoading = ref(false);
   const resourceSummaryLoading = ref(false);
-  const getArchiverNameLoading = ref(false);
-  const isDbDeleting = ref(false);
-
-  const getBundle = async (cluster: string) => {
-    isBundleLoading.value = true;
-    try {
-      const response = await $axios.post(
-        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
-        {
-          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
-          kind: "Proxy",
-          request: {
-            path: `/api/v1/clusters/rancher/${cluster}/db-bundle`,
-            verb: "GET",
-            query: `type=features,common,versions&db-singular=${dbObject.kind.toLocaleLowerCase()}`,
-            body: "",
-          },
-        }
-      );
-      const data = await JSON.parse(response.data.response.body);
-      isBundleLoading.value = false;
-      return { bundle: data };
-    } catch (e) {
-      console.log(e);
-    }
-    isBundleLoading.value = false;
-  };
 
   const getNamespaces = async (cluster: string) => {
     isNamespaceLoading.value = true;
@@ -87,6 +65,7 @@ export const useFunctions = () => {
 
   const getAuthSecrets = async (namespace: string, cluster: string) => {
     isAuthSecretLoading.value = true;
+
     try {
       const response = await $axios.post(
         `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
@@ -102,16 +81,48 @@ export const useFunctions = () => {
         }
       );
       const data = await JSON.parse(response.data.response.body);
+
       let options = [];
       options = data?.items?.map((ele: { metadata: { name: string } }) => {
         return ele?.metadata.name;
       });
       isAuthSecretLoading.value = false;
+
       return { values: options };
     } catch (e) {
       console.log(e);
     }
+
     isAuthSecretLoading.value = false;
+  };
+
+  const getBundle = async (cluster: string) => {
+    isBundleLoading.value = true;
+
+    try {
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/db-bundle`,
+            verb: "GET",
+            query: `type=features,common,versions&db-singular=${dbObject.kind.toLocaleLowerCase()}`,
+            body: "",
+          },
+        }
+      );
+
+      const data = await JSON.parse(response.data.response.body);
+
+      isBundleLoading.value = false;
+      return { bundle: data };
+    } catch (e) {
+      console.log(e);
+    }
+
+    isBundleLoading.value = false;
   };
 
   const getValues = async (cluster: string, namespace: string) => {
@@ -138,6 +149,83 @@ export const useFunctions = () => {
       console.error("Error loading data:", error);
     }
     isValuesLoading.value = false;
+  };
+
+  let archiverMap: Array<{ storageClass: string; annotation: string }> = [];
+  const getArchiverName = async (
+    cluster: string,
+    modelApiValue: Record<string, any>
+  ) => {
+    try {
+      getArchiverNameLoading.value = true;
+
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/proxy/storage.k8s.io/v1/storageclasses`,
+            verb: "GET",
+            query: "",
+            body: "",
+          },
+        }
+      );
+      const resource = modelApiValue.metadata.release.name;
+      const group = modelApiValue.metadata.release.group;
+      const data = await JSON.parse(response.data.response?.body);
+      data?.items?.forEach(
+        (item: {
+          metadata: { annotations: Record<string, string>; name: string };
+        }) => {
+          const annotations = item.metadata?.annotations;
+          const classname = item.metadata?.name;
+          const annotationKeyToFind = `${resource}.${group}/archiver`;
+          archiverMap.push({
+            storageClass: classname,
+            annotation: annotations[annotationKeyToFind],
+          });
+        }
+      );
+
+      getArchiverNameLoading.value = false;
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+    getArchiverNameLoading.value = false;
+  };
+
+  const modelApiCall = async (
+    cluster: string,
+    modelApiValue: Record<string, any>
+  ) => {
+    isModelLoading.value = true;
+
+    try {
+      const response = await $axios.post(
+        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
+        {
+          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
+          kind: "Proxy",
+          request: {
+            path: `/api/v1/clusters/rancher/${cluster}/helm/options/model`,
+            verb: "PUT",
+            query: "",
+            body: JSON.stringify(modelApiValue),
+          },
+        }
+      );
+
+      const data = await JSON.parse(response.data.response?.body);
+
+      isModelLoading.value = false;
+      return { values: data };
+    } catch (error) {
+      console.error("Error loading data:", error);
+    }
+
+    isModelLoading.value = false;
   };
 
   const generateModelPayload = (
@@ -209,41 +297,7 @@ export const useFunctions = () => {
     modelApiValue.spec.podResources.resources.requests.cpu = cpu;
     modelApiValue.spec.podResources.resources.requests.memory = memory;
 
-    // PITR
-    // if (values.pitrName && values.pitrNamespace) {
-    //   modelApiValue = setPointInTimeRecovery(cluster, values, modelApiValue);
-    // }
-
     return modelApiValue;
-  };
-
-  const modelApiCall = async (
-    cluster: string,
-    modelApiValue: Record<string, any>
-  ) => {
-    isModelLoading.value = true;
-    try {
-      const response = await $axios.post(
-        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
-        {
-          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
-          kind: "Proxy",
-          request: {
-            path: `/api/v1/clusters/rancher/${cluster}/helm/options/model`,
-            verb: "PUT",
-            query: "",
-            body: JSON.stringify(modelApiValue),
-          },
-        }
-      );
-
-      const data = await JSON.parse(response.data.response?.body);
-      isModelLoading.value = false;
-      return { values: data };
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
-    isModelLoading.value = false;
   };
 
   const resourceSkipCRDApiCall = async (
@@ -251,6 +305,7 @@ export const useFunctions = () => {
     payload: Record<string, any>
   ) => {
     isResourceSkipLoading.value = true;
+
     try {
       const response = await $axios.post(
         `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
@@ -267,11 +322,13 @@ export const useFunctions = () => {
       );
 
       const data = await JSON.parse(response.data.response?.body);
+
       isResourceSkipLoading.value = false;
       return { values: data };
     } catch (error) {
       console.error("Error loading data:", error);
     }
+
     isResourceSkipLoading.value = false;
   };
 
@@ -281,6 +338,7 @@ export const useFunctions = () => {
     responseId: string
   ) => {
     isDeploying.value = true;
+
     try {
       const response = await $axios.post(
         `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
@@ -297,6 +355,7 @@ export const useFunctions = () => {
       );
 
       const data = await JSON.parse(response.data.response?.body);
+
       isDeploying.value = false;
       return { values: data, error: "" };
     } catch (error) {
@@ -307,9 +366,10 @@ export const useFunctions = () => {
   };
 
   const genericResourceCall = async (cluster: string) => {
-    genericResourceLoading.value = true;
-    const date = Date.now();
     try {
+      genericResourceLoading.value = true;
+      const date = Date.now();
+
       const response = await $axios.post(
         `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
         {
@@ -325,18 +385,21 @@ export const useFunctions = () => {
       );
 
       const data = await JSON.parse(response.data.response?.body);
+
       genericResourceLoading.value = false;
       return { values: data };
     } catch (error) {
       console.error("Error loading data:", error);
     }
+
     genericResourceLoading.value = false;
   };
 
   const resourceSummaryCall = async (cluster: string) => {
-    resourceSummaryLoading.value = true;
-    const date = Date.now();
     try {
+      resourceSummaryLoading.value = true;
+      const date = Date.now();
+
       const response = await $axios.post(
         `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
         {
@@ -352,56 +415,14 @@ export const useFunctions = () => {
       );
 
       const data = await JSON.parse(response.data.response?.body);
+
       resourceSummaryLoading.value = false;
       return { values: data };
     } catch (error) {
       console.error("Error loading data:", error);
     }
-    resourceSummaryLoading.value = false;
-  };
 
-  let archiverMap: Array<{ storageClass: string; annotation: string }> = [];
-  const getArchiverName = async (
-    cluster: string,
-    modelApiValue: Record<string, any>
-  ) => {
-    getArchiverNameLoading.value = true;
-    try {
-      const response = await $axios.post(
-        `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
-        {
-          apiVersion: "rproxy.ace.appscode.com/v1alpha1",
-          kind: "Proxy",
-          request: {
-            path: `/api/v1/clusters/rancher/${cluster}/proxy/storage.k8s.io/v1/storageclasses`,
-            verb: "GET",
-            query: "",
-            body: "",
-          },
-        }
-      );
-      const resource = modelApiValue.metadata.release.name;
-      const group = modelApiValue.metadata.release.group;
-      const data = await JSON.parse(response.data.response?.body);
-      data?.items?.forEach(
-        (item: {
-          metadata: { annotations: Record<string, string>; name: string };
-        }) => {
-          const annotations = item.metadata?.annotations;
-          const classname = item.metadata?.name;
-          const annotationKeyToFind = `${resource}.${group}/archiver`;
-          archiverMap.push({
-            storageClass: classname,
-            annotation: annotations[annotationKeyToFind],
-          });
-        }
-      );
-      getArchiverNameLoading.value = false;
-      return { values: data };
-    } catch (error) {
-      console.error("Error loading data:", error);
-    }
-    getArchiverNameLoading.value = false;
+    resourceSummaryLoading.value = false;
   };
 
   function getComponentLogStats(snapshot: any) {
@@ -425,26 +446,6 @@ export const useFunctions = () => {
     }
 
     return null;
-  }
-
-  function convertToLocal(input: any) {
-    const date = new Date(input);
-
-    if (isNaN(date.getTime())) {
-      return null;
-    }
-
-    return date.toString();
-  }
-
-  function convertLocalToISO8601(input: string): string | null {
-    const date = new Date(input);
-
-    if (isNaN(date.getTime())) {
-      return null;
-    }
-
-    return date.toISOString();
   }
 
   const setPointInTimeRecovery = async (
@@ -507,6 +508,7 @@ export const useFunctions = () => {
 
       modelApiValue.minDate = convertToLocal(resp?.start);
       modelApiValue.maxDate = convertToLocal(resp?.end);
+
       return modelApiValue;
     } catch (error) {
       modelApiValue.spec.init.archiver.recoveryTimestamp = "";
@@ -514,6 +516,7 @@ export const useFunctions = () => {
       modelApiValue.spec.init.archiver.maxDate = "";
       console.error("Error loading data:", error);
     }
+
     return modelApiValue;
   };
 

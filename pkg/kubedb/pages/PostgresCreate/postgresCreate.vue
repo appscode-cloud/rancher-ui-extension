@@ -2,31 +2,24 @@
 import { App, computed, getCurrentInstance, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
 import Loading from "@shell/components/Loading.vue";
-import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
-import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
+import YamlPreview from "../../components/YamlPreview.vue";
 import BasicDbConfig from "../../components/BasicDbConfig.vue";
 import AdvancedDbConfig from "../../components/AdvancedDbConfig.vue";
 import AdditionalOptions from "../../components/AdditionalOptions.vue";
+import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
-import { useUtils } from "../../composables/utils";
-import { useRules } from "../../composables/rules";
+import LongRunningTask from "../../components/long-running-task/LongRunningTaskModal.vue";
+import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
 import { useProps } from "./props";
 import { useFunctions } from "./functions";
 import { machineList, machines } from "./consts";
-import LongRunningTask from "../../components/long-running-task/LongRunningTaskModal.vue";
-import YamlPreview from "../../components/YamlPreview.vue";
 import { useNats } from "../../composables/nats";
+import { useUtils } from "../../composables/utils";
+import { useRules } from "../../composables/rules";
 
 // need to call this on every component.
 const { natsConnect } = useNats();
 natsConnect(getCurrentInstance()?.appContext.app as App<Element>);
-
-const store = useStore();
-const { required, getAllAvailableDbNames } = useRules();
-const { yamlToJs, getRandomUUID } = useUtils();
-const route = getCurrentInstance()?.proxy?.$route;
-const router = getCurrentInstance()?.proxy?.$router;
-const params = route?.params;
 
 const {
   validate,
@@ -89,11 +82,17 @@ const {
   isValuesLoading,
 } = useFunctions();
 
+const store = useStore();
+const { yamlToJs, getRandomUUID, getClusters } = useUtils(store);
+const route = getCurrentInstance()?.proxy?.$route;
+const router = getCurrentInstance()?.proxy?.$router;
+const { required, getAllAvailableDbNames } = useRules();
+
 const step = ref(1);
 const clusterName = ref("");
-const modelApiPayload = ref<Record<string, any>>({});
 const resourceSkipPayload = ref();
 const isYamlValid = ref(true);
+const modelApiPayload = ref<Record<string, any>>({});
 
 const previewTitle = computed(() => {
   return step.value === 1
@@ -125,26 +124,12 @@ const disableNextBtn = computed(() => {
   }
 });
 
-const getClusters = async () => {
-  try {
-    const result = await store.dispatch("management/findAll", {
-      type: "management.cattle.io.cluster",
-    });
-    result.forEach((ele: { id: string; spec: { displayName: string } }) => {
-      if (ele.id === params?.cluster) {
-        clusterName.value = ele.spec.displayName;
-      }
-    });
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 const setNamespaces = async () => {
   const data = await getNamespaces(clusterName.value);
   NameSpacesProps.value.options = data;
 };
 
+// set values from /values api call to model api payload
 const setValues = async () => {
   const data = await getValues(clusterName.value, namespace.value);
 
@@ -279,6 +264,7 @@ const setValues = async () => {
   }
 };
 
+// calls after setValue. Updates values of model api payload
 const setBundle = async () => {
   const data = await getBundle(clusterName.value);
 
@@ -327,6 +313,7 @@ const setBundle = async () => {
   }
 };
 
+// update model api payload after changes on form
 watch(values, async () => {
   await validate();
   if (namespace.value && modelApiPayload.value && name.value)
@@ -342,6 +329,8 @@ watch(namespace, async (n) => {
   await getArchiverName(clusterName.value, modelApiPayload.value);
 });
 
+// Async Dependencies
+//PITR
 watch(
   () => values.pitrDate,
   (newDate) => {
@@ -352,8 +341,6 @@ watch(
   }
 );
 
-// Async Dependencies
-//PITR
 watch(
   [
     PitrNameProps.value.pitrNameModel,
@@ -381,7 +368,7 @@ watch(
 onMounted(async () => {
   validate();
   await getAllAvailableDbNames();
-  await getClusters();
+  clusterName.value = await getClusters(route?.params.cluster as string);
   setNamespaces();
 });
 
@@ -491,13 +478,11 @@ const deployDatabase = async () => {
       />
       <div v-if="step === 2">
         <div>
-          <!-- Basic Configuration Component -->
           <BasicDbConfig
             :NameSpacesProps="NameSpacesProps"
             :VersionsProps="VersionsProps"
             :NameProps="NameProps"
             :ModeProps="ModeProps"
-            :required="required"
             :StorageSizeProps="StorageSizeProps"
             :StorageClassProps="StorageClassProps"
             :ReplicaProps="ReplicaProps"
@@ -505,6 +490,7 @@ const deployDatabase = async () => {
             :CPUProps="CPUProps"
             :MemoryProps="MemoryProps"
             :RemoteReplicaProps="RemoteReplicaProps"
+            :required="required"
           />
 
           <AdvancedDbConfig
