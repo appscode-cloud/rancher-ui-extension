@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import $axios from "../composables/axios";
 import {
   App,
   computed,
@@ -8,21 +7,23 @@ import {
   onUnmounted,
   ref,
 } from "vue";
-import { useStore } from "vuex";
-import SortableTable from "@rancher/shell/components/SortableTable/index.vue";
+import $axios from "../composables/axios";
+import { useNats } from "../composables/nats";
+import { useUtils } from "../composables/utils";
+import Tab from "@shell/components/Tabbed/Tab.vue";
+import Loading from "@shell/components/Loading.vue";
+import Tabbed from "@shell/components/Tabbed/index.vue";
 import SimpleBox from "@rancher/shell/components/SimpleBox.vue";
 import RcButton from "@shell/rancher-components/RcButton/RcButton.vue";
-import Loading from "@shell/components/Loading.vue";
-import { useUtils } from "../composables/utils";
+import SortableTable from "@rancher/shell/components/SortableTable/index.vue";
 import LongRunningTask from "../components/long-running-task/LongRunningTaskModal.vue";
-import { useNats } from "../composables/nats";
+import InsightDetails from "../components/InsightDetails.vue";
 
 // need to call this on every component.
 const { natsConnect } = useNats();
 natsConnect(getCurrentInstance()?.appContext.app as App<Element>);
 
-const { getRandomUUID, formatJson } = useUtils();
-const store = useStore();
+const { getRandomUUID, getClusters } = useUtils();
 const route = getCurrentInstance()?.proxy?.$route;
 const router = getCurrentInstance()?.proxy?.$router;
 const clusterName = ref("");
@@ -73,8 +74,16 @@ const query = {
   },
 };
 
-const sortableHeaders = computed(() =>
-  nodeTable.value.columns.map((col) => ({
+/// overview declare starts
+const overviewInfoBlock = ref<any[]>([]);
+const overviewInsightBlock = ref<any[]>([]);
+const overviewNodeTable = ref<{ columns: any[]; rows: any[] }>({
+  columns: [],
+  rows: [],
+});
+
+const overviewSortableHeaders = computed(() =>
+  overviewNodeTable.value.columns.map((col) => ({
     name: col.name,
     label: col.name,
     value: col.name,
@@ -102,59 +111,55 @@ const renderApi = async (showLoader: boolean) => {
     //     const data = await JSON.parse(response.data.response?.body);
     //     const blocks = data.response.view.pages[0].sections[0];
 
+    // Overview sections starts here
+    const overviewBlocks = data.response.view.pages[0].sections[0];
     // info table
-    const infoCols = blocks.info.table.columns;
-    const infoCells = blocks.info.table.rows[0].cells;
+    const overviewInfoCols = overviewBlocks.info.table.columns;
+    const overviewInfoCells = overviewBlocks.info.table.rows[0].cells;
 
-    const tempInfoBlock = infoCols.map((col: any, idx: number) => {
-      if (col.name === "Annotations") {
-        const output: Record<string, any> = {};
-
-        for (const key in infoCells[idx].data) {
-          const value = infoCells[idx].data[key];
-
-          if (
-            typeof value === "string" &&
-            (value.trim().startsWith("{") || value.trim().startsWith("["))
-          ) {
-            try {
-              output[key] = JSON.parse(value);
-            } catch {
-              output[key] = value;
-            }
-          } else {
-            output[key] = value;
-          }
+    const overviewTempInfoBlock = overviewInfoCols
+      .map((col: any, idx: number) => {
+        if (col.name === "Type") {
+          return {
+            label: col.name,
+            value: overviewInfoCells[idx].data.split("/")[1],
+          };
         }
         return {
           label: col.name,
-          value: output,
+          value: overviewInfoCells[idx].data,
         };
-      }
-      return {
-        label: col.name,
-        value: infoCells[idx].data,
-      };
-    });
+      })
+      .filter(
+        (ele: { label: string }) =>
+          ele.label !== "Annotations" &&
+          ele.label !== "Labels" &&
+          ele.label !== "Backup Task" &&
+          ele.label !== "Restore Task"
+      );
 
-    infoBlock.value = tempInfoBlock;
+    overviewInfoBlock.value = overviewTempInfoBlock;
 
     infoBlock.value = tempInfoBlock;
 
     // insight table
-    const insightCols = blocks.insight.table.columns;
-    const insightCells = blocks.insight.table.rows[0].cells;
+    const overviewInsightCols = overviewBlocks.insight.table.columns;
+    const overviewInsightCells = overviewBlocks.insight.table.rows[0].cells;
 
-    const tempInsightBlock = insightCols.map((col: any, idx: number) => ({
-      label: col.name,
-      value: insightCells[idx].data,
-    }));
+    const overviewTempInsightBlock = overviewInsightCols.map(
+      (col: any, idx: number) => ({
+        label: col.name,
+        value: overviewInsightCells[idx].data,
+      })
+    );
 
-    insightBlock.value = tempInsightBlock;
+    overviewInsightBlock.value = overviewTempInsightBlock;
 
     // nodes table
-    const nodeBlock = blocks.blocks.find((b: any) => b.name === "Nodes");
-    if (nodeBlock?.table) {
+    const overviewNodeBlock = overviewBlocks.blocks.find(
+      (b: any) => b.name === "Nodes"
+    );
+    if (overviewNodeBlock?.table) {
       // Filter out "dashboard" and "connect" columns
       const excludedColumns = ["dashboard", "connect"];
 
@@ -215,11 +220,140 @@ const singleDbDelete = async () => {
   isNatsConnectionLoading.value = false;
 };
 
-      nodeTable.value = {
+      overviewNodeTable.value = {
         columns: filteredColumns,
         rows: filteredRows,
       };
     }
+    // overview sections ends here
+
+    // insight sections start here
+    const insightBlocks = data.response.view.pages[1].sections[0];
+
+    // info table
+    const insightInfoCols = insightBlocks.info.table.columns;
+    const insightInfoCells = insightBlocks.info.table.rows[0].cells;
+
+    const insightTempInfoBlock = insightInfoCols.map(
+      (col: any, idx: number) => {
+        return {
+          label: col.name,
+          value: insightInfoCells[idx].data,
+        };
+      }
+    );
+
+    insightInfoBlock.value = insightTempInfoBlock;
+
+    // insight table
+    const insightInsightCols = insightBlocks.insight.table.columns;
+    const insightInsightCells = insightBlocks.insight.table.rows[0].cells;
+
+    const insightTempInsightBlock = insightInsightCols.map(
+      (col: any, idx: number) => ({
+        label: col.name,
+        value: insightInsightCells[idx].data,
+      })
+    );
+
+    insightInsightBlock.value = insightTempInsightBlock;
+
+    // replication status
+    const insightReplicaStatus = insightBlocks.blocks.find(
+      (b: any) => b.name === "Replication Status"
+    );
+    if (insightReplicaStatus?.table) {
+      const filteredColumns = insightReplicaStatus.table.columns;
+      const includedIndexes = filteredColumns.map((col: any) =>
+        insightReplicaStatus.table.columns.findIndex(
+          (c: any) => c.name === col.name
+        )
+      );
+
+      const filteredRows = insightReplicaStatus.table.rows.map((row: any) => ({
+        ...row,
+        cells: includedIndexes.map((idx: number) => row.cells[idx]),
+      }));
+
+      insightReplicationStatusTable.value = {
+        columns: filteredColumns,
+        rows: filteredRows,
+      };
+    }
+
+    //Grafana Dashboard
+    const insightGrafanaDashboard = insightBlocks.blocks.find(
+      (b: any) => b.name === "Grafana Dashboards"
+    );
+    if (insightGrafanaDashboard?.table) {
+      const filteredColumns = insightGrafanaDashboard.table.columns;
+      const includedIndexes = filteredColumns.map((col: any) =>
+        insightGrafanaDashboard.table.columns.findIndex(
+          (c: any) => c.name === col.name
+        )
+      );
+
+      const filteredRows = insightGrafanaDashboard.table.rows.map(
+        (row: any) => ({
+          ...row,
+          cells: includedIndexes.map((idx: number) => row.cells[idx]),
+        })
+      );
+
+      insightGrafanaDashboardTable.value = {
+        columns: filteredColumns,
+        rows: filteredRows,
+      };
+    }
+
+    // Slow Queries
+    const insightSlowQueries = insightBlocks.blocks.find(
+      (b: any) => b.name === "Slow Queries"
+    );
+    if (insightSlowQueries?.table) {
+      const filteredColumns = insightSlowQueries.table.columns;
+      const includedIndexes = filteredColumns.map((col: any) =>
+        insightSlowQueries.table.columns.findIndex(
+          (c: any) => c.name === col.name
+        )
+      );
+
+      const filteredRows = insightSlowQueries.table.rows.map((row: any) => ({
+        ...row,
+        cells: includedIndexes.map((idx: number) => row.cells[idx]),
+      }));
+
+      insightSlowQueriesTable.value = {
+        columns: filteredColumns,
+        rows: filteredRows,
+      };
+    }
+
+    // Databases
+    const insightDatabases = insightBlocks.blocks.find(
+      (b: any) => b.name === "Databases"
+    );
+
+    if (insightDatabases?.table) {
+      const filteredColumns = insightDatabases.table.columns;
+      const includedIndexes = filteredColumns.map((col: any) =>
+        insightDatabases.table.columns.findIndex(
+          (c: any) => c.name === col.name
+        )
+      );
+
+      const filteredRows = insightDatabases.table.rows.map((row: any) => ({
+        ...row,
+        cells: includedIndexes.map((idx: number) => row.cells[idx]),
+      }));
+
+      insightDatabasesTable.value = {
+        columns: filteredColumns,
+        rows: filteredRows,
+      };
+    }
+
+    // insight sections ends here
   } catch (error) {
     console.error(error);
   }
@@ -259,24 +393,9 @@ const singleDbDelete = async () => {
   isNatsConnectionLoading.value = false;
 };
 
-const getClusters = async () => {
-  try {
-    const result = await store.dispatch("management/findAll", {
-      type: "management.cattle.io.cluster",
-    });
-    result.forEach((ele: { id: string; spec: { displayName: string } }) => {
-      if (ele.id === route?.params?.cluster) {
-        clusterName.value = ele.spec.displayName;
-      }
-    });
-  } catch (e) {
-    console.log(e);
-  }
-};
-
 let intervalId: ReturnType<typeof setInterval>;
 onMounted(async () => {
-  await getClusters();
+  clusterName.value = await getClusters(route?.params.cluster as string);
   renderApi(true);
   intervalId = setInterval(() => {
     renderApi(false);
@@ -352,38 +471,98 @@ onUnmounted(() => {
               <div
                 style="
                   display: flex;
-                  align-items: center;
                   justify-content: space-between;
-                  gap: 8px;
+                  align-items: center;
                 "
               >
-                <span>{{ item.label }}: </span>
-                <strong style="font-size: 16px">{{ item.value }}</strong>
+                <h2>Database Info</h2>
+                <RcButton danger @click="singleDbDelete">Delete</RcButton>
               </div>
-            </SimpleBox>
-          </div>
-        </div>
-      </div>
+              <div v-for="(item, i) in overviewInfoBlock" :key="'info-' + i">
+                <div
+                  style="
+                    display: flex;
+                    align-items: start;
+                    gap: 8px;
+                    margin-bottom: 16px;
+                  "
+                >
+                  <strong style="min-width: 150px">{{ item.label }}:</strong>
 
-      <SortableTable
-        v-if="nodeTable.columns.length > 0"
-        :rows="sortableRows"
-        :headers="sortableHeaders"
-        :paging="true"
-        :rows-per-page="5"
-        :table-actions="false"
-        :row-actions="false"
-      >
-        <template
-          v-for="header in sortableHeaders"
-          #[`col:${header.name}`]="{ row }"
-        >
-          <td>{{ row[header.name] }}</td>
-        </template>
-        <template #header-left>
-          <h1>Nodes</h1>
-        </template>
-      </SortableTable>
+                  <span>{{ item.value }}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-top: 24px">
+              <h2 style="margin-bottom: 16px; display: flex">
+                Database Insights
+              </h2>
+              <div style="display: flex; flex-wrap: wrap; gap: 16px">
+                <div
+                  class="simple-box-container"
+                  v-for="(item, i) in overviewInsightBlock"
+                  :key="'insight-' + i"
+                >
+                  <SimpleBox class="simple-box">
+                    <div
+                      style="
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        gap: 8px;
+                      "
+                    >
+                      <span>{{ item.label }}: </span>
+                      <strong style="font-size: 16px">{{ item.value }}</strong>
+                    </div>
+                  </SimpleBox>
+                </div>
+              </div>
+            </div>
+            <SortableTable
+              v-if="overviewNodeTable.columns.length > 0"
+              :rows="overviewSortableRows"
+              :headers="overviewSortableHeaders"
+              :paging="true"
+              :rows-per-page="5"
+              :table-actions="false"
+              :row-actions="false"
+            >
+              <template
+                v-for="header in overviewSortableHeaders"
+                #[`col:${header.name}`]="{ row }"
+              >
+                <td>{{ row[header.name] }}</td>
+              </template>
+              <template #header-left>
+                <h1>Nodes</h1>
+              </template>
+            </SortableTable>
+          </div>
+        </Tab>
+        <Tab name="insight" label="Insight" weight="1">
+          <div class="tab-content">
+            <InsightDetails
+              :insight-databases-headers="insightDatabasesHeaders"
+              :insight-databases-rows="insightDatabasesRows"
+              :insight-databases-table="insightDatabasesTable"
+              :insight-grafana-dashboard-rows="insightGrafanaDashboardRows"
+              :insight-slow-queries-headers="insightSlowQueriesHeaders"
+              :insight-info-block="insightInfoBlock"
+              :insight-insight-block="insightInsightBlock"
+              :insight-replication-status-rows="insightReplicationStatusRows"
+              :insight-replication-status-table="insightReplicationStatusTable"
+              :insight-slow-queries-rows="insightSlowQueriesRows"
+              :insight-slow-queries-table="insightSlowQueriesTable"
+              :insight-replication-status-headers="
+                insightReplicationStatusHeaders
+              "
+            />
+          </div>
+        </Tab>
+      </Tabbed>
+
       <LongRunningTask
         :open="showDialog"
         :nats-subject="natsSubject"

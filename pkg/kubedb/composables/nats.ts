@@ -26,7 +26,7 @@ export const useNats = () => {
     //self host
     const protocol = window.location.protocol;
     return protocol === "https:"
-      ? `https://10.2.0.42/nats`
+      ? `wss://10.2.0.42/nats`
       : `ws://10.2.0.42/nats`;
   }
 
