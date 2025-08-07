@@ -331,3 +331,56 @@ export const EDITOR_MODES = {
   VIEW_CODE: "VIEW_CODE",
   DIFF_CODE: "DIFF_CODE",
 };
+
+export const alertsList: Array<{ value: string; label: string }> = [
+  { label: "Critical", value: "Critical" },
+  { label: "Info", value: "Info" },
+  { label: "None", value: "None" },
+  { label: "Warning", value: "Warning" },
+];
+
+export const defaultMachines: Array<{ value: string; label: string }> = [
+  { label: "custom", value: "custom" },
+  { label: "db.t.micro", value: "db.t.micro" },
+  { label: "db.t.small", value: "db.t.small" },
+  { label: "db.t.medium", value: "db.t.medium" },
+  { label: "db.t.large", value: "db.t.large" },
+  { label: "db.t.xlarge", value: "db.t.xlarge" },
+  { label: "db.t.2xlarge", value: "db.t.2xlarge" },
+  { label: "db.m.small", value: "db.m.small" },
+  { label: "db.m.large", value: "db.m.large" },
+  { label: "db.m.xlarge", value: "db.m.xlarge" },
+  { label: "db.m.2xlarge", value: "db.m.2xlarge" },
+  { label: "db.m.4xlarge", value: "db.m.4xlarge" },
+  { label: "db.m.8xlarge", value: "db.m.8xlarge" },
+  { label: "db.m.12xlarge", value: "db.m.12xlarge" },
+  { label: "db.m.16xlarge", value: "db.m.16xlarge" },
+  { label: "db.m.24xlarge", value: "db.m.24xlarge" },
+  { label: "db.r.large", value: "db.r.large" },
+  { label: "db.r.xlarge", value: "db.r.xlarge" },
+  { label: "db.r.2xlarge", value: "db.r.2xlarge" },
+  { label: "db.r.4xlarge", value: "db.r.4xlarge" },
+  { label: "db.r.8xlarge", value: "db.r.8xlarge" },
+  { label: "db.r.12xlarge", value: "db.r.12xlarge" },
+  { label: "db.r.16xlarge", value: "db.r.16xlarge" },
+  { label: "db.r.24xlarge", value: "db.r.24xlarge" },
+];
+
+export const deletionPolicies: Array<{ value: string; label: string }> = [
+  {
+    label: "Delete (Keep only database AuthSecrets and backed up data)",
+    value: "Delete",
+  },
+  {
+    label: "Halt (Keep PVCs, database AuthSecrets and backed up data)",
+    value: "Halt",
+  },
+  {
+    label: "WipeOut (Delete everything including backed up data )",
+    value: "WipeOut",
+  },
+  {
+    label: "DoNotTerminate (Prevent deletion of the Postgres CRD)",
+    value: "DoNotTerminate",
+  },
+];

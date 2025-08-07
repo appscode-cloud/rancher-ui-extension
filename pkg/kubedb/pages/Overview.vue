@@ -1,54 +1,28 @@
 <script setup lang="ts">
-import SortableTable from "@rancher/shell/components/SortableTable/index.vue";
-import BadgeStateFormatter from "@rancher/shell/components/formatter/BadgeStateFormatter.vue";
-import ConsumptionGauge from "@rancher/shell/components/ConsumptionGauge.vue";
-import Loading from "@shell/components/Loading.vue";
-import SimpleBox from "@rancher/shell/components/SimpleBox.vue";
-import { useFunctions } from "./PostgresCreate/functions";
 import { App, getCurrentInstance, onMounted, onUnmounted, ref } from "vue";
-import { useStore } from "vuex";
 import { useNats } from "../composables/nats";
+import { useFunctions } from "./PostgresCreate/functions";
+import BadgeStateFormatter from "@rancher/shell/components/formatter/BadgeStateFormatter.vue";
+import SortableTable from "@rancher/shell/components/SortableTable/index.vue";
+import ConsumptionGauge from "@rancher/shell/components/ConsumptionGauge.vue";
+import SimpleBox from "@rancher/shell/components/SimpleBox.vue";
+import Loading from "@shell/components/Loading.vue";
+import { useUtils } from "../composables/utils";
 
 // need to call this on every component.
 const { natsConnect } = useNats();
 natsConnect(getCurrentInstance()?.appContext.app as App<Element>);
 
-const store = useStore();
-const clusterName = ref("");
 const route = getCurrentInstance()?.proxy?.$route;
-const params = route?.params;
-
+const { getPercentage, getClusters, extractNumbers } = useUtils();
 const { resourceSummaryCall, genericResourceCall } = useFunctions();
 
 const isLoading = ref(false);
-
-function getPercentage(a: number, b: number): string {
-  if (b === 0) {
-    return "Infinity%";
-  }
-  const percentage = (a / b) * 100;
-  return `${percentage.toFixed(2)}%`;
-}
-
+const clusterName = ref("");
 const headers = ref<Array<Record<string, any>>>([]);
 const rows = ref<Array<Record<string, string>>>([]);
 const resourceSummary =
   ref<Array<{ cells: Array<{ data: number | string }> }>>();
-
-const getClusters = async () => {
-  try {
-    const result = await store.dispatch("management/findAll", {
-      type: "management.cattle.io.cluster",
-    });
-    result.forEach((ele: { id: string; spec: { displayName: string } }) => {
-      if (ele.id === params?.cluster) {
-        clusterName.value = ele.spec.displayName;
-      }
-    });
-  } catch (e) {
-    console.log(e);
-  }
-};
 
 const fetchAndSetGenericResources = async (showLoading: boolean) => {
   if (showLoading) isLoading.value = true;
@@ -73,6 +47,7 @@ const fetchAndSetGenericResources = async (showLoading: boolean) => {
     }
   );
   headers.value = tempHeaders;
+
   genericResourceResponse?.values.rows.forEach(
     (row: {
       cells: Array<{
@@ -98,7 +73,20 @@ const fetchAndSetGenericResources = async (showLoading: boolean) => {
           const value = cell.data;
           obj[key] = value;
           if (cell.link) {
-            obj["link"] = cell.link;
+            const pathOnly = cell.link.split("?")[0];
+            const segments = pathOnly.split("/").filter(Boolean);
+            const resourceNameIndex = segments.length - 1;
+            const resourceIndex = resourceNameIndex - 1;
+            const versionIndex = resourceNameIndex - 2;
+            const groupIndex = resourceNameIndex - 3;
+            const group = segments[groupIndex];
+            const version = segments[versionIndex];
+            const resource = segments[resourceIndex];
+            const routePath = route?.path;
+            const path = routePath?.replace(/\/overview$/, "");
+            obj[
+              "link"
+            ] = `${path}/${group}/${version}/${resource}/${row.cells[1].data}/${row.cells[0].data}/details`;
           }
         }
       );
@@ -116,19 +104,10 @@ const fetchAndSetGenericResources = async (showLoading: boolean) => {
   isLoading.value = false;
 };
 
-function extractNumbers(input: string): [number, number] {
-  const matches = input.match(/\d+/g);
-
-  if (!matches || matches.length !== 2) {
-    throw new Error("Input string must contain exactly two numbers");
-  }
-
-  return [parseInt(matches[0], 10), parseInt(matches[1], 10)];
-}
-
+// Short Pooling
 let intervalId: ReturnType<typeof setInterval>;
 onMounted(async () => {
-  await getClusters();
+  clusterName.value = await getClusters(route?.params.cluster as string);
   await fetchAndSetGenericResources(true);
   intervalId = setInterval(() => {
     fetchAndSetGenericResources(false);

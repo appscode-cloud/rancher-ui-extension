@@ -1,7 +1,12 @@
 import { ref } from "vue";
-import { useRules } from "../../composables/rules";
 import { useCreateForm } from "./create";
-import { dbObject } from "./consts";
+import { useRules } from "../../composables/rules";
+import {
+  dbObject,
+  alertsList,
+  defaultMachines,
+  deletionPolicies,
+} from "./consts";
 
 import {
   StorageClassType,
@@ -35,39 +40,6 @@ import {
   PitrType,
   PitrDateType,
 } from "types/types";
-
-//Hard-coded options
-const alertsList = ref<Array<{ value: string; label: string }>>([
-  { label: "Critical", value: "Critical" },
-  { label: "Info", value: "Info" },
-  { label: "None", value: "None" },
-  { label: "Warning", value: "Warning" },
-]);
-const machines = ref<Array<{ value: string; label: string }>>([
-  { label: "custom", value: "custom" },
-  { label: "db.t.micro", value: "db.t.micro" },
-  { label: "db.t.small", value: "db.t.small" },
-  { label: "db.t.medium", value: "db.t.medium" },
-  { label: "db.t.large", value: "db.t.large" },
-]);
-const deletionPolicies = ref<Array<{ value: string; label: string }>>([
-  {
-    label: "Delete (Keep only database AuthSecrets and backed up data)",
-    value: "Delete",
-  },
-  {
-    label: "Halt (Keep PVCs, database AuthSecrets and backed up data)",
-    value: "Halt",
-  },
-  {
-    label: "WipeOut (Delete everything including backed up data )",
-    value: "WipeOut",
-  },
-  {
-    label: "DoNotTerminate (Prevent deletion of the Postgres CRD)",
-    value: "DoNotTerminate",
-  },
-]);
 
 const { required, checkDuplicate } = useRules();
 
@@ -181,7 +153,7 @@ export const useProps = () => {
   const DeletionPolicyProps = ref<DeletionPolicyType>({
     show: true,
     disabled: false,
-    options: deletionPolicies.value,
+    options: deletionPolicies,
     searchable: true,
     multiple: false,
     label: "Deletion Policy",
@@ -206,7 +178,7 @@ export const useProps = () => {
 
   const MachineProps = ref<MachineType>({
     show: true,
-    options: machines.value,
+    options: defaultMachines,
     searchable: true,
     multiple: false,
     label: "Machine Profile",
@@ -349,7 +321,7 @@ export const useProps = () => {
   // Additional Options generics
   const AlertProps = ref<AlertType>({
     show: true,
-    options: alertsList.value,
+    options: alertsList,
     label: "Alert Options",
     alertModel: alert,
   });
