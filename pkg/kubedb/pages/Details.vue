@@ -333,7 +333,7 @@ onUnmounted(() => {
         }"
         :success-ctx="{
           onSuccess: () => {
-            const path = `/dashboard/c/${route?.params.cluster}/kubedb/overview`;
+            const path = `/c/${route?.params.cluster}/kubedb/overview`;
             router?.push(path);
           },
         }"
