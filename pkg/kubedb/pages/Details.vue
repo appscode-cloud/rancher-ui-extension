@@ -477,7 +477,7 @@ onUnmounted(() => {
         :open="showDialog"
         :nats-subject="natsSubject"
         :is-nats-connection-loading="isNatsConnectionLoading"
-        title="Deploying Postgres"
+        :title="`Delete Resource: ${dbName}`"
         :error-ctx="{
           connectionError: connectionError,
           onError: () => {

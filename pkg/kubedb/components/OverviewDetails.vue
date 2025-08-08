@@ -91,6 +91,16 @@ const props = withDefaults(defineProps<Props>(), {
       </div>
       <div v-else>No Data to show</div>
     </div>
+
+    <div style="margin-top: 36px">
+      <iframe
+        src="https://10.2.0.42/grafana/d-solo/S6E30U8Hk/kubedb-postgres-summary?from=1754637320229&orgId=4&refresh=30s&to=1754648120229&var-app=sayedtahsin&var-datasource=rancher-imported-cluster&var-namespace=default&panelId=98"
+        frameborder="0"
+        height="400"
+        width="1000"
+      ></iframe>
+    </div>
+
     <SortableTable
       style="margin-top: 36px"
       v-if="overviewNodeTable.columns.length > 0"
