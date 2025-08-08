@@ -32,32 +32,6 @@ const resource = route?.params.kind;
 const namespace = route?.params.namespace;
 const dbName = route?.params.dbName;
 
-const { getRandomUUID } = useUtils();
-const store = useStore();
-const route = getCurrentInstance()?.proxy?.$route;
-const router = getCurrentInstance()?.proxy?.$router;
-const clusterName = ref("");
-const isLoading = ref(false);
-const group = route?.params.group;
-const version = route?.params.version;
-const resource = route?.params.kind;
-const namespace = route?.params.namespace;
-const dbName = route?.params.dbName;
-
-const query = {
-  apiVersion: "meta.k8s.appscode.com/v1alpha1",
-  kind: "Render",
-  request: {
-    convertToTable: true,
-    layoutName: `${group}-${version}-${resource}-kubedb`,
-    renderBlocks: ["Connection"], // this includes info & insight
-    source: {
-      ref: { name: dbName, namespace: namespace },
-      resource: { group: group, name: resource, version: version },
-    },
-  },
-};
-
 const query = {
   apiVersion: "meta.k8s.appscode.com/v1alpha1",
   kind: "Render",
@@ -89,6 +63,105 @@ const overviewSortableHeaders = computed(() =>
   }))
 );
 
+const overviewSortableRows = computed(() =>
+  overviewNodeTable.value.rows.map((row) => {
+    const obj: Record<string, string> = {};
+    row.cells.forEach((cell: any, i: number) => {
+      obj[overviewNodeTable.value.columns[i].name] = cell.data;
+    });
+    return obj;
+  })
+);
+/// overview declare ends
+
+/// insight declare starts
+const insightInfoBlock = ref<any[]>([]);
+const insightInsightBlock = ref<any[]>([]);
+
+const insightDatabasesTable = ref<{ columns: any[]; rows: any[] }>({
+  columns: [],
+  rows: [],
+});
+const insightDatabasesHeaders = computed(() =>
+  insightDatabasesTable.value.columns.map((col) => ({
+    name: col.name,
+    label: col.name,
+    value: col.name,
+    sort: [],
+  }))
+);
+
+const insightDatabasesRows = computed(() =>
+  insightDatabasesTable.value.rows.map((row) => {
+    const obj: Record<string, string> = {};
+    row.cells.forEach((cell: any, i: number) => {
+      obj[insightDatabasesTable.value.columns[i].name] = cell.data;
+    });
+    return obj;
+  })
+);
+
+const insightReplicationStatusTable = ref<{ columns: any[]; rows: any[] }>({
+  columns: [],
+  rows: [],
+});
+const insightReplicationStatusHeaders = computed(() =>
+  insightReplicationStatusTable.value.columns.map((col) => ({
+    name: col.name,
+    label: col.name,
+    value: col.name,
+    sort: [],
+  }))
+);
+
+const insightReplicationStatusRows = computed(() =>
+  insightReplicationStatusTable.value.rows.map((row) => {
+    const obj: Record<string, string> = {};
+    row.cells.forEach((cell: any, i: number) => {
+      obj[insightReplicationStatusTable.value.columns[i].name] = cell.data;
+    });
+    return obj;
+  })
+);
+
+const insightSlowQueriesTable = ref<{ columns: any[]; rows: any[] }>({
+  columns: [],
+  rows: [],
+});
+const insightSlowQueriesHeaders = computed(() =>
+  insightSlowQueriesTable.value.columns.map((col) => ({
+    name: col.name,
+    label: col.name,
+    value: col.name,
+    sort: [],
+  }))
+);
+
+const insightSlowQueriesRows = computed(() =>
+  insightSlowQueriesTable.value.rows.map((row) => {
+    const obj: Record<string, string> = {};
+    row.cells.forEach((cell: any, i: number) => {
+      obj[insightSlowQueriesTable.value.columns[i].name] = cell.data;
+    });
+    return obj;
+  })
+);
+
+const insightGrafanaDashboardTable = ref<{ columns: any[]; rows: any[] }>({
+  columns: [],
+  rows: [],
+});
+const insightGrafanaDashboardRows = computed(() =>
+  insightGrafanaDashboardTable.value.rows.map((row) => {
+    const obj: Record<string, string> = {};
+    row.cells.forEach((cell: any, i: number) => {
+      obj[insightGrafanaDashboardTable.value.columns[i].name] = cell.data;
+    });
+    return obj;
+  })
+);
+/// insight declare ends
+
 const renderApi = async (showLoader: boolean) => {
   if (showLoader) isLoading.value = true;
   try {
@@ -106,8 +179,7 @@ const renderApi = async (showLoader: boolean) => {
       }
     );
 
-    //     const data = await JSON.parse(response.data.response?.body);
-    //     const blocks = data.response.view.pages[0].sections[0];
+    const data = await JSON.parse(response.data.response?.body);
 
     // Overview sections starts here
     const overviewBlocks = data.response.view.pages[0].sections[0];
@@ -138,8 +210,6 @@ const renderApi = async (showLoader: boolean) => {
 
     overviewInfoBlock.value = overviewTempInfoBlock;
 
-    infoBlock.value = tempInfoBlock;
-
     // insight table
     const overviewInsightCols = overviewBlocks.insight.table.columns;
     const overviewInsightCells = overviewBlocks.insight.table.rows[0].cells;
@@ -161,62 +231,20 @@ const renderApi = async (showLoader: boolean) => {
       // Filter out "dashboard" and "connect" columns
       const excludedColumns = ["dashboard", "connect"];
 
-      //       const filteredColumns = nodeBlock.table.columns.filter(
-      //         (col: any) => !excludedColumns.includes(col.name.toLowerCase())
-      //       );
+      const filteredColumns = overviewNodeBlock.table.columns.filter(
+        (col: any) => !excludedColumns.includes(col.name.toLowerCase())
+      );
 
-      //       const includedIndexes = filteredColumns.map((col: any) =>
-      //         nodeBlock.table.columns.findIndex((c: any) => c.name === col.name)
-      //       );
+      const includedIndexes = filteredColumns.map((col: any) =>
+        overviewNodeBlock.table.columns.findIndex(
+          (c: any) => c.name === col.name
+        )
+      );
 
-      //       const filteredRows = nodeBlock.table.rows.map((row: any) => ({
-      //         ...row,
-      //         cells: includedIndexes.map((idx: number) => row.cells[idx]),
-      //       }));
-
-      nodeTable.value = {
-        columns: filteredColumns,
-        rows: filteredRows,
-      };
-    }
-  } catch (error) {
-    console.error(error);
-  }
-  isLoading.value = false;
-};
-
-//Long Running Task
-const showDialog = ref(false);
-const natsSubject = ref("");
-const connectionError = ref("");
-const isNatsConnectionLoading = ref(false);
-const uuid = getRandomUUID();
-natsSubject.value = `natjobs.resp.${uuid}`;
-
-const singleDbDelete = async () => {
-  isNatsConnectionLoading.value = true;
-  showDialog.value = true;
-  try {
-    await $axios.post(
-      `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
-      {
-        apiVersion: "rproxy.ace.appscode.com/v1alpha1",
-        kind: "Proxy",
-        request: {
-          path: `/api/v1/clusters/rancher/${clusterName.value}/helm/editor`,
-          verb: "DELETE",
-          query: `releaseName=${dbName}&namespace=${namespace}&group=${group}&version=${version}&name=${resource}&response-id=${uuid}`,
-          body: "",
-        },
-      }
-    );
-  } catch (error: unknown) {
-    connectionError.value = error as string;
-    console.error("Error loading data:", error);
-  }
-  showDialog.value = true;
-  isNatsConnectionLoading.value = false;
-};
+      const filteredRows = overviewNodeBlock.table.rows.map((row: any) => ({
+        ...row,
+        cells: includedIndexes.map((idx: number) => row.cells[idx]),
+      }));
 
       overviewNodeTable.value = {
         columns: filteredColumns,
@@ -410,133 +438,17 @@ onUnmounted(() => {
       <Loading />
     </div>
     <div v-else>
-      <div>
-        <div
-          style="
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-          "
-        >
-          <h2>Database Info</h2>
-          <RcButton danger @click="singleDbDelete">Delete</RcButton>
-        </div>
-        <div v-for="(item, i) in infoBlock" :key="'info-' + i">
-          <div
-            style="
-              display: flex;
-              align-items: start;
-              gap: 8px;
-              margin-bottom: 16px;
-            "
-          >
-            <strong style="min-width: 150px">{{ item.label }}:</strong>
-
-            <pre
-              v-if="item.label === 'Annotations' || item.label === 'Labels'"
-              style="
-                max-width: 100%;
-                max-height: 200px;
-                overflow: auto;
-                white-space: pre-wrap;
-              "
-            >
-               {{ formatJson(item.value) }}
-            </pre>
-            <span v-else>{{ item.value }}</span>
-          </div>
-        </div>
-        <div v-for="(item, i) in infoBlock" :key="'info-' + i">
-          <div
-            style="
-              display: flex;
-              align-items: start;
-              gap: 8px;
-              margin-bottom: 16px;
-            "
-          >
-            <strong style="min-width: 150px">{{ item.label }}:</strong>
-
-      <div style="margin-top: 24px">
-        <h2 style="margin-bottom: 16px; display: flex">Database Insights</h2>
-        <div style="display: flex; flex-wrap: wrap; gap: 16px">
-          <div
-            class="simple-box-container"
-            v-for="(item, i) in insightBlock"
-            :key="'insight-' + i"
-          >
-            <SimpleBox class="simple-box">
-              <div
-                style="
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                "
-              >
-                <h2>Database Info</h2>
-                <RcButton danger @click="singleDbDelete">Delete</RcButton>
-              </div>
-              <div v-for="(item, i) in overviewInfoBlock" :key="'info-' + i">
-                <div
-                  style="
-                    display: flex;
-                    align-items: start;
-                    gap: 8px;
-                    margin-bottom: 16px;
-                  "
-                >
-                  <strong style="min-width: 150px">{{ item.label }}:</strong>
-
-                  <span>{{ item.value }}</span>
-                </div>
-              </div>
-            </div>
-
-            <div style="margin-top: 24px">
-              <h2 style="margin-bottom: 16px; display: flex">
-                Database Insights
-              </h2>
-              <div style="display: flex; flex-wrap: wrap; gap: 16px">
-                <div
-                  class="simple-box-container"
-                  v-for="(item, i) in overviewInsightBlock"
-                  :key="'insight-' + i"
-                >
-                  <SimpleBox class="simple-box">
-                    <div
-                      style="
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        gap: 8px;
-                      "
-                    >
-                      <span>{{ item.label }}: </span>
-                      <strong style="font-size: 16px">{{ item.value }}</strong>
-                    </div>
-                  </SimpleBox>
-                </div>
-              </div>
-            </div>
-            <SortableTable
-              v-if="overviewNodeTable.columns.length > 0"
-              :rows="overviewSortableRows"
-              :headers="overviewSortableHeaders"
-              :paging="true"
-              :rows-per-page="5"
-              :table-actions="false"
-              :row-actions="false"
-            >
-              <template
-                v-for="header in overviewSortableHeaders"
-                #[`col:${header.name}`]="{ row }"
-              >
-                <td>{{ row[header.name] }}</td>
-              </template>
-              <template #header-left>
-                <h1>Nodes</h1>
-              </template>
-            </SortableTable>
+      <Tabbed :use-hash="true" @changed="console.log('ok')">
+        <Tab name="Overview" label="Overview" weight="2">
+          <div class="tab-content">
+            <OverviewDetails
+              :overview-info-block="overviewInfoBlock"
+              :overview-insight-block="overviewInsightBlock"
+              :overview-node-table="overviewNodeTable"
+              :overview-sortable-headers="overviewSortableHeaders"
+              :overview-sortable-rows="overviewSortableRows"
+              :single-db-delete="singleDbDelete"
+            />
           </div>
         </Tab>
         <Tab name="insight" label="Insight" weight="1">
