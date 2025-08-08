@@ -5,29 +5,62 @@ import SortableTable from "@rancher/shell/components/SortableTable/index.vue";
 interface Props {
   insightInfoBlock: any[];
   insightInsightBlock: any[];
-  insightReplicationStatusTable: any;
-  insightReplicationStatusRows: any;
-  insightReplicationStatusHeaders: any;
-  insightGrafanaDashboardRows: any;
-  insightSlowQueriesTable: any;
-  insightSlowQueriesRows: any;
-  insightSlowQueriesHeaders: any;
-  insightDatabasesTable: any;
-  insightDatabasesRows: any;
-  insightDatabasesHeaders: any;
+  insightReplicationStatusTable: {
+    columns: any[];
+    rows: any[];
+  };
+  insightReplicationStatusRows: Record<string, string>[];
+  insightReplicationStatusHeaders: {
+    name: any;
+    label: any;
+    value: any;
+    sort: never[];
+  }[];
+  insightGrafanaDashboardRows: Record<string, string>[];
+  insightSlowQueriesTable: {
+    columns: any[];
+    rows: any[];
+  };
+  insightSlowQueriesRows: Record<string, string>[];
+  insightSlowQueriesHeaders: {
+    name: any;
+    label: any;
+    value: any;
+    sort: never[];
+  }[];
+  insightDatabasesTable: {
+    columns: any[];
+    rows: any[];
+  };
+  insightDatabasesRows: Record<string, string>[];
+  insightDatabasesHeaders: {
+    name: any;
+    label: any;
+    value: any;
+    sort: never[];
+  }[];
 }
 
 const props = withDefaults(defineProps<Props>(), {
   insightInfoBlock: () => [],
   insightInsightBlock: () => [],
-  insightReplicationStatusTable: {},
+  insightReplicationStatusTable: () => ({
+    columns: [],
+    rows: [],
+  }),
   insightReplicationStatusRows: () => [],
   insightReplicationStatusHeaders: () => [],
   insightGrafanaDashboardRows: () => [],
-  insightSlowQueriesTable: {},
+  insightSlowQueriesTable: () => ({
+    columns: [],
+    rows: [],
+  }),
   insightSlowQueriesRows: () => [],
   insightSlowQueriesHeaders: () => [],
-  insightDatabasesTable: {},
+  insightDatabasesTable: () => ({
+    columns: [],
+    rows: [],
+  }),
   insightDatabasesRows: () => [],
   insightDatabasesHeaders: () => [],
 });
@@ -59,7 +92,7 @@ const props = withDefaults(defineProps<Props>(), {
       </div>
     </div>
 
-    <div style="margin-top: 24px">
+    <div style="margin-top: 36px">
       <h2 style="margin-bottom: 16px; display: flex">Database Insights</h2>
       <div style="display: flex; flex-wrap: wrap; gap: 16px">
         <div
@@ -85,6 +118,7 @@ const props = withDefaults(defineProps<Props>(), {
     </div>
 
     <SortableTable
+      style="margin-top: 36px"
       v-if="insightReplicationStatusTable.columns.length > 0"
       :rows="insightReplicationStatusRows"
       :headers="insightReplicationStatusHeaders"
@@ -108,6 +142,7 @@ const props = withDefaults(defineProps<Props>(), {
       <div
         style="
           display: flex;
+          margin-top: 36px;
           justify-content: space-between;
           align-items: center;
         "
@@ -121,6 +156,7 @@ const props = withDefaults(defineProps<Props>(), {
       </ul>
     </div>
     <SortableTable
+      style="margin-top: 36px"
       v-if="insightSlowQueriesTable.columns.length > 0"
       :rows="insightSlowQueriesRows"
       :headers="insightSlowQueriesHeaders"
@@ -141,6 +177,7 @@ const props = withDefaults(defineProps<Props>(), {
     </SortableTable>
 
     <SortableTable
+      style="margin-top: 36px"
       v-if="insightDatabasesTable.columns.length > 0"
       :rows="insightDatabasesRows"
       :headers="insightDatabasesHeaders"

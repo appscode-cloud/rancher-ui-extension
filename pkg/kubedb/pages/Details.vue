@@ -13,11 +13,9 @@ import { useUtils } from "../composables/utils";
 import Tab from "@shell/components/Tabbed/Tab.vue";
 import Loading from "@shell/components/Loading.vue";
 import Tabbed from "@shell/components/Tabbed/index.vue";
-import SimpleBox from "@rancher/shell/components/SimpleBox.vue";
-import RcButton from "@shell/rancher-components/RcButton/RcButton.vue";
-import SortableTable from "@rancher/shell/components/SortableTable/index.vue";
 import LongRunningTask from "../components/long-running-task/LongRunningTaskModal.vue";
 import InsightDetails from "../components/InsightDetails.vue";
+import OverviewDetails from "../components/OverviewDetails.vue";
 
 // need to call this on every component.
 const { natsConnect } = useNats();
