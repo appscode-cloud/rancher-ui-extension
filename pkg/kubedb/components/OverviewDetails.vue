@@ -41,28 +41,34 @@ const props = withDefaults(defineProps<Props>(), {
           align-items: center;
         "
       >
-        <h2>Database Info</h2>
+        <h2>Basic Info</h2>
         <RcButton danger @click="singleDbDelete">Delete</RcButton>
       </div>
-      <div v-for="(item, i) in overviewInfoBlock" :key="'info-' + i">
-        <div
-          style="
-            display: flex;
-            align-items: start;
-            gap: 8px;
-            margin-bottom: 16px;
-          "
-        >
-          <strong style="min-width: 150px">{{ item.label }}:</strong>
+      <div v-if="overviewInfoBlock.length !== 0">
+        <div v-for="(item, i) in overviewInfoBlock" :key="'info-' + i">
+          <div
+            style="
+              display: flex;
+              align-items: start;
+              gap: 8px;
+              margin-bottom: 16px;
+            "
+          >
+            <strong style="min-width: 150px">{{ item.label }}:</strong>
 
-          <span>{{ item.value }}</span>
+            <span>{{ item.value }}</span>
+          </div>
         </div>
       </div>
+      <div v-else>No Data to Show</div>
     </div>
 
     <div style="margin-top: 36px">
       <h2 style="margin-bottom: 16px; display: flex">Database Insights</h2>
-      <div style="display: flex; flex-wrap: wrap; gap: 16px">
+      <div
+        style="display: flex; flex-wrap: wrap; gap: 16px"
+        v-if="overviewInsightBlock.length !== 0"
+      >
         <div
           class="simple-box-container"
           v-for="(item, i) in overviewInsightBlock"
@@ -83,6 +89,7 @@ const props = withDefaults(defineProps<Props>(), {
           </SimpleBox>
         </div>
       </div>
+      <div v-else>No Data to show</div>
     </div>
     <SortableTable
       style="margin-top: 36px"
