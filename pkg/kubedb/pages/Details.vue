@@ -72,6 +72,8 @@ const overviewSortableRows = computed(() =>
     return obj;
   })
 );
+
+const overviewGrafanaRows = ref<Array<{ data: string }>>([]);
 /// overview declare ends
 
 /// insight declare starts
@@ -250,6 +252,18 @@ const renderApi = async (showLoader: boolean) => {
         columns: filteredColumns,
         rows: filteredRows,
       };
+    }
+
+    // Overview grafana
+    const overviewGrafanaBlock = overviewBlocks.blocks.find(
+      (b: any) => b.name === "Dashboards"
+    );
+    if (overviewGrafanaBlock?.table?.rows) {
+      overviewGrafanaRows.value = overviewGrafanaBlock?.table?.rows.map(
+        (ele: { cells: Array<{ data: string }> }) => {
+          return ele.cells[1];
+        }
+      );
     }
     // overview sections ends here
 
@@ -447,6 +461,7 @@ onUnmounted(() => {
               :overview-node-table="overviewNodeTable"
               :overview-sortable-headers="overviewSortableHeaders"
               :overview-sortable-rows="overviewSortableRows"
+              :overview-grafana-links="overviewGrafanaRows"
               :single-db-delete="singleDbDelete"
             />
           </div>
