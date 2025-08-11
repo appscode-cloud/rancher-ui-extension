@@ -165,6 +165,34 @@ const insightGrafanaDashboardRows = computed(() =>
 );
 /// insight declare ends
 
+const databaseHeaderInfo = ref<{
+  version: string;
+  mode: string;
+  cpu: string;
+  memory: string;
+  storage: string;
+  status: string;
+}>({
+  version: "loading",
+  mode: "loading",
+  cpu: "loading",
+  memory: "loading",
+  storage: "loading",
+  status: "loading",
+});
+
+const featureInfo = ref<{
+  exposed: { color: string; data: string };
+  tls: { color: string; data: string };
+  backup: { color: string; data: string };
+  monitoring: { color: string; data: string };
+}>({
+  exposed: { color: "", data: "" },
+  tls: { color: "", data: "" },
+  backup: { color: "", data: "" },
+  monitoring: { color: "", data: "" },
+});
+
 const renderApi = async (showLoader: boolean) => {
   if (showLoader) isLoading.value = true;
   try {
@@ -183,6 +211,44 @@ const renderApi = async (showLoader: boolean) => {
     );
 
     const data = await JSON.parse(response.data.response?.body);
+
+    console.log({ data });
+
+    //Header info
+    databaseHeaderInfo.value.version =
+      data.response.view.header.table.rows[0].cells[1];
+    databaseHeaderInfo.value.mode =
+      data.response.view.header.table.rows[0].cells[2];
+    databaseHeaderInfo.value.cpu = `${data.response.view.header.table.rows[0].cells[3].data.request} / ${data.response.view.header.table.rows[0].cells[3].data.limit}`;
+    databaseHeaderInfo.value.memory = `${data.response.view.header.table.rows[0].cells[4].data.request} / ${data.response.view.header.table.rows[0].cells[4].data.limit}`;
+    databaseHeaderInfo.value.storage = `${data.response.view.header.table.rows[0].cells[5].data.request} / ${data.response.view.header.table.rows[0].cells[5].data.limit}`;
+    databaseHeaderInfo.value.status =
+      data.response.view.header.table.rows[0].cells[6].data;
+    //end of header info
+
+    //feature info
+
+    featureInfo.value.exposed.color =
+      data.response.view.tabBar.table.rows[0].cells[0].color;
+    featureInfo.value.exposed.color =
+      data.response.view.tabBar.table.rows[0].cells[0].data;
+
+    featureInfo.value.tls.color =
+      data.response.view.tabBar.table.rows[0].cells[1].color;
+    featureInfo.value.tls.color =
+      data.response.view.tabBar.table.rows[0].cells[1].data;
+
+    featureInfo.value.backup.color =
+      data.response.view.tabBar.table.rows[0].cells[2].color;
+    featureInfo.value.backup.color =
+      data.response.view.tabBar.table.rows[0].cells[2].data;
+
+    featureInfo.value.monitoring.color =
+      data.response.view.tabBar.table.rows[0].cells[3].color;
+    featureInfo.value.monitoring.color =
+      data.response.view.tabBar.table.rows[0].cells[3].data;
+
+    //end of feature info
 
     // Overview sections starts here
     const overviewBlocks = data.response.view.pages[0].sections[0];
