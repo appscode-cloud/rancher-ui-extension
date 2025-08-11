@@ -1,6 +1,8 @@
 <template>
   <div class="labeled-input edit mb-20">
-    <label for="meeting-time">{{ label }} <span class="required">*</span></label>
+    <label for="meeting-time"
+      >{{ label }} <span class="required">*</span></label
+    >
     <input
       type="datetime-local"
       id="meeting-time"
@@ -53,7 +55,7 @@ label {
 .labeled-input {
   position: relative;
   display: inline-block;
-  input[type="datetime-local"]{    
+  input[type="datetime-local"] {
     color: var(--input-text);
     appearance: none;
     -webkit-appearance: none;
@@ -68,15 +70,14 @@ label {
     }
   }
   &::after {
-    content: "📅"; 
+    content: "📅";
     position: absolute;
     right: 10px;
-    top: 38px; 
+    top: 38px;
     transform: translateY(-50%);
     pointer-events: none;
     font-size: 18px;
-    color: crimson; 
+    color: crimson;
   }
 }
-
 </style>

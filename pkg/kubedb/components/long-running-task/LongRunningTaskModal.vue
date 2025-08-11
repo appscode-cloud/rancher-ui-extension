@@ -194,6 +194,10 @@ watch(longRunningTaskStatus, (n) => {
 <template>
   <Dialog v-if="open" :name="title" :open="open" :title="title">
     <template #default>
+      <button
+        style="position: absolute; opacity: 0; pointer-events: none"
+        tabindex="0"
+      ></button>
       <div
         style="
           min-height: 250px;
@@ -306,7 +310,7 @@ watch(longRunningTaskStatus, (n) => {
             <p>Please hang on — this won’t take long.</p>
           </div>
         </div>
-        <div v-else-if="simple">
+        <div v-else>
           <div class="task-cogs-icon">
             <i class="fa fa-cog fa-spin fa-5x fa-fw"></i>
             <span class="is-flex is-flex-direction-column">
@@ -428,6 +432,7 @@ watch(longRunningTaskStatus, (n) => {
         </div>
       </div>
     </template>
+
     <template #buttons>
       <RcButton
         @click="

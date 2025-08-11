@@ -551,7 +551,7 @@ const deployDatabase = async () => {
       :error-ctx="{
         connectionError: connectionError,
         onError: () => {
-          showDialog = false;
+          router?.push('postgres');
         },
       }"
       :success-ctx="{
