@@ -67,8 +67,8 @@ const props = withDefaults(defineProps<Props>(), {
 </script>
 <template>
   <div class="tab-content">
-    <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
-        <div  style="width: 40%;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between">
+      <div style="width: 40%">
         <h2>Basic Info</h2>
         <div v-if="insightInfoBlock.length !== 0">
           <div v-for="(item, i) in insightInfoBlock" :key="'info-' + i">
@@ -88,28 +88,35 @@ const props = withDefaults(defineProps<Props>(), {
         <div v-else>No Data to show</div>
       </div>
 
-      <div style="width: 60%;">
+      <div style="width: 60%">
         <h2 style="margin-bottom: 16px; display: flex">Database Insights</h2>
-        <div v-if="insightInsightBlock.length !== 0"  style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px">
-            <div
-              class="simple-box-container"
-              v-for="(item, i) in insightInsightBlock"
-              :key="'insight-' + i"
-            >
-              <SimpleBox class="simple-box">
-                <div
-                  style="
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                    gap: 8px;
-                  "
-                >
-                  <span>{{ item.label }}: </span>
-                  <strong style="font-size: 16px">{{ item.value }}</strong>
-                </div>
-              </SimpleBox>
-            </div>
+        <div
+          v-if="insightInsightBlock.length !== 0"
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 16px;
+          "
+        >
+          <div
+            class="simple-box-container"
+            v-for="(item, i) in insightInsightBlock"
+            :key="'insight-' + i"
+          >
+            <SimpleBox class="simple-box">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  gap: 8px;
+                "
+              >
+                <span>{{ item.label }}: </span>
+                <strong style="font-size: 16px">{{ item.value }}</strong>
+              </div>
+            </SimpleBox>
+          </div>
         </div>
         <div v-else>No Data to show</div>
       </div>

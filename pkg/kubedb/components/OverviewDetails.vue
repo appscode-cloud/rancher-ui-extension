@@ -34,8 +34,8 @@ const props = withDefaults(defineProps<Props>(), {
 </script>
 <template>
   <div class="tab-content">
-    <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
-      <div style="width: 40%;">
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between">
+      <div style="width: 40%">
         <h2>Basic Info</h2>
         <div v-if="overviewInfoBlock.length !== 0">
           <div v-for="(item, i) in overviewInfoBlock" :key="'info-' + i">
@@ -54,13 +54,16 @@ const props = withDefaults(defineProps<Props>(), {
           </div>
         </div>
         <div v-else>No Data to Show</div>
-      
       </div>
 
-      <div style="width: 60%;">
+      <div style="width: 60%">
         <h2 style="margin-bottom: 16px; display: flex">Database Insights</h2>
         <div
-          style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px"
+          style="
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+            gap: 16px;
+          "
           v-if="overviewInsightBlock.length !== 0"
         >
           <div
@@ -86,7 +89,14 @@ const props = withDefaults(defineProps<Props>(), {
         <div v-else>No Data to show</div>
       </div>
     </div>
-    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 16px; margin-top: 24px;">
+    <div
+      style="
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(450px, 1fr));
+        gap: 16px;
+        margin-top: 24px;
+      "
+    >
       <iframe
         v-for="link in overviewGrafanaLinks"
         :src="link?.data"
