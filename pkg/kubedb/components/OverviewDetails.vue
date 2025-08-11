@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import RcButton from "@shell/rancher-components/RcButton/RcButton.vue";
 import SimpleBox from "@rancher/shell/components/SimpleBox.vue";
 import SortableTable from "@rancher/shell/components/SortableTable/index.vue";
 
@@ -35,71 +34,63 @@ const props = withDefaults(defineProps<Props>(), {
 </script>
 <template>
   <div class="tab-content">
-    <div>
-      <div
-        style="
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        "
-      >
+    <div style="display: flex; flex-wrap: wrap; justify-content: space-between;">
+      <div style="width: 40%;">
         <h2>Basic Info</h2>
-        <RcButton danger @click="singleDbDelete">Delete</RcButton>
-      </div>
-      <div v-if="overviewInfoBlock.length !== 0">
-        <div v-for="(item, i) in overviewInfoBlock" :key="'info-' + i">
-          <div
-            style="
-              display: flex;
-              align-items: start;
-              gap: 8px;
-              margin-bottom: 16px;
-            "
-          >
-            <strong style="min-width: 150px">{{ item.label }}:</strong>
-
-            <span>{{ item.value }}</span>
-          </div>
-        </div>
-      </div>
-      <div v-else>No Data to Show</div>
-    </div>
-
-    <div style="margin-top: 36px">
-      <h2 style="margin-bottom: 16px; display: flex">Database Insights</h2>
-      <div
-        style="display: flex; flex-wrap: wrap; gap: 16px"
-        v-if="overviewInsightBlock.length !== 0"
-      >
-        <div
-          class="simple-box-container"
-          v-for="(item, i) in overviewInsightBlock"
-          :key="'insight-' + i"
-        >
-          <SimpleBox class="simple-box">
+        <div v-if="overviewInfoBlock.length !== 0">
+          <div v-for="(item, i) in overviewInfoBlock" :key="'info-' + i">
             <div
               style="
                 display: flex;
-                align-items: center;
-                justify-content: space-between;
+                align-items: start;
                 gap: 8px;
+                margin-bottom: 16px;
               "
             >
-              <span>{{ item.label }}: </span>
-              <strong style="font-size: 16px">{{ item.value }}</strong>
-            </div>
-          </SimpleBox>
-        </div>
-      </div>
-      <div v-else>No Data to show</div>
-    </div>
+              <strong style="min-width: 150px">{{ item.label }}:</strong>
 
-    <div style="margin-top: 36px">
+              <span>{{ item.value }}</span>
+            </div>
+          </div>
+        </div>
+        <div v-else>No Data to Show</div>
+      
+      </div>
+
+      <div style="width: 60%;">
+        <h2 style="margin-bottom: 16px; display: flex">Database Insights</h2>
+        <div
+          style="display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px"
+          v-if="overviewInsightBlock.length !== 0"
+        >
+          <div
+            class="simple-box-container"
+            v-for="(item, i) in overviewInsightBlock"
+            :key="'insight-' + i"
+          >
+            <SimpleBox class="simple-box">
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: space-between;
+                  gap: 8px;
+                "
+              >
+                <span>{{ item.label }}: </span>
+                <strong style="font-size: 16px">{{ item.value }}</strong>
+              </div>
+            </SimpleBox>
+          </div>
+        </div>
+        <div v-else>No Data to show</div>
+      </div>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(450px, 1fr)); gap: 16px; margin-top: 24px;">
       <iframe
-        style="margin: 2px"
         v-for="link in overviewGrafanaLinks"
         :src="link?.data"
-        width="450"
+        width="100%"
         height="200"
         frameborder="0"
       ></iframe>

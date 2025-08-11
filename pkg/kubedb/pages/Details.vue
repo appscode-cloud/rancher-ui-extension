@@ -16,6 +16,8 @@ import Tabbed from "@shell/components/Tabbed/index.vue";
 import LongRunningTask from "../components/long-running-task/LongRunningTaskModal.vue";
 import InsightDetails from "../components/InsightDetails.vue";
 import OverviewDetails from "../components/OverviewDetails.vue";
+import RcButton from "@shell/rancher-components/RcButton/RcButton.vue";
+
 
 // need to call this on every component.
 const { natsConnect } = useNats();
@@ -452,6 +454,11 @@ onUnmounted(() => {
       <Loading />
     </div>
     <div v-else>
+      <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px;">
+        <h2>Overview</h2>
+        <RcButton danger @click="singleDbDelete">Delete</RcButton>
+      </div>
+      
       <Tabbed :use-hash="true" @changed="console.log('ok')">
         <Tab name="Overview" label="Overview" weight="2">
           <div class="tab-content">
