@@ -2,6 +2,7 @@
 import {
   App,
   computed,
+  CSSProperties,
   getCurrentInstance,
   onMounted,
   onUnmounted,
@@ -67,7 +68,7 @@ const overviewSortableHeaders = computed(() =>
 const overviewSortableRows = computed(() =>
   overviewNodeTable.value.rows.map((row) => {
     const obj: Record<string, string> = {};
-    row.cells.forEach((cell: any, i: number) => {
+    row?.cells.forEach((cell: any, i: number) => {
       obj[overviewNodeTable.value.columns[i].name] = cell.data;
     });
     return obj;
@@ -97,7 +98,7 @@ const insightDatabasesHeaders = computed(() =>
 const insightDatabasesRows = computed(() =>
   insightDatabasesTable.value.rows.map((row) => {
     const obj: Record<string, string> = {};
-    row.cells.forEach((cell: any, i: number) => {
+    row?.cells.forEach((cell: any, i: number) => {
       obj[insightDatabasesTable.value.columns[i].name] = cell.data;
     });
     return obj;
@@ -120,7 +121,7 @@ const insightReplicationStatusHeaders = computed(() =>
 const insightReplicationStatusRows = computed(() =>
   insightReplicationStatusTable.value.rows.map((row) => {
     const obj: Record<string, string> = {};
-    row.cells.forEach((cell: any, i: number) => {
+    row?.cells.forEach((cell: any, i: number) => {
       obj[insightReplicationStatusTable.value.columns[i].name] = cell.data;
     });
     return obj;
@@ -143,7 +144,7 @@ const insightSlowQueriesHeaders = computed(() =>
 const insightSlowQueriesRows = computed(() =>
   insightSlowQueriesTable.value.rows.map((row) => {
     const obj: Record<string, string> = {};
-    row.cells.forEach((cell: any, i: number) => {
+    row?.cells.forEach((cell: any, i: number) => {
       obj[insightSlowQueriesTable.value.columns[i].name] = cell.data;
     });
     return obj;
@@ -157,7 +158,7 @@ const insightGrafanaDashboardTable = ref<{ columns: any[]; rows: any[] }>({
 const insightGrafanaDashboardRows = computed(() =>
   insightGrafanaDashboardTable.value.rows.map((row) => {
     const obj: Record<string, string> = {};
-    row.cells.forEach((cell: any, i: number) => {
+    row?.cells.forEach((cell: any, i: number) => {
       obj[insightGrafanaDashboardTable.value.columns[i].name] = cell.data;
     });
     return obj;
@@ -216,55 +217,57 @@ const renderApi = async (showLoader: boolean) => {
 
     //Header info
     databaseHeaderInfo.value.version =
-      data.response.view.header.table.rows[0].cells[1];
+      data.response.view.header.table?.rows[0]?.cells[1];
     databaseHeaderInfo.value.mode =
-      data.response.view.header.table.rows[0].cells[2].data;
-    databaseHeaderInfo.value.cpu = `${data.response.view.header.table.rows[0].cells[3].data.request} / ${data.response.view.header.table.rows[0].cells[3].data.limit}`;
-    databaseHeaderInfo.value.memory = `${data.response.view.header.table.rows[0].cells[4].data.request} / ${data.response.view.header.table.rows[0].cells[4].data.limit}`;
-    databaseHeaderInfo.value.storage = `${data.response.view.header.table.rows[0].cells[5].data.request} / ${data.response.view.header.table.rows[0].cells[5].data.limit}`;
+      data.response.view.header.table?.rows[0]?.cells[2].data;
+    databaseHeaderInfo.value.cpu = `${data.response.view.header.table?.rows[0]?.cells[3]?.data.request} / ${data.response.view.header.table?.rows[0]?.cells[3].data.limit}`;
+    databaseHeaderInfo.value.memory = `${data.response.view.header.table.rows[0]?.cells[4]?.data.request} / ${data.response.view.header.table?.rows[0]?.cells[4].data.limit}`;
+    databaseHeaderInfo.value.storage = `${data.response.view.header.table.rows[0]?.cells[5]?.data.request} / ${data.response.view.header.table?.rows[0]?.cells[5].data.limit}`;
     databaseHeaderInfo.value.status =
-      data.response.view.header.table.rows[0].cells[6].data;
+      data.response.view.header.table?.rows[0]?.cells[6].data;
     //end of header info
 
     //feature info
     featureInfo.value.exposed.color =
-      data.response.view.tabBar.table.rows[0].cells[0].color;
+      data.response.view.tabBar.table?.rows[0]?.cells[0].color;
     featureInfo.value.exposed.data =
-      data.response.view.tabBar.table.rows[0].cells[0].data;
+      data.response.view.tabBar.table?.rows[0]?.cells[0].data;
 
     featureInfo.value.tls.color =
-      data.response.view.tabBar.table.rows[0].cells[1].color;
+      data.response.view.tabBar.table?.rows[0]?.cells[1].color;
     featureInfo.value.tls.data =
-      data.response.view.tabBar.table.rows[0].cells[1].data;
+      data.response.view.tabBar.table?.rows[0]?.cells[1].data;
 
     featureInfo.value.backup.color =
-      data.response.view.tabBar.table.rows[0].cells[2].color;
+      data.response.view.tabBar.table?.rows[0]?.cells[2].color;
     featureInfo.value.backup.data =
-      data.response.view.tabBar.table.rows[0].cells[2].data;
+      data.response.view.tabBar.table?.rows[0]?.cells[2].data;
 
     featureInfo.value.monitoring.color =
-      data.response.view.tabBar.table.rows[0].cells[3].color;
+      data.response.view.tabBar.table?.rows[0]?.cells[3].color;
     featureInfo.value.monitoring.data =
-      data.response.view.tabBar.table.rows[0].cells[3].data;
+      data.response.view.tabBar.table?.rows[0]?.cells[3].data;
     //end of feature info
 
     // Overview sections starts here
     const overviewBlocks = data.response.view.pages[0].sections[0];
     // info table
-    const overviewInfoCols = overviewBlocks.info.table.columns;
-    const overviewInfoCells = overviewBlocks.info.table.rows[0].cells;
+    const overviewInfoCols = overviewBlocks.info.table?.columns;
+    const overviewInfoCells = overviewBlocks.info.table?.rows[0]?.cells;
 
     const overviewTempInfoBlock = overviewInfoCols
       .map((col: any, idx: number) => {
         if (col.name === "Type") {
           return {
             label: col.name,
-            value: overviewInfoCells[idx].data.split("/")[1],
+            value: overviewInfoCells
+              ? overviewInfoCells[idx].data.split("/")[1]
+              : "",
           };
         }
         return {
           label: col.name,
-          value: overviewInfoCells[idx].data,
+          value: overviewInfoCells ? overviewInfoCells[idx].data : "",
         };
       })
       .filter(
@@ -278,13 +281,13 @@ const renderApi = async (showLoader: boolean) => {
     overviewInfoBlock.value = overviewTempInfoBlock;
 
     // insight table
-    const overviewInsightCols = overviewBlocks.insight.table.columns;
-    const overviewInsightCells = overviewBlocks.insight.table.rows[0].cells;
+    const overviewInsightCols = overviewBlocks.insight.table?.columns;
+    const overviewInsightCells = overviewBlocks.insight.table?.rows[0]?.cells;
 
-    const overviewTempInsightBlock = overviewInsightCols.map(
+    const overviewTempInsightBlock = overviewInsightCols?.map(
       (col: any, idx: number) => ({
         label: col.name,
-        value: overviewInsightCells[idx].data,
+        value: overviewInsightCells ? overviewInsightCells[idx]?.data : "",
       })
     );
 
@@ -298,19 +301,19 @@ const renderApi = async (showLoader: boolean) => {
       // Filter out "dashboard" and "connect" columns
       const excludedColumns = ["dashboard", "connect"];
 
-      const filteredColumns = overviewNodeBlock.table.columns.filter(
+      const filteredColumns = overviewNodeBlock.table?.columns.filter(
         (col: any) => !excludedColumns.includes(col.name.toLowerCase())
       );
 
       const includedIndexes = filteredColumns.map((col: any) =>
-        overviewNodeBlock.table.columns.findIndex(
+        overviewNodeBlock.table?.columns.findIndex(
           (c: any) => c.name === col.name
         )
       );
 
-      const filteredRows = overviewNodeBlock.table.rows.map((row: any) => ({
+      const filteredRows = overviewNodeBlock.table?.rows.map((row: any) => ({
         ...row,
-        cells: includedIndexes.map((idx: number) => row.cells[idx]),
+        cells: includedIndexes.map((idx: number) => row?.cells[idx]),
       }));
 
       overviewNodeTable.value = {
@@ -326,7 +329,7 @@ const renderApi = async (showLoader: boolean) => {
     if (overviewGrafanaBlock?.table?.rows) {
       overviewGrafanaRows.value = overviewGrafanaBlock?.table?.rows.map(
         (ele: { cells: Array<{ data: string }> }) => {
-          return ele.cells[1];
+          return ele?.cells[1];
         }
       );
     }
@@ -336,8 +339,8 @@ const renderApi = async (showLoader: boolean) => {
     const insightBlocks = data.response.view.pages[1].sections[0];
 
     // info table
-    const insightInfoCols = insightBlocks.info.table.columns;
-    const insightInfoCells = insightBlocks.info.table.rows[0].cells;
+    const insightInfoCols = insightBlocks.info.table?.columns;
+    const insightInfoCells = insightBlocks.info.table?.rows[0]?.cells;
 
     const insightTempInfoBlock = insightInfoCols.map(
       (col: any, idx: number) => {
@@ -351,8 +354,8 @@ const renderApi = async (showLoader: boolean) => {
     insightInfoBlock.value = insightTempInfoBlock;
 
     // insight table
-    const insightInsightCols = insightBlocks.insight.table.columns;
-    const insightInsightCells = insightBlocks.insight.table.rows[0].cells;
+    const insightInsightCols = insightBlocks.insight.table?.columns;
+    const insightInsightCells = insightBlocks.insight.table?.rows[0]?.cells;
 
     const insightTempInsightBlock = insightInsightCols.map(
       (col: any, idx: number) => ({
@@ -368,16 +371,16 @@ const renderApi = async (showLoader: boolean) => {
       (b: any) => b.name === "Replication Status"
     );
     if (insightReplicaStatus?.table) {
-      const filteredColumns = insightReplicaStatus.table.columns;
+      const filteredColumns = insightReplicaStatus.table?.columns;
       const includedIndexes = filteredColumns.map((col: any) =>
-        insightReplicaStatus.table.columns.findIndex(
+        insightReplicaStatus.table?.columns.findIndex(
           (c: any) => c.name === col.name
         )
       );
 
-      const filteredRows = insightReplicaStatus.table.rows.map((row: any) => ({
+      const filteredRows = insightReplicaStatus.table?.rows.map((row: any) => ({
         ...row,
-        cells: includedIndexes.map((idx: number) => row.cells[idx]),
+        cells: includedIndexes.map((idx: number) => row?.cells[idx]),
       }));
 
       insightReplicationStatusTable.value = {
@@ -391,17 +394,17 @@ const renderApi = async (showLoader: boolean) => {
       (b: any) => b.name === "Grafana Dashboards"
     );
     if (insightGrafanaDashboard?.table) {
-      const filteredColumns = insightGrafanaDashboard.table.columns;
+      const filteredColumns = insightGrafanaDashboard.table?.columns;
       const includedIndexes = filteredColumns.map((col: any) =>
-        insightGrafanaDashboard.table.columns.findIndex(
+        insightGrafanaDashboard.table?.columns.findIndex(
           (c: any) => c.name === col.name
         )
       );
 
-      const filteredRows = insightGrafanaDashboard.table.rows.map(
+      const filteredRows = insightGrafanaDashboard.table?.rows.map(
         (row: any) => ({
           ...row,
-          cells: includedIndexes.map((idx: number) => row.cells[idx]),
+          cells: includedIndexes.map((idx: number) => row?.cells[idx]),
         })
       );
 
@@ -416,16 +419,16 @@ const renderApi = async (showLoader: boolean) => {
       (b: any) => b.name === "Slow Queries"
     );
     if (insightSlowQueries?.table) {
-      const filteredColumns = insightSlowQueries.table.columns;
+      const filteredColumns = insightSlowQueries.table?.columns;
       const includedIndexes = filteredColumns.map((col: any) =>
-        insightSlowQueries.table.columns.findIndex(
+        insightSlowQueries.table?.columns.findIndex(
           (c: any) => c.name === col.name
         )
       );
 
-      const filteredRows = insightSlowQueries.table.rows.map((row: any) => ({
+      const filteredRows = insightSlowQueries.table?.rows.map((row: any) => ({
         ...row,
-        cells: includedIndexes.map((idx: number) => row.cells[idx]),
+        cells: includedIndexes.map((idx: number) => row?.cells[idx]),
       }));
 
       insightSlowQueriesTable.value = {
@@ -440,16 +443,16 @@ const renderApi = async (showLoader: boolean) => {
     );
 
     if (insightDatabases?.table) {
-      const filteredColumns = insightDatabases.table.columns;
+      const filteredColumns = insightDatabases.table?.columns;
       const includedIndexes = filteredColumns.map((col: any) =>
-        insightDatabases.table.columns.findIndex(
+        insightDatabases.table?.columns.findIndex(
           (c: any) => c.name === col.name
         )
       );
 
-      const filteredRows = insightDatabases.table.rows.map((row: any) => ({
+      const filteredRows = insightDatabases.table?.rows.map((row: any) => ({
         ...row,
-        cells: includedIndexes.map((idx: number) => row.cells[idx]),
+        cells: includedIndexes.map((idx: number) => row?.cells[idx]),
       }));
 
       insightDatabasesTable.value = {
@@ -520,6 +523,30 @@ const getColor = (color: string) => {
       return "#DC2626";
   }
 };
+
+const getStatusStyle = (status: string): CSSProperties => {
+  let bgColor = "";
+  switch (status?.toLowerCase()) {
+    case "ready":
+      bgColor = "#16A34A";
+      break;
+    case "provisioning":
+      bgColor = "#60A5FA";
+      break;
+    default:
+      bgColor = "#DC2626";
+  }
+
+  return {
+    backgroundColor: bgColor,
+    color: "#fff",
+    padding: "2px 8px",
+    borderRadius: "9999px",
+    fontSize: "12px",
+    fontWeight: "500",
+    textTransform: "capitalize",
+  };
+};
 </script>
 
 <template>
@@ -538,7 +565,7 @@ const getColor = (color: string) => {
       >
         <h2>
           {{
-            `${overviewInfoBlock[2].value}: ${overviewInfoBlock[1].value}/${overviewInfoBlock[0].value}`
+            `${overviewInfoBlock[2]?.value}: ${overviewInfoBlock[1]?.value}/${overviewInfoBlock[0]?.value}`
           }}
         </h2>
 
@@ -578,22 +605,43 @@ const getColor = (color: string) => {
           <div>
             TLS:
             <span :style="{ color: getColor(featureInfo.tls.color) }">
-              {{ featureInfo.tls.color === "success" ? " ON" : " Off" }}
+              <span
+                v-html="
+                  featureInfo.tls.color === 'success' ? '&nbsp;ON' : '&nbsp;OFF'
+                "
+              ></span>
             </span>
           </div>
           <div>
             Backup:
-            <span :style="{ color: getColor(featureInfo.backup.color) }">{{
-              featureInfo.backup.color === "success" ? " ON" : " OFF"
-            }}</span>
+            <span :style="{ color: getColor(featureInfo.backup.color) }">
+              <span
+                v-html="
+                  featureInfo.backup.color === 'success'
+                    ? '&nbsp;ON'
+                    : '&nbsp;OFF'
+                "
+              ></span>
+            </span>
           </div>
           <div>
             Monitoring:
             <span :style="{ color: getColor(featureInfo.monitoring.color) }">
-              {{ featureInfo.monitoring.color === "success" ? " ON" : " OFF" }}
+              <span
+                v-html="
+                  featureInfo.monitoring.color === 'success'
+                    ? '&nbsp;ON'
+                    : '&nbsp;OFF'
+                "
+              ></span>
             </span>
           </div>
-          <div>{{ `Status: ${databaseHeaderInfo.status}` }}</div>
+          <div>
+            Status:
+            <span :style="getStatusStyle(databaseHeaderInfo.status)">
+              {{ databaseHeaderInfo.status ?? "Unknown" }}
+            </span>
+          </div>
         </div>
       </div>
       <Tabbed :use-hash="true" @changed="console.log('ok')">
