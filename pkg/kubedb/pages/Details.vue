@@ -212,13 +212,13 @@ const renderApi = async (showLoader: boolean) => {
 
     const data = await JSON.parse(response.data.response?.body);
 
-    console.log({ data });
+    console.log({ Render: data });
 
     //Header info
     databaseHeaderInfo.value.version =
       data.response.view.header.table.rows[0].cells[1];
     databaseHeaderInfo.value.mode =
-      data.response.view.header.table.rows[0].cells[2];
+      data.response.view.header.table.rows[0].cells[2].data;
     databaseHeaderInfo.value.cpu = `${data.response.view.header.table.rows[0].cells[3].data.request} / ${data.response.view.header.table.rows[0].cells[3].data.limit}`;
     databaseHeaderInfo.value.memory = `${data.response.view.header.table.rows[0].cells[4].data.request} / ${data.response.view.header.table.rows[0].cells[4].data.limit}`;
     databaseHeaderInfo.value.storage = `${data.response.view.header.table.rows[0].cells[5].data.request} / ${data.response.view.header.table.rows[0].cells[5].data.limit}`;
@@ -227,7 +227,6 @@ const renderApi = async (showLoader: boolean) => {
     //end of header info
 
     //feature info
-
     featureInfo.value.exposed.color =
       data.response.view.tabBar.table.rows[0].cells[0].color;
     featureInfo.value.exposed.color =
@@ -247,7 +246,6 @@ const renderApi = async (showLoader: boolean) => {
       data.response.view.tabBar.table.rows[0].cells[3].color;
     featureInfo.value.monitoring.color =
       data.response.view.tabBar.table.rows[0].cells[3].data;
-
     //end of feature info
 
     // Overview sections starts here
@@ -532,6 +530,19 @@ onUnmounted(() => {
             `${overviewInfoBlock[2].value}: ${overviewInfoBlock[1].value}/${overviewInfoBlock[0].value}`
           }}
         </h2>
+        <div>
+          <div>{{ `Backup: ${featureInfo.backup.color}` }}</div>
+          <div>{{ `TLS: ${featureInfo.tls.color}` }}</div>
+          <div>{{ `Monitoring: ${featureInfo.monitoring.color}` }}</div>
+          <div>{{ `Expose: ${featureInfo.exposed.color}` }}</div>
+        </div>
+        <div>
+          <div>{{ `Mode: ${databaseHeaderInfo.mode}` }}</div>
+          <div>{{ `CPU: ${databaseHeaderInfo.cpu}` }}</div>
+          <div>{{ `Memory: ${databaseHeaderInfo.memory}` }}</div>
+          <div>{{ `Storage: ${databaseHeaderInfo.storage}` }}</div>
+          <div>{{ `Status: ${databaseHeaderInfo.status}` }}</div>
+        </div>
         <RcButton danger @click="singleDbDelete">Delete</RcButton>
       </div>
 
