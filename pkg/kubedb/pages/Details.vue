@@ -229,22 +229,22 @@ const renderApi = async (showLoader: boolean) => {
     //feature info
     featureInfo.value.exposed.color =
       data.response.view.tabBar.table.rows[0].cells[0].color;
-    featureInfo.value.exposed.color =
+    featureInfo.value.exposed.data =
       data.response.view.tabBar.table.rows[0].cells[0].data;
 
     featureInfo.value.tls.color =
       data.response.view.tabBar.table.rows[0].cells[1].color;
-    featureInfo.value.tls.color =
+    featureInfo.value.tls.data =
       data.response.view.tabBar.table.rows[0].cells[1].data;
 
     featureInfo.value.backup.color =
       data.response.view.tabBar.table.rows[0].cells[2].color;
-    featureInfo.value.backup.color =
+    featureInfo.value.backup.data =
       data.response.view.tabBar.table.rows[0].cells[2].data;
 
     featureInfo.value.monitoring.color =
       data.response.view.tabBar.table.rows[0].cells[3].color;
-    featureInfo.value.monitoring.color =
+    featureInfo.value.monitoring.data =
       data.response.view.tabBar.table.rows[0].cells[3].data;
     //end of feature info
 
@@ -509,6 +509,17 @@ onMounted(async () => {
 onUnmounted(() => {
   clearInterval(intervalId);
 });
+
+const getColor = (color: string) => {
+  switch (color) {
+    case "success":
+      return "#16A34A";
+    case "warning":
+      return "#D97706";
+    default:
+      return "#DC2626";
+  }
+};
 </script>
 
 <template>
@@ -530,25 +541,61 @@ onUnmounted(() => {
             `${overviewInfoBlock[2].value}: ${overviewInfoBlock[1].value}/${overviewInfoBlock[0].value}`
           }}
         </h2>
-   
+
         <RcButton danger @click="singleDbDelete">Delete</RcButton>
       </div>
 
-    <div style="position: fixed; bottom: 0; right: 0px;z-index: 99999; width: calc(100% - 320px); background: var(--nav-icon-badge-bg);padding: 6px 16px; display: flex; justify-content: space-between; border-top: 1px solid var(--border); box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.1);">
-           <div style="display: flex; gap: 16px;">
-          <div>{{ `Backup: ${featureInfo.backup.color}` }}</div>
-          <div>{{ `TLS: ${featureInfo.tls.color}` }}</div>
-          <div>{{ `Monitoring: ${featureInfo.monitoring.color}` }}</div>
-          <div>{{ `Expose: ${featureInfo.exposed.color}` }}</div>
-        </div>
-        <div  style="display: flex; gap: 16px;">
+      <div
+        style="
+          position: fixed;
+          bottom: 0;
+          right: 0px;
+          z-index: 99999;
+          width: calc(100% - 320px);
+          background: var(--nav-icon-badge-bg);
+          padding: 6px 16px;
+          display: flex;
+          justify-content: space-between;
+          border-top: 1px solid var(--border);
+          box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.1);
+        "
+      >
+        <div style="display: flex; gap: 16px">
           <div>{{ `Mode: ${databaseHeaderInfo.mode}` }}</div>
           <div>{{ `CPU: ${databaseHeaderInfo.cpu}` }}</div>
           <div>{{ `Memory: ${databaseHeaderInfo.memory}` }}</div>
           <div>{{ `Storage: ${databaseHeaderInfo.storage}` }}</div>
+        </div>
+
+        <div style="display: flex; gap: 16px">
+          <div :style="{ color: getColor(featureInfo.exposed.color) }">
+            {{
+              featureInfo.exposed.color === "success"
+                ? "Not Exposed"
+                : "Exposed"
+            }}
+          </div>
+          <div>
+            TLS:
+            <span :style="{ color: getColor(featureInfo.tls.color) }">
+              {{ featureInfo.tls.color === "success" ? " ON" : " Off" }}
+            </span>
+          </div>
+          <div>
+            Backup:
+            <span :style="{ color: getColor(featureInfo.backup.color) }">{{
+              featureInfo.backup.color === "success" ? " ON" : " OFF"
+            }}</span>
+          </div>
+          <div>
+            Monitoring:
+            <span :style="{ color: getColor(featureInfo.monitoring.color) }">
+              {{ featureInfo.monitoring.color === "success" ? " ON" : " OFF" }}
+            </span>
+          </div>
           <div>{{ `Status: ${databaseHeaderInfo.status}` }}</div>
         </div>
-    </div>
+      </div>
       <Tabbed :use-hash="true" @changed="console.log('ok')">
         <Tab name="Overview" label="Overview" weight="2">
           <div class="tab-content">
@@ -606,16 +653,3 @@ onUnmounted(() => {
     </div>
   </div>
 </template>
-
-<style scoped>
-.simple-box-container {
-  display: flex;
-  gap: 24px;
-  flex-wrap: wrap;
-  margin-bottom: 20px;
-}
-
-.simple-box {
-  width: 300px;
-}
-</style>

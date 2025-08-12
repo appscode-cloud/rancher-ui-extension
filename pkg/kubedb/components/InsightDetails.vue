@@ -203,3 +203,16 @@ const props = withDefaults(defineProps<Props>(), {
     </SortableTable>
   </div>
 </template>
+
+<style scoped>
+.simple-box-container {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.simple-box {
+  width: 300px;
+}
+</style>
