@@ -346,7 +346,7 @@ const renderApi = async (showLoader: boolean) => {
       (col: any, idx: number) => {
         return {
           label: col.name,
-          value: insightInfoCells[idx].data,
+          value: insightInfoCells ? insightInfoCells[idx].data : "",
         };
       }
     );
@@ -360,7 +360,7 @@ const renderApi = async (showLoader: boolean) => {
     const insightTempInsightBlock = insightInsightCols.map(
       (col: any, idx: number) => ({
         label: col.name,
-        value: insightInsightCells[idx].data,
+        value: insightInsightCells ? insightInsightCells[idx].data : "",
       })
     );
 
