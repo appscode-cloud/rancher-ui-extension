@@ -209,7 +209,7 @@ export const useProps = () => {
   const ModeProps = ref<ModeType>({
     show: true,
     label: "Database Mode",
-    options: [],
+    options: [{ label: "Standalone", value: "Standalone" }],
     row: true,
     modeModel: mode,
   });
