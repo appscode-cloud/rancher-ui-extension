@@ -530,22 +530,25 @@ onUnmounted(() => {
             `${overviewInfoBlock[2].value}: ${overviewInfoBlock[1].value}/${overviewInfoBlock[0].value}`
           }}
         </h2>
-        <div>
+   
+        <RcButton danger @click="singleDbDelete">Delete</RcButton>
+      </div>
+
+    <div style="position: fixed; bottom: 0; right: 0px;z-index: 99999; width: calc(100% - 320px); background: var(--nav-icon-badge-bg);padding: 6px 16px; display: flex; justify-content: space-between; border-top: 1px solid var(--border); box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.1);">
+           <div style="display: flex; gap: 16px;">
           <div>{{ `Backup: ${featureInfo.backup.color}` }}</div>
           <div>{{ `TLS: ${featureInfo.tls.color}` }}</div>
           <div>{{ `Monitoring: ${featureInfo.monitoring.color}` }}</div>
           <div>{{ `Expose: ${featureInfo.exposed.color}` }}</div>
         </div>
-        <div>
+        <div  style="display: flex; gap: 16px;">
           <div>{{ `Mode: ${databaseHeaderInfo.mode}` }}</div>
           <div>{{ `CPU: ${databaseHeaderInfo.cpu}` }}</div>
           <div>{{ `Memory: ${databaseHeaderInfo.memory}` }}</div>
           <div>{{ `Storage: ${databaseHeaderInfo.storage}` }}</div>
           <div>{{ `Status: ${databaseHeaderInfo.status}` }}</div>
         </div>
-        <RcButton danger @click="singleDbDelete">Delete</RcButton>
-      </div>
-
+    </div>
       <Tabbed :use-hash="true" @changed="console.log('ok')">
         <Tab name="Overview" label="Overview" weight="2">
           <div class="tab-content">
