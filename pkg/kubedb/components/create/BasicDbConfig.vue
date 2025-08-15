@@ -16,7 +16,7 @@ import {
   StorageSizeType,
   StorageClassType,
   RemoteReplicaType,
-} from "../types/types";
+} from "../../types/types";
 
 interface Props {
   NameSpacesProps: NameSpacesType;

@@ -6,7 +6,7 @@ import ToggleSwitch from "@rancher/shell/rancher-components/Form/ToggleSwitch/To
 import TextAreaAutoGrow from "@rancher/shell/rancher-components/Form/TextArea/TextAreaAutoGrow.vue";
 import KeyValue from "@rancher/shell/components/form/KeyValue.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
-import DateInput from "../components/DateInput/CustomDateInput.vue";
+import DateInput from "../DateInput/CustomDateInput.vue";
 import {
   DeletionPolicyType,
   LabelsType,
@@ -20,7 +20,7 @@ import {
   StandbyModeType,
   PitrType,
   PitrDateType,
-} from "../types/types";
+} from "../../types/types";
 
 interface Props {
   DeletionPolicyProps: DeletionPolicyType;
