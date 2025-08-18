@@ -14,12 +14,13 @@ import { useUtils } from "../composables/utils";
 import Tab from "@shell/components/Tabbed/Tab.vue";
 import Loading from "@shell/components/Loading.vue";
 import Tabbed from "@shell/components/Tabbed/index.vue";
-import LongRunningTask from "../components/long-running-task/LongRunningTaskModal.vue";
-import InsightDetails from "../components/InsightDetails.vue";
-import OverviewDetails from "../components/OverviewDetails.vue";
+import Operations from "../components/details/operations/index.vue";
+import InsightDetails from "../components/details/InsightDetails.vue";
 import RcButton from "@shell/rancher-components/RcButton/RcButton.vue";
+import OverviewDetails from "../components/details/OverviewDetails.vue";
+import LongRunningTask from "../components/long-running-task/LongRunningTaskModal.vue";
 
-// need to call this on every component.
+// need to call this on every route component.
 const { natsConnect } = useNats();
 natsConnect(getCurrentInstance()?.appContext.app as App<Element>);
 
@@ -77,6 +78,32 @@ const overviewSortableRows = computed(() =>
 
 const overviewGrafanaRows = ref<Array<{ data: string }>>([]);
 /// overview declare ends
+
+// recent operations declare starts
+const recentOpsTable = ref<{ columns: any[]; rows: any[] }>({
+  columns: [],
+  rows: [],
+});
+const recentOpsTableHeaders = computed(() =>
+  recentOpsTable.value.columns.map((col) => ({
+    name: col.name,
+    label: col.name,
+    value: col.name,
+    sort: col.name === "Name" || col.name === "Age" ? [col.name] : [],
+  }))
+);
+
+const recentOpsTableRows = computed(() =>
+  recentOpsTable.value.rows.map((row) => {
+    const obj: Record<string, string> = {};
+    row?.cells.forEach((cell: any, i: number) => {
+      obj[overviewNodeTable.value.columns[i].name] = cell.data;
+    });
+    return obj;
+  })
+);
+
+// recent operations declare ends
 
 /// insight declare starts
 const insightInfoBlock = ref<any[]>([]);
@@ -215,6 +242,14 @@ const renderApi = async (showLoader: boolean) => {
 
     console.log({ Render: data });
 
+    //Recent Operations
+    const operations = data.response.view.pages.find(
+      (ele: { name: string }) => ele.name === "Operations"
+    );
+    const recentOperations = operations.sections[0].blocks.find(
+      (ele: { name: string }) => ele.name === "Recent Operations"
+    );
+    recentOpsTable.value = recentOperations.table;
     //Header info
     databaseHeaderInfo.value.version =
       data.response.view.header.table?.rows[0]?.cells[1];
@@ -572,6 +607,7 @@ const getStatusStyle = (status: string): CSSProperties => {
         <RcButton danger @click="singleDbDelete">Delete</RcButton>
       </div>
 
+      <!-- footer -->
       <div
         style="
           position: fixed;
@@ -644,8 +680,9 @@ const getStatusStyle = (status: string): CSSProperties => {
           </div>
         </div>
       </div>
-      <Tabbed :use-hash="true" @changed="console.log('ok')">
-        <Tab name="Overview" label="Overview" weight="2">
+
+      <Tabbed :use-hash="true">
+        <Tab name="Overview" label="Overview" weight="3">
           <div class="tab-content">
             <OverviewDetails
               :overview-info-block="overviewInfoBlock"
@@ -658,7 +695,7 @@ const getStatusStyle = (status: string): CSSProperties => {
             />
           </div>
         </Tab>
-        <Tab name="insight" label="Insight" weight="1">
+        <Tab name="insight" label="Insight" weight="2">
           <div class="tab-content">
             <InsightDetails
               :insight-databases-headers="insightDatabasesHeaders"
@@ -675,6 +712,14 @@ const getStatusStyle = (status: string): CSSProperties => {
               :insight-replication-status-headers="
                 insightReplicationStatusHeaders
               "
+            />
+          </div>
+        </Tab>
+        <Tab name="operations" label="Operations" weight="1">
+          <div class="tab-content">
+            <Operations
+              :recent-ops-headers="recentOpsTableHeaders"
+              :recent-ops-rows="recentOpsTableRows"
             />
           </div>
         </Tab>

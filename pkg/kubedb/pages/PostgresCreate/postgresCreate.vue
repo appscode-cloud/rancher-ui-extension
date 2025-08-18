@@ -3,9 +3,9 @@ import { App, computed, getCurrentInstance, onMounted, ref, watch } from "vue";
 import { useStore } from "vuex";
 import Loading from "@shell/components/Loading.vue";
 import YamlPreview from "../../components/YamlPreview.vue";
-import BasicDbConfig from "../../components/BasicDbConfig.vue";
-import AdvancedDbConfig from "../../components/AdvancedDbConfig.vue";
-import AdditionalOptions from "../../components/AdditionalOptions.vue";
+import BasicDbConfig from "../../components/create/BasicDbConfig.vue";
+import AdvancedDbConfig from "../../components/create/AdvancedDbConfig.vue";
+import AdditionalOptions from "../../components/create/AdditionalOptions.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import LongRunningTask from "../../components/long-running-task/LongRunningTaskModal.vue";
@@ -17,7 +17,7 @@ import { useNats } from "../../composables/nats";
 import { useUtils } from "../../composables/utils";
 import { useRules } from "../../composables/rules";
 
-// need to call this on every component.
+// need to call this on every route component.
 const { natsConnect } = useNats();
 natsConnect(getCurrentInstance()?.appContext.app as App<Element>);
 

@@ -9,7 +9,7 @@ import SimpleBox from "@rancher/shell/components/SimpleBox.vue";
 import Loading from "@shell/components/Loading.vue";
 import { useUtils } from "../composables/utils";
 
-// need to call this on every component.
+// need to call this on every route component.
 const { natsConnect } = useNats();
 natsConnect(getCurrentInstance()?.appContext.app as App<Element>);
 
