@@ -598,11 +598,13 @@ const getStatusStyle = (status: string): CSSProperties => {
           margin-bottom: 8px;
         "
       >
-        <h2>
-          {{
-            `${overviewInfoBlock[2]?.value}: ${overviewInfoBlock[1]?.value}/${overviewInfoBlock[0]?.value}`
-          }}
-        </h2>
+        <div>
+          <h2 v-if="overviewInfoBlock[1]?.value">
+            {{
+              `${overviewInfoBlock[2]?.value}: ${overviewInfoBlock[1]?.value}/${overviewInfoBlock[0]?.value}`
+            }}
+          </h2>
+        </div>
 
         <RcButton danger @click="singleDbDelete">Delete</RcButton>
       </div>
@@ -674,8 +676,12 @@ const getStatusStyle = (status: string): CSSProperties => {
           </div>
           <div>
             Status:
-            <span :style="getStatusStyle(databaseHeaderInfo.status)">
-              {{ databaseHeaderInfo.status ?? "Unknown" }}
+            <span
+              :style="
+                getStatusStyle(databaseHeaderInfo.status ?? 'Provisioning')
+              "
+            >
+              {{ databaseHeaderInfo.status ?? "Provisioning" }}
             </span>
           </div>
         </div>

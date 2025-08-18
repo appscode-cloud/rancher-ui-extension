@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { getCurrentInstance, onMounted, ref, computed } from "vue";
+import Banner from "@rancher/shell/rancher-components/Banner/Banner.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
-import { useRules } from "../../../../composables/rules";
 import { useUtils } from "../../../../composables/utils";
+import { useRules } from "../../../../composables/rules";
 import Loading from "@shell/components/Loading.vue";
 import $axios from "../../../../composables/axios";
 import { useStore } from "vuex";
@@ -15,6 +16,8 @@ const { required } = useRules();
 const store = useStore();
 const { getClusters } = useUtils(store);
 const storageSize = ref("2Gi");
+const errorMsg = ref("");
+const successMsg = ref("");
 const isLoading = ref(false);
 const clusterName = ref("");
 const timeOut = ref("");
@@ -112,14 +115,12 @@ const onDeploy = async () => {
       }
     );
 
-    const data = await JSON.parse(response.data.response?.body);
-
+    await JSON.parse(response.data.response?.body);
+    successMsg.value = "Created Successfully";
     isDeploying.value = false;
-    return { values: data };
   } catch (error) {
+    errorMsg.value = "Something went wrong";
     isDeploying.value = false;
-    console.error(error);
-    return { values: {}, error: "" };
   }
 };
 
@@ -183,6 +184,21 @@ onMounted(async () => {
           </RcButton>
         </div>
       </div>
+
+      <Banner
+        v-if="errorMsg"
+        color="error"
+        :label="errorMsg"
+        :closable="true"
+        @close="errorMsg = ''"
+      />
+      <Banner
+        v-if="successMsg"
+        color="success"
+        :label="successMsg"
+        :closable="true"
+        @close="successMsg = ''"
+      />
     </div>
   </div>
 </template>

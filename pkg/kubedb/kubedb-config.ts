@@ -17,7 +17,7 @@ export function init($plugin: IPlugin, store: any) {
     inStore: "cluster", // this is what defines the extension as a cluster-level product
     weight: 100,
     to: {
-      name: `c-cluster-${YOUR_PRODUCT_NAME}-${postgresPage}`,
+      name: `c-cluster-${YOUR_PRODUCT_NAME}-${postgresPage.toLowerCase()}`,
       params: { product: YOUR_PRODUCT_NAME },
     },
   });
@@ -27,7 +27,7 @@ export function init($plugin: IPlugin, store: any) {
     labelKey: postgresPage,
     name: postgresPage,
     route: {
-      name: `c-cluster-${YOUR_PRODUCT_NAME}-${postgresPage}`,
+      name: `c-cluster-${YOUR_PRODUCT_NAME}-${postgresPage.toLowerCase()}`,
       params: { product: YOUR_PRODUCT_NAME },
     },
   });
@@ -35,7 +35,7 @@ export function init($plugin: IPlugin, store: any) {
     labelKey: overviewPage,
     name: overviewPage,
     route: {
-      name: `c-cluster-${YOUR_PRODUCT_NAME}-${overviewPage}`,
+      name: `c-cluster-${YOUR_PRODUCT_NAME}-${overviewPage.toLowerCase()}`,
       params: { product: YOUR_PRODUCT_NAME },
     },
   });

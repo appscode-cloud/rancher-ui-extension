@@ -1,23 +1,16 @@
 <script setup lang="ts">
-import {
-  getCurrentInstance,
-  onMounted,
-  ref,
-  computed,
-  toRaw,
-  unref,
-} from "vue";
+import { getCurrentInstance, onMounted, ref, computed } from "vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
+import Banner from "@rancher/shell/rancher-components/Banner/Banner.vue";
 import { useRules } from "../../../../composables/rules";
 import { useUtils } from "../../../../composables/utils";
 import Loading from "@shell/components/Loading.vue";
 import $axios from "../../../../composables/axios";
 import { useStore } from "vuex";
 
-const router = getCurrentInstance()?.proxy?.$router;
 const route = getCurrentInstance()?.proxy?.$route;
 const { required } = useRules();
 const store = useStore();
@@ -58,7 +51,8 @@ const timeoutOptions = [
     value: "10h",
   },
 ];
-
+const errorMsg = ref("");
+const successMsg = ref("");
 const applyOptions = [
   {
     label: "IfReady (OpsRequest will be applied if database is ready)",
@@ -95,7 +89,6 @@ const payload = computed(() => {
 });
 
 const onClick = () => {
-  console.log("clicked");
   onDeploy();
 };
 
@@ -116,14 +109,12 @@ const onDeploy = async () => {
       }
     );
 
-    const data = await JSON.parse(response.data.response?.body);
-
+    await JSON.parse(response.data.response?.body);
+    successMsg.value = "Created Successfully";
     isDeploying.value = false;
-    return { values: data };
   } catch (error) {
     isDeploying.value = false;
-    console.error(error);
-    return { values: {}, error: "" };
+    errorMsg.value = "Something went wrong";
   }
 };
 
@@ -178,6 +169,21 @@ onMounted(async () => {
           </RcButton>
         </div>
       </div>
+
+      <Banner
+        v-if="errorMsg"
+        color="error"
+        :label="errorMsg"
+        :closable="true"
+        @close="errorMsg = ''"
+      />
+      <Banner
+        v-if="successMsg"
+        color="success"
+        :label="successMsg"
+        :closable="true"
+        @close="successMsg = ''"
+      />
     </div>
   </div>
 </template>
