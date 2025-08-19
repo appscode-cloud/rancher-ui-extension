@@ -6,6 +6,8 @@ import Horizontal from "./scaling/Horizontal.vue";
 import RecentOperations from "./RecentOperations.vue";
 import UpdateVersion from "./operation/UpdateVersion.vue";
 import Restart from "./operation/Restart.vue";
+import InstantBackup from "./backups/InstantBackup.vue";
+import Restore from "./backups/Restore.vue";
 interface Props {
   recentOpsRows: Array<Record<string, string>>;
   recentOpsHeaders: {
@@ -31,6 +33,16 @@ const props = withDefaults(defineProps<Props>(), {
             :recent-ops-rows="recentOpsRows"
           />
         </div>
+      </Tab>
+      <Tab name="backups" label="Backups" weight="5">
+        <Tabbed :sideTabs="true">
+          <Tab name="instant-backup" label="Instant Backup" weight="2">
+            <InstantBackup />
+          </Tab>
+          <Tab name="restore" label="Restore" weight="2">
+            <Restore />
+          </Tab>
+        </Tabbed>
       </Tab>
       <Tab name="operations" label="Operations" weight="5">
         <Tabbed :sideTabs="true">
