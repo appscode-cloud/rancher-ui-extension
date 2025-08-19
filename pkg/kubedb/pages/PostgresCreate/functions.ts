@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import $axios from "../../composables/axios";
-import { machines, dbObject } from "./consts";
+import { machines, dbObject, owner } from "./consts";
 import { useUtils } from "../../composables/utils";
 
 export const useFunctions = () => {
@@ -27,7 +27,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/proxy/identity.k8s.appscode.com/v1alpha1/selfsubjectnamespaceaccessreviews`,
+            path: `/api/v1/clusters/${owner}/${cluster}/proxy/identity.k8s.appscode.com/v1alpha1/selfsubjectnamespaceaccessreviews`,
             verb: "POST",
             query: "",
             body: JSON.stringify({
@@ -73,7 +73,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/proxy/core/v1/namespaces/${namespace}/secrets`,
+            path: `/api/v1/clusters/${owner}/${cluster}/proxy/core/v1/namespaces/${namespace}/secrets`,
             verb: "GET",
             query: "",
             body: "",
@@ -106,7 +106,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/db-bundle`,
+            path: `/api/v1/clusters/${owner}/${cluster}/db-bundle`,
             verb: "GET",
             query: `type=features,common,versions&db-singular=${dbObject.kind.toLocaleLowerCase()}`,
             body: "",
@@ -134,7 +134,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/helm/packageview/values`,
+            path: `/api/v1/clusters/${owner}/${cluster}/helm/packageview/values`,
             verb: "GET",
             query: `name=${dbObject.chartName}&sourceApiGroup=source.toolkit.fluxcd.io&sourceKind=HelmRepository&sourceNamespace=kubeops&sourceName=appscode-charts-oci&version=v0.19.0&group=kubedb.com&kind=${dbObject.kind}&variant=default&namespace=${namespace}&format=json`,
             body: "",
@@ -165,7 +165,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/proxy/storage.k8s.io/v1/storageclasses`,
+            path: `/api/v1/clusters/${owner}/${cluster}/proxy/storage.k8s.io/v1/storageclasses`,
             verb: "GET",
             query: "",
             body: "",
@@ -209,7 +209,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/helm/options/model`,
+            path: `/api/v1/clusters/${owner}/${cluster}/helm/options/model`,
             verb: "PUT",
             query: "",
             body: JSON.stringify(modelApiValue),
@@ -313,7 +313,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/helm/options/resources`,
+            path: `/api/v1/clusters/${owner}/${cluster}/helm/options/resources`,
             verb: "PUT",
             query: "skipCRDs=true",
             body: JSON.stringify(payload),
@@ -346,7 +346,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/helm/editor`,
+            path: `/api/v1/clusters/${owner}/${cluster}/helm/editor`,
             verb: "PUT",
             query: `response-id=${responseId}`,
             body: JSON.stringify(payload),
@@ -376,7 +376,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/proxy/core.k8s.appscode.com/v1alpha1/genericresources`,
+            path: `/api/v1/clusters/${owner}/${cluster}/proxy/core.k8s.appscode.com/v1alpha1/genericresources`,
             verb: "GET",
             query: `convertToTable=true&labelSelector=k8s.io/group=kubedb.com&ctag=${date}`,
             body: "",
@@ -406,7 +406,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/proxy/core.k8s.appscode.com/v1alpha1/resourcesummaries`,
+            path: `/api/v1/clusters/${owner}/${cluster}/proxy/core.k8s.appscode.com/v1alpha1/resourcesummaries`,
             verb: "GET",
             query: `convertToTable=true&labelSelector=k8s.io/group=kubedb.com&ctag=${date}`,
             body: "",
@@ -463,7 +463,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/proxy/storage.kubestash.com/v1alpha1/namespaces/${refNamespace}/repositories/${refDBName}-full`,
+            path: `/api/v1/clusters/${owner}/${cluster}/proxy/storage.kubestash.com/v1alpha1/namespaces/${refNamespace}/repositories/${refDBName}-full`,
             verb: "GET",
             query: "",
             body: "",
@@ -477,7 +477,7 @@ export const useFunctions = () => {
           apiVersion: "rproxy.ace.appscode.com/v1alpha1",
           kind: "Proxy",
           request: {
-            path: `/api/v1/clusters/rancher/${cluster}/proxy/storage.kubestash.com/v1alpha1/namespaces/${refNamespace}/snapshots/${refDBName}-incremental-snapshot`,
+            path: `/api/v1/clusters/${owner}/${cluster}/proxy/storage.kubestash.com/v1alpha1/namespaces/${refNamespace}/snapshots/${refDBName}-incremental-snapshot`,
             verb: "GET",
             query: "",
             body: "",

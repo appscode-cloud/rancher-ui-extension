@@ -93,6 +93,7 @@ const onClick = () => {
 };
 
 const onDeploy = async () => {
+  const owner = "rancher";
   isDeploying.value = true;
   try {
     const response = await $axios.post(
@@ -101,7 +102,7 @@ const onDeploy = async () => {
         apiVersion: "rproxy.ace.appscode.com/v1alpha1",
         kind: "Proxy",
         request: {
-          path: `api/v1/clusters/rancher/${clusterName.value}/resources`,
+          path: `api/v1/clusters/${owner}/${clusterName.value}/resources`,
           verb: "POST",
           query: ``,
           body: JSON.stringify(payload.value),

@@ -1,3 +1,5 @@
+export const owner = "rancher";
+
 export const dbObject = {
   kind: "Postgres",
   chartName: "kubedbcom-postgres-editor-options",

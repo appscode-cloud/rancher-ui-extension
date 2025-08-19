@@ -222,6 +222,7 @@ const featureInfo = ref<{
 });
 
 const renderApi = async (showLoader: boolean) => {
+  const owner = "rancher";
   if (showLoader) isLoading.value = true;
   try {
     const response = await $axios.post(
@@ -230,7 +231,7 @@ const renderApi = async (showLoader: boolean) => {
         apiVersion: "rproxy.ace.appscode.com/v1alpha1",
         kind: "Proxy",
         request: {
-          path: `/api/v1/clusters/rancher/${clusterName.value}/proxy/meta.k8s.appscode.com/v1alpha1/renders`,
+          path: `/api/v1/clusters/${owner}/${clusterName.value}/proxy/meta.k8s.appscode.com/v1alpha1/renders`,
           verb: "GET",
           query: `q=${JSON.stringify(query)}`,
           body: "",
@@ -512,6 +513,7 @@ const uuid = getRandomUUID();
 natsSubject.value = `natjobs.resp.${uuid}`;
 
 const singleDbDelete = async () => {
+  const owner = "rancher";
   isNatsConnectionLoading.value = true;
   showDialog.value = true;
   try {
@@ -521,7 +523,7 @@ const singleDbDelete = async () => {
         apiVersion: "rproxy.ace.appscode.com/v1alpha1",
         kind: "Proxy",
         request: {
-          path: `/api/v1/clusters/rancher/${clusterName.value}/helm/editor`,
+          path: `/api/v1/clusters/${owner}/${clusterName.value}/helm/editor`,
           verb: "DELETE",
           query: `releaseName=${dbName}&namespace=${namespace}&group=${group}&version=${version}&name=${resource}&response-id=${uuid}`,
           body: "",
