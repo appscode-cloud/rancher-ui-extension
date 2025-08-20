@@ -222,7 +222,7 @@ const featureInfo = ref<{
 });
 
 const renderApi = async (showLoader: boolean) => {
-  const owner = "rancher";
+  const owner = "rancher-org";
   if (showLoader) isLoading.value = true;
   try {
     const response = await $axios.post(
@@ -513,7 +513,7 @@ const uuid = getRandomUUID();
 natsSubject.value = `natjobs.resp.${uuid}`;
 
 const singleDbDelete = async () => {
-  const owner = "rancher";
+  const owner = "rancher-org";
   isNatsConnectionLoading.value = true;
   showDialog.value = true;
   try {

@@ -34,7 +34,7 @@ const props = withDefaults(defineProps<Props>(), {
           />
         </div>
       </Tab>
-      <Tab name="backups" label="Backups" weight="5">
+      <!-- <Tab name="backups" label="Backups" weight="5">
         <Tabbed :sideTabs="true">
           <Tab name="instant-backup" label="Instant Backup" weight="2">
             <InstantBackup />
@@ -43,12 +43,12 @@ const props = withDefaults(defineProps<Props>(), {
             <Restore />
           </Tab>
         </Tabbed>
-      </Tab>
+      </Tab> -->
       <Tab name="operations" label="Operations" weight="5">
         <Tabbed :sideTabs="true">
-          <Tab name="update-version" label="Update Version" weight="3">
+          <!-- <Tab name="update-version" label="Update Version" weight="3">
             <UpdateVersion />
-          </Tab>
+          </Tab> -->
           <Tab name="restart" label="Restart" weight="2">
             <Restart />
           </Tab>

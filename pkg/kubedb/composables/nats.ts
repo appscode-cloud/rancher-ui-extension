@@ -16,7 +16,7 @@ export const useNats = () => {
     return data;
   }
 
-  function getWebSocketServer() {
+  function getWebSocketServer(url: string = "wss://10.2.0.42/nats") {
     const hostname = window.location.hostname;
     if (hostname.search("bb.test") !== -1) {
       return "ws://bb.test:31222"; // dev
@@ -24,10 +24,7 @@ export const useNats = () => {
       return `wss://nats.${hostname}`;
     }
     //self host
-    const protocol = window.location.protocol;
-    return protocol === "https:"
-      ? `wss://10.2.0.42/nats`
-      : `ws://10.2.0.42/nats`;
+    return url;
   }
 
   const sc = StringCodec();

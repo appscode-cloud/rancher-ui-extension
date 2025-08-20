@@ -88,7 +88,7 @@ const onClick = () => {
 };
 
 const onDeploy = async () => {
-  const owner = "rancher";
+  const owner = "rancher-org";
   isDeploying.value = true;
   try {
     await $axios.post(

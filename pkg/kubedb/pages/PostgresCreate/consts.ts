@@ -1,4 +1,4 @@
-export const owner = "rancher";
+export const owner = "rancher-org";
 
 export const dbObject = {
   kind: "Postgres",

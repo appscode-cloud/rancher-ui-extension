@@ -79,7 +79,7 @@ const onClick = () => {
 };
 
 const onDeploy = async () => {
-  const owner = "rancher";
+  const owner = "rancher-org";
   isDeploying.value = true;
   try {
     const response = await $axios.post(
@@ -106,7 +106,7 @@ const onDeploy = async () => {
 };
 
 const getRepositories = async () => {
-  const owner = "rancher";
+  const owner = "rancher-org";
   try {
     const response = await $axios.post(
       `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
@@ -138,7 +138,7 @@ const getRepositories = async () => {
 };
 
 const getSnapshots = async () => {
-  const owner = "rancher";
+  const owner = "rancher-org";
   try {
     const response = await $axios.post(
       `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,

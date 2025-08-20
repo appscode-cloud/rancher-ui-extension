@@ -92,7 +92,7 @@ const onClick = () => {
 };
 
 const onDeploy = async () => {
-  const owner = "rancher";
+  const owner = "rancher-org";
   isDeploying.value = true;
   try {
     await $axios.post(
@@ -155,8 +155,8 @@ function isVersionWithinConstraints(version: string, constraints: string) {
 }
 
 const fetchVersions = async () => {
-  const owner = "rancher";
-  console.log({ owner });
+  const owner = "rancher-org";
+
   try {
     const response = await $axios.post(
       `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
