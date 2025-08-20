@@ -3,7 +3,6 @@ import { getCurrentInstance, onMounted, ref, computed } from "vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import RadioGroup from "@rancher/shell/rancher-components/Form/Radio/RadioGroup.vue";
-import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
 import Banner from "@rancher/shell/rancher-components/Banner/Banner.vue";
 import { useRules } from "../../../../composables/rules";
 import { useUtils } from "../../../../composables/utils";
@@ -15,12 +14,13 @@ const route = getCurrentInstance()?.proxy?.$route;
 const { required } = useRules();
 const store = useStore();
 const { getClusters } = useUtils(store);
-const replicas = ref(1);
 const isLoading = ref(false);
 const clusterName = ref("");
 const timeOut = ref("");
 const apply = ref("IfReady");
 const isDeploying = ref(false);
+const errorMsg = ref("");
+const successMsg = ref("");
 const timeoutOptions = [
   {
     label: "5 minutes",
@@ -51,8 +51,6 @@ const timeoutOptions = [
     value: "10h",
   },
 ];
-const errorMsg = ref("");
-const successMsg = ref("");
 const applyOptions = [
   {
     label: "IfReady (OpsRequest will be applied if database is ready)",
@@ -71,18 +69,15 @@ const payload = computed(() => {
     apiVersion: "ops.kubedb.com/v1alpha1",
     kind: kind,
     metadata: {
-      name: `${route?.params.dbName}-${timestamp}-horizontalscaling`,
+      name: `${route?.params.dbName}-${timestamp}-restart`,
       namespace: route?.params.namespace,
     },
     spec: {
       databaseRef: {
         name: route?.params.dbName,
       },
-      type: "HorizontalScaling",
+      type: "Restart",
       apply: apply.value,
-      horizontalScaling: {
-        replicas: replicas.value,
-      },
       timeout: timeOut.value,
     },
   };
@@ -96,7 +91,7 @@ const onDeploy = async () => {
   const owner = "rancher-org";
   isDeploying.value = true;
   try {
-    const response = await $axios.post(
+    await $axios.post(
       `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
       {
         apiVersion: "rproxy.ace.appscode.com/v1alpha1",
@@ -110,7 +105,6 @@ const onDeploy = async () => {
       }
     );
 
-    await JSON.parse(response.data.response?.body);
     successMsg.value = "Created Successfully";
     isDeploying.value = false;
   } catch (error) {
@@ -132,15 +126,6 @@ onMounted(async () => {
       <Loading />
     </div>
     <div v-else>
-      <LabeledInput
-        class="mb-20"
-        v-model:value="replicas"
-        label="Replicas"
-        :disabled="false"
-        :required="true"
-        :rules="[required]"
-        min-height="30"
-      />
       <LabeledSelect
         class="mb-20"
         v-model:value="timeOut"
@@ -162,10 +147,7 @@ onMounted(async () => {
 
       <div class="button-container">
         <div class="button-group">
-          <RcButton
-            primary
-            @click="onClick"
-            :disabled="!replicas || isDeploying"
+          <RcButton primary @click="onClick" :disabled="isDeploying"
             >{{ isDeploying ? "Loading..." : "Deploy" }}
           </RcButton>
         </div>

@@ -13,14 +13,14 @@ import {
 const routes = [
   // this covers the "custom page"
   {
-    name: `c-cluster-${YOUR_PRODUCT_NAME}-${postgresPage}`,
-    path: `/c/:cluster/${YOUR_PRODUCT_NAME}/${postgresPage}`,
+    name: `c-cluster-${YOUR_PRODUCT_NAME}-${postgresPage.toLowerCase()}`,
+    path: `/c/:cluster/${YOUR_PRODUCT_NAME}/${postgresPage.toLowerCase()}`,
     component: pgCreate,
     meta: { product: YOUR_PRODUCT_NAME },
   },
   {
-    name: `c-cluster-${YOUR_PRODUCT_NAME}-${overviewPage}`,
-    path: `/c/:cluster/${YOUR_PRODUCT_NAME}/${overviewPage}`,
+    name: `c-cluster-${YOUR_PRODUCT_NAME}-${overviewPage.toLowerCase()}`,
+    path: `/c/:cluster/${YOUR_PRODUCT_NAME}/${overviewPage.toLowerCase()}`,
     component: Overview,
     meta: { product: YOUR_PRODUCT_NAME },
   },

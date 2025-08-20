@@ -37,7 +37,9 @@ const props = withDefaults(defineProps<Props>(), {
     <div style="display: flex; flex-wrap: wrap; justify-content: space-between">
       <div style="width: 40%">
         <h2>Basic Info</h2>
-        <div v-if="overviewInfoBlock.length !== 0">
+        <div
+          v-if="overviewInfoBlock.length !== 0 && overviewInfoBlock[0].value"
+        >
           <div v-for="(item, i) in overviewInfoBlock" :key="'info-' + i">
             <div
               style="

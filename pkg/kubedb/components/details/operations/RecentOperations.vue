@@ -42,6 +42,5 @@ const rows = props.recentOpsRows.map((ele: Record<string, string>) => {
     >
       <td>{{ row[header.name] }}</td>
     </template>
-    <template #header-left> <h1>Recent Operations</h1> </template>
   </SortableTable>
 </template>
