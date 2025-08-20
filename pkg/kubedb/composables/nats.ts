@@ -15,27 +15,28 @@ export const useNats = () => {
 
     return data;
   }
+  const sc = StringCodec();
+  let _user_jwt: string | null = "";
+  let _user_seed: string | null = "";
+  let _nats_url: string | null = "";
 
-  function getWebSocketServer(url: string = "wss://10.2.0.42/nats") {
+  function getWebSocketServer() {
     const hostname = window.location.hostname;
     if (hostname.search("bb.test") !== -1) {
       return "ws://bb.test:31222"; // dev
     } else if (hostname === "appscode.ninja" || hostname === "appscode.com") {
       return `wss://nats.${hostname}`;
     }
-    //self host
-    return url;
+    return _nats_url || "wss://10.2.0.42/nats";
   }
 
-  const sc = StringCodec();
-  let _user_jwt: string | null = "";
-  let _user_seed: string | null = "";
   async function natsConnect(app: App<Element>) {
     _user_jwt = getCookie("_user_jwt");
     _user_seed = getCookie("_user_seed");
+    _nats_url = getCookie("_nats_url");
 
     try {
-      if (!_user_jwt || !_user_seed) {
+      if (!_user_jwt || !_user_seed || !_nats_url) {
         const resp = await $axios.post(
           `/k8s/clusters/local/apis/rproxy.ace.appscode.com/v1alpha1/proxies`,
           {
@@ -53,6 +54,7 @@ export const useNats = () => {
         const data = await JSON.parse(resp.data.response?.body);
         setCookie("_user_jwt", data["user-jwt"]);
         setCookie("_user_seed", data["user-seed"]);
+        setCookie("_nats_url", data["url"]);
       }
 
       const natsConnection = await connect({
