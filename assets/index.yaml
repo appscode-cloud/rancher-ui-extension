@@ -12,9 +12,9 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 0.1.0
-    created: "2025-08-20T16:08:31.667763294+06:00"
+    created: "2025-08-20T17:48:49.015648513+06:00"
     description: Extension server
-    digest: 65a9cab0698a19ea2ae4c288ee53fe2e4756ea61735519bf6d9bcc01b1e0dbe3
+    digest: b9483a26baae60a3ab90117e7e933030566288c23bf5c716ad49d2124a8bbbad
     home: https://rancher.com
     icon: https://docs.ranchermanager.rancher.io/img/rancher-logo-horiz-color.svg
     keywords:
@@ -25,4 +25,4 @@ entries:
     urls:
     - assets/kubedb/extension-server-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-20T16:08:31.666765338+06:00"
+generated: "2025-08-20T17:48:49.015376156+06:00"
