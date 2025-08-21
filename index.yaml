@@ -1,6 +1,6 @@
 apiVersion: v1
 entries:
-  extension-server:
+  kubedb:
   - annotations:
       catalog.cattle.io/certified: rancher
       catalog.cattle.io/namespace: cattle-ui-plugin-system
@@ -11,7 +11,7 @@ entries:
       catalog.cattle.io/ui-component: plugins
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
-    appVersion: 0.1.0
+    appVersion: 0.3.0
     created: "2025-08-20T16:08:31.667763294+06:00"
     description: Extension server
     digest: 65a9cab0698a19ea2ae4c288ee53fe2e4756ea61735519bf6d9bcc01b1e0dbe3
@@ -20,9 +20,9 @@ entries:
     keywords:
     - applications
     - infrastructure
-    name: extension-server
+    name: kubedb
     type: application
     urls:
-    - assets/kubedb/extension-server-0.1.0.tgz
-    version: 0.1.0
+    - assets/kubedb/kubedb-0.3.0.tgz
+    version: 0.3.0
 generated: "2025-08-20T16:08:31.666765338+06:00"
