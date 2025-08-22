@@ -4,9 +4,10 @@ import { useStore } from "vuex";
 import Loading from "@shell/components/Loading.vue";
 import YamlPreview from "../../components/YamlPreview.vue";
 import BasicDbConfig from "../../components/create/BasicDbConfig.vue";
+import Banner from "@rancher/shell/rancher-components/Banner/Banner.vue";
 import AdvancedDbConfig from "../../components/create/AdvancedDbConfig.vue";
-import AdditionalOptions from "../../components/create/AdditionalOptions.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
+import AdditionalOptions from "../../components/create/AdditionalOptions.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import LongRunningTask from "../../components/long-running-task/LongRunningTaskModal.vue";
 import LabeledInput from "@rancher/shell/rancher-components/Form/LabeledInput/LabeledInput.vue";
@@ -89,6 +90,7 @@ const router = getCurrentInstance()?.proxy?.$router;
 const { required, getAllAvailableDbNames } = useRules();
 
 const step = ref(1);
+const errorMsg = ref();
 const clusterName = ref("");
 const resourceSkipPayload = ref();
 const isYamlValid = ref(true);
@@ -379,16 +381,19 @@ const previewFiles = ref<
 const gotoNext = async () => {
   if (step.value === 1) step.value = 2;
   else if (step.value === 2) {
-    resourceSkipPayload.value = await modelApiCall(
+    const { values, error } = await modelApiCall(
       clusterName.value,
       modelApiPayload.value
     );
+    resourceSkipPayload.value = values;
+    errorMsg.value = error;
 
-    const resourceSkipCRDResponse = await resourceSkipCRDApiCall(
+    const { values: data, error: resourceError } = await resourceSkipCRDApiCall(
       clusterName.value,
       resourceSkipPayload.value?.values
     );
-
+    const resourceSkipCRDResponse = data;
+    errorMsg.value = resourceError;
     previewFiles.value = resourceSkipCRDResponse?.values.resources;
     if (previewFiles.value) step.value = 3;
   } else if (step.value === 3) {
@@ -532,6 +537,15 @@ const deployDatabase = async () => {
             "
           />
         </div>
+      </div>
+      <div>
+        <Banner
+          v-if="errorMsg"
+          color="error"
+          :label="errorMsg"
+          :closable="true"
+          @close="errorMsg = ''"
+        />
       </div>
     </div>
     <div class="button-container">

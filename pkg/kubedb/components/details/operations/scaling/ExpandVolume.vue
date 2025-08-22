@@ -141,7 +141,7 @@ onMounted(async () => {
       <LabeledInput
         class="mb-20"
         v-model:value="storageSize"
-        label="Replicas"
+        label="Storage Size"
         :disabled="false"
         :required="true"
         :rules="[required]"
