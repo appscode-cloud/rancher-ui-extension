@@ -220,12 +220,11 @@ export const useFunctions = () => {
       const data = await JSON.parse(response.data.response?.body);
 
       isModelLoading.value = false;
-      return { values: data };
-    } catch (error) {
-      console.error("Error loading data:", error);
+      return { values: data, error: "" };
+    } catch (error: any) {
+      isModelLoading.value = false;
+      return { values: {}, error: error?.response?.data.message };
     }
-
-    isModelLoading.value = false;
   };
 
   const generateModelPayload = (
@@ -324,12 +323,12 @@ export const useFunctions = () => {
       const data = await JSON.parse(response.data.response?.body);
 
       isResourceSkipLoading.value = false;
-      return { values: data };
-    } catch (error) {
+      return { values: data, error: "" };
+    } catch (error: any) {
       console.error("Error loading data:", error);
+      isResourceSkipLoading.value = false;
+      return { values: {}, error: error?.response?.data.message };
     }
-
-    isResourceSkipLoading.value = false;
   };
 
   const deployCall = async (
