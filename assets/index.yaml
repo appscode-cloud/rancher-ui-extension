@@ -12,12 +12,12 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 0.1.0
-    created: "2025-08-25T09:35:11.497687766Z"
+    created: "2025-08-25T09:59:12.495742328Z"
     description: kubedb plugin
-    digest: 99464f2a1d76943303ff3a6773237afea6a12d055f06d26834b8ffc97ba95d6c
+    digest: 872b58387612c5042991de5054c75eef3f231a9d8ff7a7ab425e3f9651e0ac92
     name: kubedb
     type: application
     urls:
     - assets/kubedb/kubedb-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-25T09:35:11.497003043Z"
+generated: "2025-08-25T09:59:12.495371335Z"
