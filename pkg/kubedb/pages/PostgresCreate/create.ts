@@ -1,7 +1,7 @@
 import { computed } from "vue";
 import { useField, useForm } from "vee-validate";
 import { useRules } from "../../composables/rules";
-import { dbObject } from "../PostgresCreate/consts";
+import { dbObject } from "./consts";
 
 export const useCreateForm = () => {
   const { required, checkDuplicate } = useRules();

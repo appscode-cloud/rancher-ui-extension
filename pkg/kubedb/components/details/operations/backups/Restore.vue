@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { getCurrentInstance, onMounted, ref, computed, watch } from "vue";
 import TextAreaAutoGrow from "@rancher/shell/rancher-components/Form/TextArea/TextAreaAutoGrow.vue";
-import LongRunningTask from "../../../../components/long-running-task/LongRunningTaskModal.vue";
+import LongRunningTask from "../../../long-running-task/LongRunningTaskModal.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import Banner from "@rancher/shell/rancher-components/Banner/Banner.vue";

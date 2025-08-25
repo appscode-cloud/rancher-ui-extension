@@ -1,11 +1,11 @@
 {
-  "name": "kubedb-skeleton",
+  "name": "kubedb-extension",
   "version": "0.1.0",
   "private": false,
   "engines": {
     "node": ">=20"
   },
-  "dependencies": {
+    "dependencies": {
     "@rancher/shell": "^3.0.4",
     "axios": "^1.10.0",
     "js-yaml": "^4.1.0",
