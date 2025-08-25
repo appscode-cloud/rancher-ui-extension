@@ -12,6 +12,27 @@ entries:
       catalog.cattle.io/ui-component: plugins
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
+    appVersion: 0.1.2
+    created: "2025-08-25T10:43:50.331244511Z"
+    description: kubedb extension's description
+    digest: 0863f16c1a0f8d5e2da13ceeca33d6e747017d61cbb57f6803ea167529785d1c
+    icon: https://kubedb.com/assets/images/products/kubedb/kubedb.svg
+    name: kubedb
+    type: application
+    urls:
+    - assets/kubedb/kubedb-0.1.2.tgz
+    version: 0.1.2
+  - annotations:
+      catalog.cattle.io/certified: rancher
+      catalog.cattle.io/display-name: Kubedb Extension
+      catalog.cattle.io/namespace: cattle-ui-plugin-system
+      catalog.cattle.io/os: linux
+      catalog.cattle.io/permits-os: linux, windows
+      catalog.cattle.io/rancher-version: '>= 2.10.0'
+      catalog.cattle.io/scope: management
+      catalog.cattle.io/ui-component: plugins
+      catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
+    apiVersion: v2
     appVersion: 0.1.1
     created: "2025-08-25T10:19:01.125010969Z"
     description: kubedb plugin
@@ -40,4 +61,4 @@ entries:
     urls:
     - assets/kubedb/kubedb-0.1.0.tgz
     version: 0.1.0
-generated: "2025-08-25T10:19:01.124506162Z"
+generated: "2025-08-25T10:43:50.330887436Z"
