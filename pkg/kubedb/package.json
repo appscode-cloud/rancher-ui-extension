@@ -1,7 +1,7 @@
 {
   "name": "kubedb",
-  "description": "kubedb plugin",
-  "version": "0.1.1",
+  "description": "kubedb extension's description",
+  "version": "0.1.2",
   "private": false,
   "rancher": {
     "annotations": {
@@ -10,6 +10,7 @@
       "catalog.cattle.io/display-name": "Kubedb Extension"
     }
   },
+  "icon": "https://kubedb.com/assets/images/products/kubedb/kubedb.svg",
   "scripts": {},
   "engines": {
     "node": ">=16"
