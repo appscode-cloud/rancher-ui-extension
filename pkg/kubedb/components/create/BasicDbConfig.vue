@@ -86,10 +86,9 @@ const showRemoteReplica = computed(() => {
         :required="showReplicas"
         :rules="showReplicas ? props.ReplicaProps.rules : []"
       />
-      <LabeledSelect
+      <LabeledInput
         v-if="showRemoteReplica && props.RemoteReplicaProps.show"
         v-model:value="props.RemoteReplicaProps.remoteReplicaModel"
-        :options="props.RemoteReplicaProps.options"
         :disabled="props.RemoteReplicaProps.disabled"
         :label="props.RemoteReplicaProps.label"
         :placeholder="props.RemoteReplicaProps.placeholder"
