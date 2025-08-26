@@ -393,7 +393,7 @@ const gotoNext = async () => {
       resourceSkipPayload.value?.values
     );
     const resourceSkipCRDResponse = data;
-    errorMsg.value = resourceError;
+    if (!errorMsg.value) errorMsg.value = resourceError;
     previewFiles.value = resourceSkipCRDResponse?.values.resources;
     if (previewFiles.value) step.value = 3;
   } else if (step.value === 3) {
