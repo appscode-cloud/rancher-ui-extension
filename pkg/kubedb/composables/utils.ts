@@ -39,15 +39,34 @@ export const useUtils = (store?: any) => {
   }
 
   function extractNumbers(input: string): [number, number] {
-    const matches = input.match(/\d+/g);
+    const matches = input.match(/(\d+)([A-Za-z]*)/g);
 
     if (!matches || matches.length !== 2) {
-      throw new Error("Input string must contain exactly two numbers");
+      throw new Error("Input string must contain exactly two values");
     }
 
-    return [parseInt(matches[0], 10), parseInt(matches[1], 10)];
-  }
+    function parseValue(val: string): number {
+      const match = val.match(/(\d+)([A-Za-z]*)/);
+      if (!match) throw new Error("Invalid value: " + val);
 
+      let num = parseInt(match[1], 10);
+      const unit = match[2];
+
+      switch (unit) {
+        case "Mi":
+          return num / 1024; // convert Mi → Gi
+        case "Gi":
+          return num; // already Gi
+        case "m": // CPU millicores, keep as is
+        case "":
+          return num;
+        default:
+          throw new Error("Unsupported unit: " + unit);
+      }
+    }
+
+    return [parseValue(matches[0]), parseValue(matches[1])];
+  }
   const getClusters = async (clusterId: string) => {
     const storeInstance = store || useStore();
     let clusterName = "";
