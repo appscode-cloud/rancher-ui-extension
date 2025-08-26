@@ -387,14 +387,13 @@ const gotoNext = async () => {
     );
     resourceSkipPayload.value = values;
     errorMsg.value = error;
-
     const { values: data, error: resourceError } = await resourceSkipCRDApiCall(
       clusterName.value,
-      resourceSkipPayload.value?.values
+      resourceSkipPayload.value
     );
     const resourceSkipCRDResponse = data;
     if (!errorMsg.value) errorMsg.value = resourceError;
-    previewFiles.value = resourceSkipCRDResponse?.values.resources;
+    previewFiles.value = resourceSkipCRDResponse?.resources;
     if (previewFiles.value) step.value = 3;
   } else if (step.value === 3) {
     deployDatabase();
@@ -421,8 +420,8 @@ const deployDatabase = async () => {
     metadata: {},
     resources: {},
   };
-  deployApiPayload.form = resourceSkipPayload.value.values.form;
-  deployApiPayload.metadata = resourceSkipPayload.value.values.metadata;
+  deployApiPayload.form = resourceSkipPayload.value.form;
+  deployApiPayload.metadata = resourceSkipPayload.value.metadata;
   previewFiles.value.forEach(
     (file: { key: string; filename: string; data: string }) => {
       deployApiPayload.resources[file.key] = yamlToJs(file.data);
