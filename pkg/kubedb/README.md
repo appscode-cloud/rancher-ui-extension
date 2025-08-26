@@ -4,7 +4,7 @@ KubeDB is a production-grade solution for running and managing databases on Kube
 This Rancher UI extension brings KubeDB management capabilities directly into the Rancher dashboard, making it easier to **deploy, monitor, and operate databases** without leaving your cluster management interface.
 
 
-### 🚀 Features
+### Features
 
 - **Database Management**  
   Deploy and manage popular databases (PostgreSQL, MySQL, MongoDB, Redis, Elasticsearch, etc.) directly from Rancher.
@@ -19,7 +19,7 @@ This Rancher UI extension brings KubeDB management capabilities directly into th
   Designed to work as a native Rancher UI extension, providing a familiar look and feel.
 
 
-### 📦 Installation
+### Installation
 
 1. Navigate to **Extensions** in the Rancher Dashboard.  
 2. Click **Manage Extensions** → **Install Extension**.  
@@ -29,12 +29,12 @@ This Rancher UI extension brings KubeDB management capabilities directly into th
 > ℹ️ Make sure [KubeDB](https://kubedb.com/) is installed in your Kubernetes cluster before using the extension.
 
 
-### 🔧 Requirements
+### Requirements
 
 - Kubernetes cluster with [KubeDB operator](https://kubedb.com/docs/latest/setup/) installed  
 
 
-### 📚 Learn More
+### Learn More
 
 - [KubeDB Documentation](https://kubedb.com/docs/)  
 - [Rancher UI Extensions](https://ranchermanager.docs.rancher.com/ui-extensions)  
