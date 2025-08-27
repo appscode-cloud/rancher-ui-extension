@@ -11,6 +11,8 @@ import Loading from "@shell/components/Loading.vue";
 import $axios from "../../../../composables/axios";
 import { useStore } from "vuex";
 
+const props = defineProps<{ isTabChanged: boolean }>();
+
 const route = getCurrentInstance()?.proxy?.$route;
 const router = getCurrentInstance()?.proxy?.$router;
 const store = useStore();
@@ -202,6 +204,14 @@ const connectionError = ref("");
 const isNatsConnectionLoading = ref(false);
 const uuid = getRandomUUID();
 natsSubject.value = `natjobs.resp.${uuid}`;
+
+watch(
+  () => props.isTabChanged,
+  () => {
+    errorMsg.value = "";
+    successMsg.value = "";
+  }
+);
 </script>
 
 <template>
@@ -257,7 +267,7 @@ natsSubject.value = `natjobs.resp.${uuid}`;
       </div>
 
       <Banner
-        v-if="errorMsg"
+        v-if="errorMsg && !successMsg"
         color="error"
         :label="errorMsg"
         :closable="true"

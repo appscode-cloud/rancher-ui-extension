@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { getCurrentInstance, onMounted, ref, computed } from "vue";
+import { getCurrentInstance, onMounted, ref, computed, watch } from "vue";
 import Banner from "@rancher/shell/rancher-components/Banner/Banner.vue";
 import LabeledSelect from "@rancher/shell/components/form/LabeledSelect.vue";
 import RcButton from "@rancher/shell/rancher-components/RcButton/RcButton.vue";
@@ -10,6 +10,8 @@ import { useRules } from "../../../../composables/rules";
 import Loading from "@shell/components/Loading.vue";
 import $axios from "../../../../composables/axios";
 import { useStore } from "vuex";
+
+const props = defineProps<{ isTabChanged: boolean }>();
 
 const route = getCurrentInstance()?.proxy?.$route;
 const { required } = useRules();
@@ -130,6 +132,14 @@ onMounted(async () => {
   clusterName.value = await getClusters(route?.params.cluster as string);
   isLoading.value = false;
 });
+
+watch(
+  () => props.isTabChanged,
+  () => {
+    errorMsg.value = "";
+    successMsg.value = "";
+  }
+);
 </script>
 
 <template>
@@ -187,7 +197,7 @@ onMounted(async () => {
       </div>
 
       <Banner
-        v-if="errorMsg"
+        v-if="errorMsg && !successMsg"
         color="error"
         :label="errorMsg"
         :closable="true"

@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import Tab from "@shell/components/Tabbed/Tab.vue";
-import Tabbed from "@shell/components/Tabbed/index.vue";
-import ExpandVolume from "./scaling/ExpandVolume.vue";
-import Horizontal from "./scaling/Horizontal.vue";
-import RecentOperations from "./RecentOperations.vue";
-import UpdateVersion from "./operation/UpdateVersion.vue";
-import Restart from "./operation/Restart.vue";
-import InstantBackup from "./backups/InstantBackup.vue";
+import { ref } from "vue";
 import Restore from "./backups/Restore.vue";
+import Restart from "./operation/Restart.vue";
+import Horizontal from "./scaling/Horizontal.vue";
+import Tab from "@shell/components/Tabbed/Tab.vue";
+import RecentOperations from "./RecentOperations.vue";
+import ExpandVolume from "./scaling/ExpandVolume.vue";
+import Tabbed from "@shell/components/Tabbed/index.vue";
+import InstantBackup from "./backups/InstantBackup.vue";
+import UpdateVersion from "./operation/UpdateVersion.vue";
+
 interface Props {
   recentOpsRows: Array<Record<string, string>>;
   recentOpsHeaders: {
@@ -22,10 +24,17 @@ const props = withDefaults(defineProps<Props>(), {
   recentOpsRows: () => [],
   recentOpsHeaders: () => [],
 });
+
+const tabChanged = ref(false);
 </script>
 <template>
   <div>
-    <Tabbed :sideTabs="true" :use-hash="true" :defaultTab="null">
+    <Tabbed
+      :sideTabs="true"
+      :use-hash="true"
+      :defaultTab="null"
+      @changed="tabChanged = !tabChanged"
+    >
       <Tab name="recent-ops" label="Recent Operations" weight="6">
         <div class="tab-content">
           <RecentOperations
@@ -45,22 +54,22 @@ const props = withDefaults(defineProps<Props>(), {
         </Tabbed>
       </Tab> -->
       <Tab name="operations" label="Operations" weight="5">
-        <Tabbed :sideTabs="true">
+        <Tabbed :sideTabs="true" @changed="tabChanged = !tabChanged">
           <!-- <Tab name="update-version" label="Update Version" weight="3">
             <UpdateVersion />
           </Tab> -->
           <Tab name="restart" label="Restart" weight="2">
-            <Restart />
+            <Restart :is-tab-changed="tabChanged" />
           </Tab>
         </Tabbed>
       </Tab>
       <Tab name="scaling" label="Scaling" weight="1">
-        <Tabbed :sideTabs="true">
+        <Tabbed :sideTabs="true" @changed="tabChanged = !tabChanged">
           <Tab name="horizontal" label="Horizontal Scale" weight="2">
-            <Horizontal />
+            <Horizontal :is-tab-changed="tabChanged" />
           </Tab>
           <Tab name="expand-volume" label="Expand Volume" weight="1">
-            <ExpandVolume />
+            <ExpandVolume :is-tab-changed="tabChanged" />
           </Tab>
         </Tabbed>
       </Tab>
