@@ -4,7 +4,6 @@ import axios from "axios";
 // Create an Axios instance
 const $axios = axios.create({
   baseURL: "", // adapt to your env
-  timeout: 10000,
   headers: {
     "Content-Type": "application/json",
   },
