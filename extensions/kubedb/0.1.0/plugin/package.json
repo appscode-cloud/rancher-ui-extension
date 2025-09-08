@@ -1,0 +1,20 @@
+{
+  "name": "kubedb",
+  "description": "Run Production-Grade Databases on Kubernetes",
+  "version": "0.1.0",
+  "private": false,
+  "rancher": true,
+  "icon": "https://kubedb.com/assets/images/products/kubedb/kubedb.svg",
+  "engines": {
+    "node": ">=16"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~5.0.0",
+    "@vue/cli-service": "~5.0.0",
+    "@vue/cli-plugin-typescript": "~5.0.0"
+  },
+  "files": [
+    "**/*"
+  ],
+  "main": "kubedb-0.1.0.umd.min.js"
+}
