@@ -13,13 +13,13 @@ entries:
       catalog.cattle.io/ui-extensions-version: '>= 3.0.0 < 4.0.0'
     apiVersion: v2
     appVersion: 0.1.0
-    created: "2025-09-08T09:42:39.495641166Z"
+    created: "2025-09-09T04:31:59.513948727Z"
     description: Run Production-Grade Databases on Kubernetes
-    digest: d1b58e830513a9c1f98c7d5d75901d95d328786e4000e8ca1de3a7aa37d9d9ff
+    digest: fd204682abd00a22a2479f66944bd4b22b6fc7203d5b97549f50ea304629e837
     icon: https://kubedb.com/assets/images/products/kubedb/kubedb.svg
     name: kubedb
     type: application
     urls:
     - assets/kubedb/kubedb-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-08T09:42:39.495280143Z"
+generated: "2025-09-09T04:31:59.513437657Z"
