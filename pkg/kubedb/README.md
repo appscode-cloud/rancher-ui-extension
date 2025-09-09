@@ -21,21 +21,11 @@ This Rancher UI extension brings KubeDB management capabilities directly into th
 
 ### Installation
 
-1. Navigate to **Extensions** in the Rancher Dashboard.  
-2. Click **Manage Extensions** → **Install Extension**.  
-3. Provide the repository URL of this extension.  
-4. Once installed, KubeDB will appear in the Rancher UI sidebar.  
-
-> ℹ️ Make sure [KubeDB](https://kubedb.com/) is installed in your Kubernetes cluster before using the extension.
-
-
-### Requirements
-
-- Kubernetes cluster with [KubeDB operator](https://kubedb.com/docs/latest/setup/) installed  
+- Follow the [KubeDB Extension Installation Guide](https://appscode.com/docs/en/guides/integrations/rancher-extension.html) to install the KubeDB extension.
 
 
 ### Learn More
 
+- [ACE Documentation](https://appscode.com/docs/) 
 - [KubeDB Documentation](https://kubedb.com/docs/)  
-- [Rancher UI Extensions](https://ranchermanager.docs.rancher.com/ui-extensions)  
 
